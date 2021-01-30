@@ -53,7 +53,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         $operation = $event->getOperation();
         if ($operation instanceof UpdateOperation) {
-            $this->updates[] = $operation->getPackage()->getPrettyName();
+            $this->updates[] = $operation->getTargetPackage()->getPrettyName();
         }
     }
 
