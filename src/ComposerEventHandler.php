@@ -27,8 +27,11 @@ use function dirname;
  */
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
-    private Composer $composer;
-    private IOInterface $io;
+    private ?Composer $composer = null;
+    private ?IOInterface $io = null;
+
+    private array $updates = [];
+    private array $removals = [];
 
     public static function getSubscribedEvents(): array
     {
@@ -50,11 +53,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         $operation = $event->getOperation();
         if ($operation instanceof UpdateOperation) {
-            $package = $operation->getPackage();
-            if ($package instanceof PackageInterface) {
-                echo $package->getPrettyName() . "\n";
-                // TODO: mark config file for smart update
-            }
+            $this->updates[] = $operation->getPackage()->getPrettyName();
         }
     }
 
@@ -62,10 +61,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         $operation = $event->getOperation();
         if ($operation instanceof UninstallOperation) {
-            $package = $operation->getPackage();
-            echo "removed " . $package->getPrettyName() . "\n";
-
-            // TODO: remove package config
+            $this->removals[] = $operation->getPackage()->getPrettyName();
         }
     }
 
@@ -79,6 +75,10 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $appConfigs = $this->getRootPath() . '/config/packages';
         $fs = new Filesystem();
         $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+
+        foreach ($this->removals as $packageName) {
+            $this->removePackageConfig($packageName);
+        }
 
         $config = [];
 
@@ -117,9 +117,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                         foreach ($matches as $match) {
                             $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
-
                             $destination = $appConfigs . '/' . $package->getPrettyName() . '/' . $relativePath;
 
+                            // TODO: if update happened, do merge here
                             if (!file_exists($destination)) {
                                 $fs->ensureDirectoryExists(dirname($destination));
                                 $fs->copy($match, $destination);
@@ -137,6 +137,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                     $destination = $appConfigs . '/' . $package->getPrettyName() . '/' . $file;
 
+                    // TODO: if update happened, do merge here
                     if (!file_exists($destination)) {
                         $fs->ensureDirectoryExists(dirname($destination));
                         $fs->copy($source, $destination);
@@ -160,6 +161,16 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $packageOptions = $appConfigs . '/merge_plan.php';
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($config)->export(true) . ";\n");
+    }
+
+    /**
+     * Remove application config for the package name specified.
+     *
+     * @param string $package Package name to remove application config for.
+     */
+    private function removePackageConfig(string $package): void
+    {
+        // TODO: implement
     }
 
     private function containsWildcard(string $file): bool
