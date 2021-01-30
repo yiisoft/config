@@ -61,23 +61,6 @@ final class Config
 
         $this->build[$group] = [];
 
-        $scopeRequire = static function (Config $config): array {
-            /** @psalm-suppress InvalidArgument, MissingClosureParamType */
-            set_error_handler(static function (int $errorNumber, string $errorString, string $errorFile, int $errorLine) {
-                throw new ErrorException($errorString, $errorNumber, 0, $errorFile, $errorLine);
-            });
-
-            /** @psalm-suppress MixedArgument */
-            extract(func_get_arg(2), EXTR_SKIP);
-            /**
-             * @psalm-suppress UnresolvableInclude
-             * @psalm-var array
-             */
-            $result = require func_get_arg(1);
-            restore_error_handler();
-            return $result;
-        };
-
         foreach ($this->mergePlan[$group] as $name => $files) {
             foreach ($files as $file) {
                 if ($this->isVariable($file)) {
