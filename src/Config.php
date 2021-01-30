@@ -98,14 +98,7 @@ final class Config
                     $matches = glob($path);
 
                     foreach ($matches as $match) {
-                        $scope = [];
-                        if ($group !== 'params') {
-                            $scope['params'] = $this->build['params'];
-                        }
-
-                        /** @psalm-suppress TooManyArguments */
-                        $config = $scopeRequire($this, $match, $scope);
-                        $this->build[$group] = $this->merge([$file, $group, $name], '', $this->build[$group], $config);
+                        $this->buildFile($group, $match, [$file, $group, $name]);
                     }
                     continue;
                 }
@@ -114,14 +107,7 @@ final class Config
                     continue;
                 }
 
-                $scope = [];
-                if ($group !== 'params') {
-                    $scope['params'] = $this->build['params'];
-                }
-
-                /** @psalm-suppress TooManyArguments */
-                $config = $scopeRequire($this, $path, $scope);
-                $this->build[$group] = $this->merge([$file, $group, $name], '', $this->build[$group], $config);
+                $this->buildFile($group, $path, [$file, $group, $name]);
             }
         }
 
@@ -130,6 +116,38 @@ final class Config
             $filePath = $this->buildPath . '/' . $group . '.php';
             file_put_contents($filePath, "<?php\n\ndeclare(strict_types=1);\n\nreturn " . VarDumper::create($this->build[$group])->export(true) . ";\n");
         }
+    }
+
+    /**
+     * @psalm-param array{string, string, string} $context $context
+     */
+    private function buildFile(string $group, string $filePath, array $context): void
+    {
+        $scopeRequire = static function (Config $config): array {
+            /** @psalm-suppress InvalidArgument, MissingClosureParamType */
+            set_error_handler(static function (int $errorNumber, string $errorString, string $errorFile, int $errorLine) {
+                throw new ErrorException($errorString, $errorNumber, 0, $errorFile, $errorLine);
+            });
+
+            /** @psalm-suppress MixedArgument */
+            extract(func_get_arg(2), EXTR_SKIP);
+            /**
+             * @psalm-suppress UnresolvableInclude
+             * @psalm-var array
+             */
+            $result = require func_get_arg(1);
+            restore_error_handler();
+            return $result;
+        };
+
+        $scope = [];
+        if ($group !== 'params') {
+            $scope['params'] = $this->build['params'];
+        }
+
+        /** @psalm-suppress TooManyArguments */
+        $config = $scopeRequire($this, $filePath, $scope);
+        $this->build[$group] = $this->merge($context, '', $this->build[$group], $config);
     }
 
     public function get(string $name): array
