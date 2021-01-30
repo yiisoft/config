@@ -124,11 +124,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                             $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
                             $destination = $appConfigs . '/' . $package->getPrettyName() . '/' . $relativePath;
 
-                            // TODO: if update happened, do merge here
-                            if (!file_exists($destination)) {
-                                $fs->ensureDirectoryExists(dirname($destination));
-                                $fs->copy($match, $destination);
-                            }
+                            $this->updateFile($match, $destination);
                         }
 
                         $config[$group][$package->getPrettyName()][] = $file;
@@ -142,11 +138,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                     $destination = $appConfigs . '/' . $package->getPrettyName() . '/' . $file;
 
-                    // TODO: if update happened, do merge here
-                    if (!file_exists($destination)) {
-                        $fs->ensureDirectoryExists(dirname($destination));
-                        $fs->copy($source, $destination);
-                    }
+                    $this->updateFile($source, $destination);
 
                     $config[$group][$package->getPrettyName()][] = $file;
                 }
@@ -166,6 +158,16 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $packageOptions = $appConfigs . '/merge_plan.php';
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($config)->export(true) . ";\n");
+    }
+
+    private function updateFile(string $source, string $destination): void
+    {
+        // TODO: if update happened, do merge here
+        if (!file_exists($destination)) {
+            $fs = new Filesystem();
+            $fs->ensureDirectoryExists(dirname($destination));
+            $fs->copy($source, $destination);
+        }
     }
 
     /**
