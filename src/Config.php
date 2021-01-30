@@ -23,6 +23,7 @@ final class Config
      * @var string Path to composer.json directory.
      */
     private string $rootPath;
+    private string $packagesPath;
     private string $cachePath;
 
     /**
@@ -45,13 +46,14 @@ final class Config
     public function __construct(string $rootPath, bool $writeCache = false, bool $useCache = false)
     {
         $this->rootPath = $rootPath;
+        $this->packagesPath = $this->rootPath . '/config/packages';
         $this->cachePath = $rootPath . '/runtime/build/config';
         if ($writeCache && !is_dir($this->cachePath) && !mkdir($this->cachePath, 0777, true) && !is_dir($this->cachePath)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created.', $this->cachePath));
         }
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
-        $this->mergePlan = require $this->rootPath . '/config/packages/merge_plan.php';
+        $this->mergePlan = require $this->packagesPath . '/merge_plan.php';
         $this->writeCache = $writeCache;
         $this->useCache = $useCache;
     }
@@ -245,6 +247,6 @@ final class Config
             return $this->rootPath;
         }
 
-        return $this->rootPath . '/config/packages/' . $packageName;
+        return "$this->packagesPath/$packageName";
     }
 }
