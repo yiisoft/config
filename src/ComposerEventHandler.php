@@ -21,16 +21,15 @@ use Composer\Util\Filesystem;
 use Yiisoft\VarDumper\VarDumper;
 use function dirname;
 
+/**
+ * ComposerEventHandler responds to composer event. In the package, its job is to copy configs from packages to
+ * the application and to prepare a merge plan that is later used by {@see Config}.
+ */
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
     private Composer $composer;
     private IOInterface $io;
 
-    /**
-     * Returns list of events the plugin is subscribed to.
-     *
-     * @return array list of events
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -132,7 +131,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                     }
 
                     if ($isOptional && !file_exists($source)) {
-                        // skip it in both copying and final config
+                        // Skip it in both copying and final config.
                         continue;
                     }
 
@@ -148,18 +147,18 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             }
         }
 
-        // append root package config
+        // Append root package config.
         $rootConfig = $rootPackage->getExtra()['config-plugin'] ?? [];
         foreach ($rootConfig as $group => $files) {
             $config[$group]['/'] = (array)$files;
         }
 
-        // reverse package order in groups
+        // Reverse package order in groups.
         foreach ($config as $group => $files) {
             $config[$group] = array_reverse($files, true);
         }
 
-        $packageOptions = $appConfigs . '/package_options.php';
+        $packageOptions = $appConfigs . '/merge_plan.php';
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($config)->export(true) . ";\n");
     }
 

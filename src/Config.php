@@ -13,6 +13,10 @@ use function array_key_exists;
 use function is_array;
 use function is_int;
 
+/**
+ * Config takes merge plan prepared by {@see ComposerEventHandler} and executes actual merge for the config group
+ * specified.
+ */
 final class Config
 {
     private string $rootPath;
@@ -22,6 +26,11 @@ final class Config
     private bool $cache;
     private array $build = [];
 
+    /**
+     * @param string $rootPath Path to the project root where composer.json is located.
+     * @param bool $write Whether to write assembled configs into files.
+     * @param bool $cache Whether to use assembled configs from previously written files.
+     */
     public function __construct(string $rootPath, bool $write = false, bool $cache = false)
     {
         $this->rootPath = $rootPath;
@@ -29,7 +38,7 @@ final class Config
         if ($write && !is_dir($this->buildPath) && !mkdir($this->buildPath, 0777, true) && !is_dir($this->buildPath)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created.', $this->buildPath));
         }
-        $this->config = require $this->rootPath . '/config/packages/package_options.php';
+        $this->config = require $this->rootPath . '/config/packages/merge_plan.php';
         $this->write = $write;
         $this->cache = $cache;
     }
@@ -37,12 +46,9 @@ final class Config
     private function buildGroup(string $group): void
     {
         if (array_key_exists($group, $this->build)) {
-            // already built
-            //echo "Already have $group. Skipping.\n";
             return;
         }
 
-        //echo "Building $group.\n";
         $this->build[$group] = [];
 
         $scopeRequire = static function (Config $config): array {
@@ -62,10 +68,7 @@ final class Config
             $configsPath = $this->getConfigsPath($name);
 
             foreach ($files as $file) {
-                //echo "File: $name/$file\n";
-
                 if ($this->isVariable($file)) {
-                    //echo "Got variable $file\n";
                     $variableName = substr($file, 1);
                     $this->buildGroup($variableName);
                     $this->build[$group] = $this->merge([$file, $group, $name], '', $this->build[$group], $this->build[$variableName]);
@@ -80,7 +83,6 @@ final class Config
                 $path = $configsPath . '/' . $file;
 
                 if ($this->containsWildcard($file)) {
-                    //echo "Is wildcard.\n";
                     $matches = glob($path);
 
                     foreach ($matches as $match) {
@@ -95,7 +97,6 @@ final class Config
                 }
 
                 if ($isOptional && !file_exists($path)) {
-                    //echo "Optional and missing. Skipping.\n";
                     continue;
                 }
 
@@ -106,10 +107,6 @@ final class Config
 
                 $config = $scopeRequire($this, $path, $scope);
                 $this->build[$group] = $this->merge([$file, $group, $name], '', $this->build[$group], $config);
-
-                //echo "Merged into $group: \n";
-                //var_dump($this->build[$group]);
-                //echo "\n\n";
             }
         }
 
@@ -118,16 +115,12 @@ final class Config
             $filePath = $this->buildPath . '/' . $group . '.php';
             file_put_contents($filePath, "<?php\n\ndeclare(strict_types=1);\n\nreturn " . VarDumper::create($this->build[$group])->export(true) . ";\n");
         }
-
-        //echo "Done with $group.\n";
     }
 
     public function get(string $name): array
     {
-        if (!array_key_exists($name, $this->build)) {
-            $this->buildGroup('params');
-            $this->buildGroup($name);
-        }
+        $this->buildGroup('params');
+        $this->buildGroup($name);
         return $this->build[$name];
     }
 
@@ -153,11 +146,6 @@ final class Config
             /** @psalm-var mixed $v */
             foreach (array_shift($args) as $k => $v) {
                 if (is_int($k)) {
-                    // Remove me! I am here not to change configs :)
-                    if ($v instanceof \Yiisoft\Arrays\Modifier\ModifierInterface) {
-                        continue;
-                    }
-
                     if (array_key_exists($k, $result) && $result[$k] !== $v) {
                         /** @var mixed */
                         $result[] = $v;
@@ -168,11 +156,6 @@ final class Config
                 } elseif (is_array($v) && isset($result[$k]) && is_array($result[$k])) {
                     $result[$k] = $this->merge($context, $path ? $path . ' => ' . $k : $k, $result[$k], $v);
                 } else {
-                    // Remove me! I am here not to change configs :)
-                    if ($v instanceof \Yiisoft\Arrays\Modifier\ModifierInterface) {
-                        continue;
-                    }
-
                     if (array_key_exists($k, $result)) {
                         throw new ErrorException($this->getErrorMessage($k, $path, $result[$k], $context), 0, E_USER_ERROR);
                     }
@@ -224,8 +207,10 @@ final class Config
     }
 
     /**
-     * @param string $packageName
-     * @return string
+     * Get path to package configs.
+     *
+     * @param string $packageName Name of the package. "/" stands for application package.
+     * @return string Path to package configs.
      */
     private function getConfigsPath(string $packageName): string
     {
