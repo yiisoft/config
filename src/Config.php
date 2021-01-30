@@ -38,6 +38,8 @@ final class Config
         if ($write && !is_dir($this->buildPath) && !mkdir($this->buildPath, 0777, true) && !is_dir($this->buildPath)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created.', $this->buildPath));
         }
+
+        /** @psalm-suppress UnresolvableInclude */
         $this->config = require $this->rootPath . '/config/packages/merge_plan.php';
         $this->write = $write;
         $this->cache = $cache;
@@ -52,11 +54,13 @@ final class Config
         $this->build[$group] = [];
 
         $scopeRequire = static function (Config $config): array {
+            /** @psalm-suppress InvalidArgument, MissingClosureParamType */
             set_error_handler(static function($errno, $errstr, $errfile, $errline ) {
                 throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
             });
 
             extract(func_get_arg(2), EXTR_SKIP);
+            /** @psalm-suppress UnresolvableInclude */
             $result = require func_get_arg(1);
             restore_error_handler();
             return $result;
@@ -90,6 +94,8 @@ final class Config
                         if ($group !== 'params') {
                             $scope['params'] = $this->build['params'];
                         }
+
+                        /** @psalm-suppress TooManyArguments */
                         $config = $scopeRequire($this, $match, $scope);
                         $this->build[$group] = $this->merge([$file, $group, $name], '', $this->build[$group], $config);
                     }
@@ -105,6 +111,7 @@ final class Config
                     $scope['params'] = $this->build['params'];
                 }
 
+                /** @psalm-suppress TooManyArguments */
                 $config = $scopeRequire($this, $path, $scope);
                 $this->build[$group] = $this->merge([$file, $group, $name], '', $this->build[$group], $config);
             }
@@ -139,7 +146,7 @@ final class Config
         return strpos($file, '$') === 0;
     }
 
-    private function merge(array $context, $path = '', array ...$args): array
+    private function merge(array $context, string $path = '', array ...$args): array
     {
         $result = array_shift($args) ?: [];
         while (!empty($args)) {
@@ -157,7 +164,7 @@ final class Config
                     $result[$k] = $this->merge($context, $path ? $path . ' => ' . $k : $k, $result[$k], $v);
                 } else {
                     if (array_key_exists($k, $result)) {
-                        throw new ErrorException($this->getErrorMessage($k, $path, $result[$k], $context), 0, E_USER_ERROR);
+                        throw new ErrorException($this->getErrorMessage($k, $path, $context), 0, E_USER_ERROR);
                     }
 
                     /** @var mixed */
@@ -169,7 +176,7 @@ final class Config
         return $result;
     }
 
-    private function getErrorMessage(string $key, string $path, $value, array $context): string
+    private function getErrorMessage(string $key, string $path, array $context): string
     {
         [$file, $group, $packageName] = $context;
 

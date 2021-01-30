@@ -68,6 +68,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     public function onPostAutoloadDump(Event $event): void
     {
         // Register autoloader.
+        /** @psalm-suppress UnresolvableInclude */
         require_once $event->getComposer()->getConfig()->get('vendor-dir') . '/autoload.php';
 
         $composer = $event->getComposer();
