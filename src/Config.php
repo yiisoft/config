@@ -19,15 +19,18 @@ use function is_int;
  */
 final class Config
 {
+    /**
+     * @var string Path to composer.json directory.
+     */
     private string $rootPath;
-    private string $buildPath;
+    private string $cachePath;
 
     /**
      * @psalm-var array<string, array<string, list<string>>>
      */
     private array $mergePlan;
-    private bool $write;
-    private bool $cache;
+    private bool $writeCache;
+    private bool $useCache;
 
     /**
      * @psalm-var array<string, array<array-key, mixed>>
@@ -36,21 +39,21 @@ final class Config
 
     /**
      * @param string $rootPath Path to the project root where composer.json is located.
-     * @param bool $write Whether to write assembled configs into files.
-     * @param bool $cache Whether to use assembled configs from previously written files.
+     * @param bool $writeCache Whether to write assembled configs into files.
+     * @param bool $useCache Whether to use assembled configs from previously written files.
      */
-    public function __construct(string $rootPath, bool $write = false, bool $cache = false)
+    public function __construct(string $rootPath, bool $writeCache = false, bool $useCache = false)
     {
         $this->rootPath = $rootPath;
-        $this->buildPath = $rootPath . '/runtime/build/newconfig';
-        if ($write && !is_dir($this->buildPath) && !mkdir($this->buildPath, 0777, true) && !is_dir($this->buildPath)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created.', $this->buildPath));
+        $this->cachePath = $rootPath . '/runtime/build/config';
+        if ($writeCache && !is_dir($this->cachePath) && !mkdir($this->cachePath, 0777, true) && !is_dir($this->cachePath)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created.', $this->cachePath));
         }
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
         $this->mergePlan = require $this->rootPath . '/config/packages/merge_plan.php';
-        $this->write = $write;
-        $this->cache = $cache;
+        $this->writeCache = $writeCache;
+        $this->useCache = $useCache;
     }
 
     private function buildGroup(string $group): void
@@ -59,14 +62,16 @@ final class Config
             return;
         }
 
+        // TODO: get from cache here if cache exists
+
         $this->build[$group] = [];
 
-        foreach ($this->mergePlan[$group] as $name => $files) {
+        foreach ($this->mergePlan[$group] as $packageName => $files) {
             foreach ($files as $file) {
                 if ($this->isVariable($file)) {
                     $variableName = substr($file, 1);
                     $this->buildGroup($variableName);
-                    $this->build[$group] = $this->merge([$file, $group, $name], '', $this->build[$group], $this->build[$variableName]);
+                    $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $this->build[$variableName]);
                     continue;
                 }
 
@@ -75,13 +80,13 @@ final class Config
                     $file = substr($file, 1);
                 }
 
-                $path = $this->getConfigsPath($name) . '/' . $file;
+                $path = $this->getConfigsPath($packageName) . '/' . $file;
 
                 if ($this->containsWildcard($file)) {
                     $matches = glob($path);
 
                     foreach ($matches as $match) {
-                        $this->buildFile($group, $match, [$file, $group, $name]);
+                        $this->buildFile($group, $match, [$file, $group, $packageName]);
                     }
                     continue;
                 }
@@ -90,13 +95,13 @@ final class Config
                     continue;
                 }
 
-                $this->buildFile($group, $path, [$file, $group, $name]);
+                $this->buildFile($group, $path, [$file, $group, $packageName]);
             }
         }
 
-        if ($this->write) {
-            // This is debug only. Export isn't working correctly (not exporting namespaces)
-            $filePath = $this->buildPath . '/' . $group . '.php';
+        if ($this->writeCache) {
+            // This is debug only. Export isn't working correctly (not exporting namespaces).
+            $filePath = $this->cachePath . '/' . $group . '.php';
             file_put_contents($filePath, "<?php\n\ndeclare(strict_types=1);\n\nreturn " . VarDumper::create($this->build[$group])->export(true) . ";\n");
         }
     }
