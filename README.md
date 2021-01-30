@@ -60,7 +60,7 @@ List your config files in `composer.json` like the following:
         "common": "config/common.php",
         "web": [
             "$common",
-            "config/web.php"
+            "config/web.php",
             "../src/Modules/*/config/web.php"
         ],
         "other": "config/other.php"
