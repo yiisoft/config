@@ -30,7 +30,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private ?Composer $composer = null;
     private ?IOInterface $io = null;
 
+    /**
+     * @var string[] Names of updated packages.
+     */
     private array $updates = [];
+
+    /**
+     * @var string[] Names of removed packages.
+     */
     private array $removals = [];
 
     public static function getSubscribedEvents(): array
@@ -68,7 +75,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     public function onPostAutoloadDump(Event $event): void
     {
         // Register autoloader.
-        /** @psalm-suppress UnresolvableInclude */
+        /** @psalm-suppress UnresolvableInclude, MixedOperand */
         require_once $event->getComposer()->getConfig()->get('vendor-dir') . '/autoload.php';
 
         $composer = $event->getComposer();
@@ -88,14 +95,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                 continue;
             }
 
-            $pluginConfig = $package->getExtra()['config-plugin'] ?? [];
-            if ($pluginConfig === []) {
-                continue;
-            }
-
+            $pluginConfig = $this->getPluginConfig($package);
             foreach ($pluginConfig as $group => $files) {
                 $files = (array)$files;
                 foreach ($files as $file) {
+                    /** @var string $file */
                     $isOptional = false;
                     if ($this->isOptional($file)) {
                         $isOptional = true;
@@ -150,7 +154,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
 
         // Append root package config.
-        $rootConfig = $rootPackage->getExtra()['config-plugin'] ?? [];
+        $rootConfig = $this->getPluginConfig($rootPackage);
         foreach ($rootConfig as $group => $files) {
             $config[$group]['/'] = (array)$files;
         }
@@ -162,6 +166,15 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $packageOptions = $appConfigs . '/merge_plan.php';
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($config)->export(true) . ";\n");
+    }
+
+    /**
+     * @psalm-return array<string, string|list<string>>
+     * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
+     */
+    private function getPluginConfig(PackageInterface $package): array
+    {
+        return $package->getExtra()['config-plugin'] ?? [];
     }
 
     /**
@@ -199,6 +212,10 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         // do nothing
     }
 
+    /**
+     * @return string Path to directory containing composer.json.
+     * @psalm-suppress MixedArgument
+     */
     private function getRootPath(): string
     {
         return realpath(dirname(Factory::getComposerFile()));
@@ -206,7 +223,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     private function getPackagePath(PackageInterface $package): string
     {
-        $installationManager = $this->composer->getInstallationManager();
-        return $installationManager->getInstallPath($package);
+        /** @psalm-suppress PossiblyNullReference */
+        return $this->composer->getInstallationManager()->getInstallPath($package);
     }
 }

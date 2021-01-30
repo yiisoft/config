@@ -21,9 +21,17 @@ final class Config
 {
     private string $rootPath;
     private string $buildPath;
-    private array $config;
+
+    /**
+     * @psalm-var array<string, array<string, list<string>>>
+     */
+    private array $mergePlan;
     private bool $write;
     private bool $cache;
+
+    /**
+     * @psalm-var array<string, array<array-key, mixed>>
+     */
     private array $build = [];
 
     /**
@@ -39,8 +47,8 @@ final class Config
             throw new \RuntimeException(sprintf('Directory "%s" was not created.', $this->buildPath));
         }
 
-        /** @psalm-suppress UnresolvableInclude */
-        $this->config = require $this->rootPath . '/config/packages/merge_plan.php';
+        /** @psalm-suppress UnresolvableInclude, MixedAssignment */
+        $this->mergePlan = require $this->rootPath . '/config/packages/merge_plan.php';
         $this->write = $write;
         $this->cache = $cache;
     }
@@ -55,20 +63,22 @@ final class Config
 
         $scopeRequire = static function (Config $config): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
-            set_error_handler(static function($errno, $errstr, $errfile, $errline ) {
-                throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+            set_error_handler(static function(int $errorNumber, string $errorString, string $errorFile, int $errorLine) {
+                throw new ErrorException($errorString, $errorNumber, 0, $errorFile, $errorLine);
             });
 
+            /** @psalm-suppress MixedArgument */
             extract(func_get_arg(2), EXTR_SKIP);
-            /** @psalm-suppress UnresolvableInclude */
+            /**
+             * @psalm-suppress UnresolvableInclude
+             * @psalm-var array
+             */
             $result = require func_get_arg(1);
             restore_error_handler();
             return $result;
         };
 
-        foreach ($this->config[$group] as $name => $files) {
-            $files = (array)$files;
-
+        foreach ($this->mergePlan[$group] as $name => $files) {
             $configsPath = $this->getConfigsPath($name);
 
             foreach ($files as $file) {
@@ -146,6 +156,9 @@ final class Config
         return strpos($file, '$') === 0;
     }
 
+    /**
+     * @psalm-param array{string, string, string} $context
+     */
     private function merge(array $context, string $path = '', array ...$args): array
     {
         $result = array_shift($args) ?: [];
@@ -176,11 +189,14 @@ final class Config
         return $result;
     }
 
+    /**
+     * @psalm-param array{string, string, string} $context
+     */
     private function getErrorMessage(string $key, string $path, array $context): string
     {
         [$file, $group, $packageName] = $context;
 
-        $config = $this->config[$group];
+        $config = $this->mergePlan[$group];
         unset($config[$packageName]);
 
         $suggestedConfigPaths = [];
