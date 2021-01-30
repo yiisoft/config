@@ -63,7 +63,7 @@ final class Config
 
         $scopeRequire = static function (Config $config): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
-            set_error_handler(static function(int $errorNumber, string $errorString, string $errorFile, int $errorLine) {
+            set_error_handler(static function (int $errorNumber, string $errorString, string $errorFile, int $errorLine) {
                 throw new ErrorException($errorString, $errorNumber, 0, $errorFile, $errorLine);
             });
 
@@ -79,8 +79,6 @@ final class Config
         };
 
         foreach ($this->mergePlan[$group] as $name => $files) {
-            $configsPath = $this->getConfigsPath($name);
-
             foreach ($files as $file) {
                 if ($this->isVariable($file)) {
                     $variableName = substr($file, 1);
@@ -94,7 +92,7 @@ final class Config
                     $file = substr($file, 1);
                 }
 
-                $path = $configsPath . '/' . $file;
+                $path = $this->getConfigsPath($name) . '/' . $file;
 
                 if ($this->containsWildcard($file)) {
                     $matches = glob($path);
@@ -238,10 +236,9 @@ final class Config
     private function getConfigsPath(string $packageName): string
     {
         if ($packageName === '/') {
-            $configsPath = $this->rootPath;
-        } else {
-            $configsPath = $this->rootPath . '/config/packages/' . $packageName;
+            return $this->rootPath;
         }
-        return $configsPath;
+
+        return $this->rootPath . '/config/packages/' . $packageName;
     }
 }
