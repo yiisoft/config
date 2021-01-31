@@ -52,7 +52,6 @@ List your config files in `composer.json` like the following:
 "extra": {
     "config-plugin-output-dir": "path/relative-to-composer-json", // not supported yet
     "config-plugin": {
-        "envs": "db.env",
         "params": [
             "config/params.php",
             "?config/params-local.php"
@@ -85,7 +84,7 @@ List your config files in `composer.json` like the following:
      "../src/Modules/*/config/web.php"
   ]
   ```
-  It will collect all `web.php` in any subfolders of `src/Modules/` in `config` folder.
+  It will collect all `web.php` in any sub-folders of `src/Modules/` in `config` folder.
 
 - `$` - reference to another config.
   ```
