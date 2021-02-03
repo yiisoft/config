@@ -21,12 +21,14 @@ use function is_int;
 final class Config
 {
     private const MERGE_PLAN_FILENAME = 'merge_plan.php';
+    private const DEFAULT_CACHE_PATH = '/runtime/build/config';
+    private const DEFAULT_CONFIGS_PATH = '/config/packages';
 
     /**
      * @var string Path to composer.json directory.
      */
     private string $rootPath;
-    private string $packagesPath;
+    private string $configsPath;
     private string $cachePath;
 
     /**
@@ -45,18 +47,26 @@ final class Config
      * @param string $rootPath Path to the project root where composer.json is located.
      * @param bool $writeCache Whether to write assembled configs into files.
      * @param bool $useCache Whether to use assembled configs from previously written files.
+     * @param string|null $cachePath Path to where configs cache will be written.
+     * @param string|null $configsPath Path to where configs are stored.
      */
-    public function __construct(string $rootPath, bool $writeCache = false, bool $useCache = false)
+    public function __construct(
+        string $rootPath,
+        bool $writeCache = false,
+        bool $useCache = false,
+        string $cachePath = null,
+        string $configsPath = null
+    )
     {
         $this->rootPath = $rootPath;
-        $this->packagesPath = $this->rootPath . '/config/packages';
-        $this->cachePath = $rootPath . '/runtime/build/config';
+        $this->configsPath = $this->rootPath . ($configsPath ?? self::DEFAULT_CONFIGS_PATH);
+        $this->cachePath = $rootPath . ($cachePath ?? self::DEFAULT_CACHE_PATH);
         if ($writeCache && !is_dir($this->cachePath) && !mkdir($this->cachePath, 0777, true) && !is_dir($this->cachePath)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created.', $this->cachePath));
         }
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
-        $this->mergePlan = require $this->packagesPath . '/' . self::MERGE_PLAN_FILENAME;
+        $this->mergePlan = require $this->configsPath . '/' . self::MERGE_PLAN_FILENAME;
         $this->writeCache = $writeCache;
         $this->useCache = $useCache;
     }
@@ -254,6 +264,6 @@ final class Config
             return $this->rootPath;
         }
 
-        return "$this->packagesPath/$packageName";
+        return "$this->configsPath/$packageName";
     }
 }

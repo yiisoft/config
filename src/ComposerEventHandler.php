@@ -27,8 +27,11 @@ use function dirname;
  */
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
+    private const MERGE_PLAN_FILENAME = 'merge_plan.php';
+    private const DEFAULT_OUTPUT_PATH = '/config/packages';
+    private const DEFAULT_CONFIG_SOURCE_PATH = '/config';
+
     private ?Composer $composer = null;
-    private ?IOInterface $io = null;
 
     /**
      * @var string[] Names of updated packages.
@@ -52,7 +55,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     public function activate(Composer $composer, IOInterface $io): void
     {
         $this->composer = $composer;
-        $this->io = $io;
     }
 
 
@@ -80,15 +82,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
-        $appConfigs = $this->getRootPath() . '/config/packages';
-        $fs = new Filesystem();
+        $outputDirectory = $this->getRootPath() . $this->getPluginOutputDirectory($rootPackage);
         $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
 
         foreach ($this->removals as $packageName) {
             $this->removePackageConfig($packageName);
         }
 
-        $config = [];
+        $mergePlan = [];
 
         foreach ($packages as $package) {
             if (!$package instanceof CompletePackage) {
@@ -108,7 +109,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                     // Do not copy variables.
                     if ($this->isVariable($file)) {
-                        $config[$group][$package->getPrettyName()][] = $file;
+                        $mergePlan[$group][$package->getPrettyName()][] = $file;
                         continue;
                     }
 
@@ -122,12 +123,12 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                         foreach ($matches as $match) {
                             $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
-                            $destination = $appConfigs . '/' . $package->getPrettyName() . '/' . $relativePath;
+                            $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath;
 
                             $this->updateFile($match, $destination);
                         }
 
-                        $config[$group][$package->getPrettyName()][] = $file;
+                        $mergePlan[$group][$package->getPrettyName()][] = $file;
                         continue;
                     }
 
@@ -136,11 +137,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    $destination = $appConfigs . '/' . $package->getPrettyName() . '/' . $file;
+                    $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
 
                     $this->updateFile($source, $destination);
 
-                    $config[$group][$package->getPrettyName()][] = $file;
+                    $mergePlan[$group][$package->getPrettyName()][] = $file;
                 }
             }
         }
@@ -148,16 +149,16 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         // Append root package config.
         $rootConfig = $this->getPluginConfig($rootPackage);
         foreach ($rootConfig as $group => $files) {
-            $config[$group]['/'] = (array)$files;
+            $mergePlan[$group]['/'] = (array)$files;
         }
 
         // Reverse package order in groups.
-        foreach ($config as $group => $files) {
-            $config[$group] = array_reverse($files, true);
+        foreach ($mergePlan as $group => $files) {
+            $mergePlan[$group] = array_reverse($files, true);
         }
 
-        $packageOptions = $appConfigs . '/merge_plan.php';
-        file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($config)->export(true) . ";\n");
+        $packageOptions = $outputDirectory . '/' . self::MERGE_PLAN_FILENAME;
+        file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n");
     }
 
     private function updateFile(string $source, string $destination): void
@@ -177,6 +178,15 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private function getPluginConfig(PackageInterface $package): array
     {
         return $package->getExtra()['config-plugin'] ?? [];
+    }
+
+    /**
+     * @psalm-return array<string, string|list<string>>
+     * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
+     */
+    private function getPluginOutputDirectory(PackageInterface $package): string
+    {
+        return $this->getRootPath() . ($package->getExtra()['config-plugin'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
     /**

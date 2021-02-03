@@ -34,7 +34,7 @@ Composer plugin:
 - Scans installed packages for `config-plugin` extra option in their
   `composer.json`.
 - Copies missing config files into the project `configs`.
-- Writes build plan into `/config/packages/package_options.php`.
+- Writes a merge plan into `/config/packages/merge_plan.php`. It includes configuration from each package `composer.json`.
   
 In the application entry point, usually `index.php`, we create an instance of config loader and require a configuration
 we need:
@@ -44,13 +44,15 @@ $config = new \Yiisoft\Config\Config(dirname(__DIR__));
 $webConfig = $config->get('web');
 ```
 
+The `web` in the above is a config group. The config loader obtains it runtime according to the merge plan.
+
 ## Config groups
 
-List your config files in `composer.json` like the following:
+Each config group represents a set of configs that is merged into a single array. It is defined per package in
+each package `composer.json`:
 
 ```json
 "extra": {
-    "config-plugin-output-dir": "path/relative-to-composer-json", // not supported yet
     "config-plugin": {
         "params": [
             "config/params.php",
@@ -131,6 +133,63 @@ In order to access a sub-config, use the following in your config:
 ```php
 'routes' => $config->get('routes');
 ```
+
+## Caching
+
+By default, config loader does not cache merge results. There are some options to change it:
+
+```php
+$config = new \Yiisoft\Config\Config(
+    dirname(__DIR__),
+    true, // Write cache.
+    true, // Use cache.
+    '/runtime/build/config', // Cache path.
+);
+$webConfig = $config->get('web');
+```
+
+Writing cache is useful if you need to see final arrays assembled by config loader. If cache is used, the merge does
+not happen and cached files are used by `Config` directly. How you use it does not change. Cache path could be changed
+as well.
+
+## Options
+
+A number of options is available both for Composer plugin and a config loader. Composer options are specified in
+`composer.json`:
+
+```json
+"extra": {
+    "config-plugin-output-dir": "/config/packages",
+    "config-plugin-source-dir": "/config",
+    "config-plugin": {
+        // ...
+    },
+
+},
+```
+
+In the above `config-plugin-output-dir` points to where configs will be copied to. The path is relative to where
+`composer.json` is. The option is read for the root package, which is typically an application.
+Default is "/config/packages".
+
+If you change output directory, don't forget to adjust configs path when creating an instance of `Config`. Usually
+that is `index.php`:
+
+```php
+$config = new \Yiisoft\Config\Config(
+    dirname(__DIR__),
+    true, // Write cache.
+    true, // Use cache.
+    '/runtime/build/config', // Cache path.
+    '/config/packages', // Configs path.
+);
+$webConfig = $config->get('web');
+```
+
+`config-plugin-source-dir` points to where to read configs from for the package the option is specified for. The option
+is read for all packages. The value is a path relative to where package `composer.json` is. Default value is `/config`.
+
+> Warning: `config-plugin-source-dir` is not implemented yet. 
 
 ## License
 
