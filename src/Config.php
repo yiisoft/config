@@ -8,6 +8,7 @@ namespace Yiisoft\Config;
 
 
 use ErrorException;
+use RuntimeException;
 use Yiisoft\VarDumper\VarDumper;
 use function array_key_exists;
 use function is_array;
@@ -19,6 +20,8 @@ use function is_int;
  */
 final class Config
 {
+    private const MERGE_PLAN_FILENAME = 'merge_plan.php';
+
     /**
      * @var string Path to composer.json directory.
      */
@@ -49,11 +52,11 @@ final class Config
         $this->packagesPath = $this->rootPath . '/config/packages';
         $this->cachePath = $rootPath . '/runtime/build/config';
         if ($writeCache && !is_dir($this->cachePath) && !mkdir($this->cachePath, 0777, true) && !is_dir($this->cachePath)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created.', $this->cachePath));
+            throw new RuntimeException(sprintf('Directory "%s" was not created.', $this->cachePath));
         }
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
-        $this->mergePlan = require $this->packagesPath . '/merge_plan.php';
+        $this->mergePlan = require $this->packagesPath . '/' . self::MERGE_PLAN_FILENAME;
         $this->writeCache = $writeCache;
         $this->useCache = $useCache;
     }
