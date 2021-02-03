@@ -64,7 +64,11 @@ final class Config
             return;
         }
 
-        // TODO: get from cache here if cache exists
+        $cachePath = $this->cachePath . '/' . $group . '.php';
+        if ($this->useCache && file_exists($cachePath)) {
+            $this->build[$group] = $this->buildFile($group, $cachePath);
+            return;
+        }
 
         $this->build[$group] = [];
 
@@ -88,7 +92,8 @@ final class Config
                     $matches = glob($path);
 
                     foreach ($matches as $match) {
-                        $this->buildFile($group, $match, [$file, $group, $packageName]);
+                        $buildConfig = $this->buildFile($group, $match);
+                        $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $buildConfig);
                     }
                     continue;
                 }
@@ -97,21 +102,21 @@ final class Config
                     continue;
                 }
 
-                $this->buildFile($group, $path, [$file, $group, $packageName]);
+                $buildConfig = $this->buildFile($group, $path);
+                $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $buildConfig);
             }
         }
 
         if ($this->writeCache) {
-            // This is debug only. Export isn't working correctly (not exporting namespaces).
-            $filePath = $this->cachePath . '/' . $group . '.php';
-            file_put_contents($filePath, "<?php\n\ndeclare(strict_types=1);\n\nreturn " . VarDumper::create($this->build[$group])->export(true) . ";\n");
+            // TODO: export isn't working correctly (not exporting namespaces).
+            file_put_contents($cachePath, "<?php\n\ndeclare(strict_types=1);\n\nreturn " . VarDumper::create($this->build[$group])->export(true) . ";\n");
         }
     }
 
     /**
      * @psalm-param array{string, string, string} $context $context
      */
-    private function buildFile(string $group, string $filePath, array $context): void
+    private function buildFile(string $group, string $filePath): array
     {
         $scopeRequire = static function (Config $config): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
@@ -136,8 +141,7 @@ final class Config
         }
 
         /** @psalm-suppress TooManyArguments */
-        $config = $scopeRequire($this, $filePath, $scope);
-        $this->build[$group] = $this->merge($context, '', $this->build[$group], $config);
+        return $scopeRequire($this, $filePath, $scope);
     }
 
     public function get(string $name): array
