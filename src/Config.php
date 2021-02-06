@@ -8,8 +8,6 @@ namespace Yiisoft\Config;
 
 
 use ErrorException;
-use RuntimeException;
-use Yiisoft\VarDumper\VarDumper;
 use function array_key_exists;
 use function is_array;
 use function is_int;
@@ -21,7 +19,6 @@ use function is_int;
 final class Config
 {
     private const MERGE_PLAN_FILENAME = 'merge_plan.php';
-    private const DEFAULT_CACHE_PATH = '/runtime/build/config';
     private const DEFAULT_CONFIGS_PATH = '/config/packages';
 
     /**
@@ -29,14 +26,11 @@ final class Config
      */
     private string $rootPath;
     private string $configsPath;
-    private string $cachePath;
 
     /**
      * @psalm-var array<string, array<string, list<string>>>
      */
     private array $mergePlan;
-    private bool $writeCache;
-    private bool $useCache;
 
     /**
      * @psalm-var array<string, array<array-key, mixed>>
@@ -45,41 +39,23 @@ final class Config
 
     /**
      * @param string $rootPath Path to the project root where composer.json is located.
-     * @param bool $writeCache Whether to write assembled configs into files.
-     * @param bool $useCache Whether to use assembled configs from previously written files.
-     * @param string|null $cachePath Path to where configs cache will be written.
      * @param string|null $configsPath Path to where configs are stored.
      */
     public function __construct(
         string $rootPath,
-        bool $writeCache = false,
-        bool $useCache = false,
-        string $cachePath = null,
         string $configsPath = null
     )
     {
         $this->rootPath = $rootPath;
         $this->configsPath = $this->rootPath . ($configsPath ?? self::DEFAULT_CONFIGS_PATH);
-        $this->cachePath = $rootPath . ($cachePath ?? self::DEFAULT_CACHE_PATH);
-        if ($writeCache && !is_dir($this->cachePath) && !mkdir($this->cachePath, 0777, true) && !is_dir($this->cachePath)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created.', $this->cachePath));
-        }
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
         $this->mergePlan = require $this->configsPath . '/' . self::MERGE_PLAN_FILENAME;
-        $this->writeCache = $writeCache;
-        $this->useCache = $useCache;
     }
 
     private function buildGroup(string $group): void
     {
         if (array_key_exists($group, $this->build)) {
-            return;
-        }
-
-        $cachePath = $this->cachePath . '/' . $group . '.php';
-        if ($this->useCache && file_exists($cachePath)) {
-            $this->build[$group] = $this->buildFile($group, $cachePath);
             return;
         }
 
@@ -118,11 +94,6 @@ final class Config
                 $buildConfig = $this->buildFile($group, $path);
                 $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $buildConfig);
             }
-        }
-
-        if ($this->writeCache) {
-            // TODO: export isn't working correctly (not exporting namespaces).
-            file_put_contents($cachePath, "<?php\n\ndeclare(strict_types=1);\n\nreturn " . VarDumper::create($this->build[$group])->export(true) . ";\n");
         }
     }
 

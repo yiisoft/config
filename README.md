@@ -134,24 +134,6 @@ In order to access a sub-config, use the following in your config:
 'routes' => $config->get('routes');
 ```
 
-## Caching
-
-By default, config loader does not cache merge results. There are some options to change it:
-
-```php
-$config = new \Yiisoft\Config\Config(
-    dirname(__DIR__),
-    true, // Write cache.
-    true, // Use cache.
-    '/runtime/build/config', // Cache path.
-);
-$webConfig = $config->get('web');
-```
-
-Writing cache is useful if you need to see final arrays assembled by config loader. If cache is used, the merge does
-not happen and cached files are used by `Config` directly. How you use it does not change. Cache path could be changed
-as well.
-
 ## Options
 
 A number of options is available both for Composer plugin and a config loader. Composer options are specified in
@@ -178,9 +160,6 @@ that is `index.php`:
 ```php
 $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
-    true, // Write cache.
-    true, // Use cache.
-    '/runtime/build/config', // Cache path.
     '/config/packages', // Configs path.
 );
 $webConfig = $config->get('web');
