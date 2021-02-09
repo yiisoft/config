@@ -193,6 +193,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      * Remove application config for the package name specified.
      *
      * @param string $package Package name to remove application config for.
+     * @param string $outputDirectory
      */
     private function removePackageConfig(string $package, string $outputDirectory): void
     {
