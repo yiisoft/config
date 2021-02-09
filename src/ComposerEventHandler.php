@@ -181,12 +181,12 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     }
 
     /**
-     * @psalm-return array<string, string|list<string>>
+     * @psalm-return string
      * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
      */
     private function getPluginOutputDirectory(PackageInterface $package): string
     {
-        return $this->getRootPath() . ($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
+        return $this->getRootPath() . (string)($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
     /**
