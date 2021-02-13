@@ -83,6 +83,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
+        $this->createIfNotExistsDirectory($outputDirectory);
+
         $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
 
         foreach ($this->removals as $packageName) {
@@ -186,7 +188,13 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private function getPluginOutputDirectory(PackageInterface $package): string
     {
-        return $this->getRootPath() . ($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
+        return $this->getRootPath() . (string)($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
+    }
+
+    private function createIfNotExistsDirectory(string $directoryPath)
+    {
+        $fs = new Filesystem();
+        $fs->ensureDirectoryExists($directoryPath);
     }
 
     /**
