@@ -191,7 +191,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         return $this->getRootPath() . (string)($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
-    private function createIfNotExistsDirectory(string $directoryPath)
+    private function createIfNotExistsDirectory(string $directoryPath): void
     {
         $fs = new Filesystem();
         $fs->ensureDirectoryExists($directoryPath);
