@@ -88,7 +88,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
 
         foreach ($this->removals as $packageName) {
-            $this->removePackageConfig($packageName, $outputDirectory);
+            $this->markPackageConfigAsRemoved($packageName, $outputDirectory);
         }
 
         $mergePlan = [];
@@ -203,7 +203,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      * @param string $package Package name to remove application config for.
      * @param string $outputDirectory
      */
-    private function removePackageConfig(string $package, string $outputDirectory): void
+    private function markPackageConfigAsRemoved(string $package, string $outputDirectory): void
     {
         $packageConfigPath = $outputDirectory . '/'. $package;
         if (!file_exists($packageConfigPath)) {
