@@ -91,16 +91,16 @@ TXT
         return dirname(__DIR__) . '/Environment';
     }
 
-    private function removeDirectory(string $dir): void
+    private function removeDirectory(string $directory): void
     {
         $fs = new Filesystem();
-        $fs->removeDirectory($dir);
+        $fs->removeDirectory($directory);
     }
 
-    private function ensureDirectoryExists(string $dir): void
+    private function ensureDirectoryExists(string $directory): void
     {
         $fs = new Filesystem();
-        $fs->ensureDirectoryExists($dir);
+        $fs->ensureDirectoryExists($directory);
     }
 
     private function suppressLogs(): string
