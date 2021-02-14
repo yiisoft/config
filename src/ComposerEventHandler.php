@@ -83,12 +83,12 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
-        $this->createIfNotExistsDirectory($outputDirectory);
+        $this->ensureDirectoryExists($outputDirectory);
 
         $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
 
         foreach ($this->removals as $packageName) {
-            $this->removePackageConfig($packageName);
+            $this->markPackageConfigAsRemoved($packageName, $outputDirectory);
         }
 
         $mergePlan = [];
@@ -183,7 +183,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     }
 
     /**
-     * @psalm-return array<string, string|list<string>>
+     * @psalm-return string
      * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
      */
     private function getPluginOutputDirectory(PackageInterface $package): string
@@ -191,7 +191,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         return $this->getRootPath() . (string)($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
-    private function createIfNotExistsDirectory(string $directoryPath)
+    private function ensureDirectoryExists(string $directoryPath): void
     {
         $fs = new Filesystem();
         $fs->ensureDirectoryExists($directoryPath);
@@ -201,10 +201,22 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      * Remove application config for the package name specified.
      *
      * @param string $package Package name to remove application config for.
+     * @param string $outputDirectory
      */
-    private function removePackageConfig(string $package): void
+    private function markPackageConfigAsRemoved(string $package, string $outputDirectory): void
     {
-        // TODO: implement
+        $packageConfigPath = $outputDirectory . '/'. $package;
+        if (!file_exists($packageConfigPath)) {
+            return;
+        }
+
+        $removedPackageConfigPath = $packageConfigPath . '.removed';
+
+        $fs = new Filesystem();
+        if (file_exists($removedPackageConfigPath)) {
+            $fs->removeDirectory($removedPackageConfigPath);
+        }
+        $fs->rename($packageConfigPath, $removedPackageConfigPath);
     }
 
     private function containsWildcard(string $file): bool
