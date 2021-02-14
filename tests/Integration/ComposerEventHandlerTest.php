@@ -6,6 +6,9 @@ namespace Yiisoft\Config\Tests\Integration;
 
 
 use PHPUnit\Framework\TestCase;
+use function dirname;
+use function in_array;
+
 //use function PHPUnit\Framework\directoryExists;
 
 final class ComposerEventHandlerTest extends TestCase
@@ -13,9 +16,9 @@ final class ComposerEventHandlerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $dir = $this->getWorkingDir();
-        $this->exec("rm -rf $dir/*");
-        file_put_contents($dir . '/composer.json',
+        $workingDirectory = $this->getWorkingDirectory();
+        $this->exec("rm -rf $workingDirectory/*");
+        file_put_contents($workingDirectory . '/composer.json',
             <<<TXT
 {
     "name": "yiisoft/testpackage",
@@ -46,13 +49,13 @@ TXT
     protected function tearDown(): void
     {
         parent::tearDown();
-        $dir = $this->getWorkingDir();
+        $dir = $this->getWorkingDirectory();
         $this->exec("rm -rf $dir/*");
     }
 
     public function testRemovePackageConfig(): void
     {
-        $dir = $this->getWorkingDir();
+        $dir = $this->getWorkingDirectory();
 
         $this->execComposer('require first-vendor/first-package');
         $this->assertDirectoryExists($dir.'/config/packages/first-vendor/first-package');
@@ -60,13 +63,13 @@ TXT
         $this->execComposer('remove first-vendor/first-package');
 
         // Used this construction without assertDirectoryDoesNotExist
-        $this->assertFalse(file_exists($dir.'/config/packages/first-vendor/first-package'));
+        $this->assertFileDoesNotExist($dir . '/config/packages/first-vendor/first-package');
         $this->assertDirectoryExists($dir.'/config/packages/first-vendor/first-package.removed');
     }
 
     private function execComposer(string $command): void
     {
-        $dir = $this->getWorkingDir();
+        $dir = $this->getWorkingDirectory();
         $this->exec("composer $command -d $dir --no-interaction " . $this->suppressLogs());
     }
 
@@ -78,7 +81,7 @@ TXT
         }
     }
 
-    private function getWorkingDir(): string
+    private function getWorkingDirectory(): string
     {
         return dirname(__DIR__) . '/Environment';
     }

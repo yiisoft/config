@@ -83,7 +83,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
-        $this->createIfNotExistsDirectory($outputDirectory);
+        $this->ensureDirectoryExists($outputDirectory);
 
         $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
 
@@ -191,7 +191,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         return $this->getRootPath() . (string)($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
-    private function createIfNotExistsDirectory(string $directoryPath): void
+    private function ensureDirectoryExists(string $directoryPath): void
     {
         $fs = new Filesystem();
         $fs->ensureDirectoryExists($directoryPath);
@@ -210,13 +210,13 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             return;
         }
 
-        $packageConfigPathRemoved = $packageConfigPath . '.removed';
+        $removedPackageConfigPath = $packageConfigPath . '.removed';
 
         $fs = new Filesystem();
-        if (file_exists($packageConfigPathRemoved)) {
-            $fs->removeDirectory($packageConfigPathRemoved);
+        if (file_exists($removedPackageConfigPath)) {
+            $fs->removeDirectory($removedPackageConfigPath);
         }
-        $fs->rename($packageConfigPath, $packageConfigPathRemoved);
+        $fs->rename($packageConfigPath, $removedPackageConfigPath);
     }
 
     private function containsWildcard(string $file): bool
