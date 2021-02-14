@@ -15,8 +15,12 @@ final class ComposerEventHandlerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $workingDirectory = $this->getWorkingDirectory();
-        $this->recreateDirectory($workingDirectory);
+
+        $this->removeDirectory($workingDirectory);
+        $this->ensureDirectoryExists($workingDirectory);
+
         file_put_contents($workingDirectory . '/composer.json',
             <<<TXT
 {
@@ -48,8 +52,10 @@ TXT
     protected function tearDown(): void
     {
         parent::tearDown();
+
         $workingDirectory = $this->getWorkingDirectory();
-        $this->recreateDirectory($workingDirectory);
+
+        $this->removeDirectory($workingDirectory);
     }
 
     public function testRemovePackageConfig(): void
@@ -85,10 +91,15 @@ TXT
         return dirname(__DIR__) . '/Environment';
     }
 
-    private function recreateDirectory(string $dir): void
+    private function removeDirectory(string $dir): void
     {
         $fs = new Filesystem();
         $fs->removeDirectory($dir);
+    }
+
+    private function ensureDirectoryExists(string $dir): void
+    {
+        $fs = new Filesystem();
         $fs->ensureDirectoryExists($dir);
     }
 
