@@ -8,8 +8,7 @@ namespace Yiisoft\Config\Tests\Integration;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 use function in_array;
-
-//use function PHPUnit\Framework\directoryExists;
+use Composer\Util\Filesystem;
 
 final class ComposerEventHandlerTest extends TestCase
 {
@@ -17,7 +16,7 @@ final class ComposerEventHandlerTest extends TestCase
     {
         parent::setUp();
         $workingDirectory = $this->getWorkingDirectory();
-        $this->exec("rm -rf $workingDirectory/*");
+        $this->recreateDirectory($workingDirectory);
         file_put_contents($workingDirectory . '/composer.json',
             <<<TXT
 {
@@ -50,7 +49,7 @@ TXT
     {
         parent::tearDown();
         $workingDirectory = $this->getWorkingDirectory();
-        $this->exec("rm -rf $workingDirectory/*");
+        $this->recreateDirectory($workingDirectory);
     }
 
     public function testRemovePackageConfig(): void
@@ -84,6 +83,13 @@ TXT
     private function getWorkingDirectory(): string
     {
         return dirname(__DIR__) . '/Environment';
+    }
+
+    private function recreateDirectory(string $dir): void
+    {
+        $fs = new Filesystem();
+        $fs->removeDirectory($dir);
+        $fs->ensureDirectoryExists($dir);
     }
 
     private function suppressLogs(): string
