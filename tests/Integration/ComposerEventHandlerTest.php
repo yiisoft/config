@@ -49,35 +49,35 @@ TXT
     protected function tearDown(): void
     {
         parent::tearDown();
-        $dir = $this->getWorkingDirectory();
-        $this->exec("rm -rf $dir/*");
+        $workingDirectory = $this->getWorkingDirectory();
+        $this->exec("rm -rf $workingDirectory/*");
     }
 
     public function testRemovePackageConfig(): void
     {
-        $dir = $this->getWorkingDirectory();
+        $workingDirectory = $this->getWorkingDirectory();
 
         $this->execComposer('require first-vendor/first-package');
-        $this->assertDirectoryExists($dir.'/config/packages/first-vendor/first-package');
+        $this->assertDirectoryExists($workingDirectory.'/config/packages/first-vendor/first-package');
 
         $this->execComposer('remove first-vendor/first-package');
 
         // Used this construction without assertDirectoryDoesNotExist
-        $this->assertFileDoesNotExist($dir . '/config/packages/first-vendor/first-package');
-        $this->assertDirectoryExists($dir.'/config/packages/first-vendor/first-package.removed');
+        $this->assertFileDoesNotExist($workingDirectory . '/config/packages/first-vendor/first-package');
+        $this->assertDirectoryExists($workingDirectory.'/config/packages/first-vendor/first-package.removed');
     }
 
     private function execComposer(string $command): void
     {
-        $dir = $this->getWorkingDirectory();
-        $this->exec("composer $command -d $dir --no-interaction " . $this->suppressLogs());
+        $workingDirectory = $this->getWorkingDirectory();
+        $this->exec("composer $command -d $workingDirectory --no-interaction " . $this->suppressLogs());
     }
 
     private function exec(string $command): void
     {
-        $res = exec($command, $_, $returnCode);
+        $result = exec($command, $_, $returnCode);
         if ((int) $returnCode !== 0) {
-            throw new \RuntimeException("$command return code was $returnCode. $res");
+            throw new \RuntimeException("$command return code was $returnCode. $result");
         }
     }
 
@@ -91,8 +91,8 @@ TXT
         $commandArguments = $_SERVER['argv'] ?? [];
         $isDebug = in_array('--debug', $commandArguments, true);
 
-        $tempDir = sys_get_temp_dir();
+        $tempDirectory = sys_get_temp_dir();
 
-        return !$isDebug ? "2>{$tempDir}/yiisoft-hook" : '';
+        return !$isDebug ? "2>{$tempDirectory}/yiisoft-hook" : '';
     }
 }
