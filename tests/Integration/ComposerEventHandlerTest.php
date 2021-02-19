@@ -12,6 +12,28 @@ use Composer\Util\Filesystem;
 
 final class ComposerEventHandlerTest extends TestCase
 {
+    private array $startComposerConfig = [
+        'name' => 'yiisoft/testpackage',
+        'type' => 'library',
+        'minimum-stability' => 'dev',
+        'require' => [
+            'yiisoft/config' => '*',
+        ],
+        'repositories' => [
+            [
+                'type' => 'path',
+                'url' => '../../',
+            ],
+            [
+                'type' => 'path',
+                'url' => '../Packages/first-vendor/first-package',
+                'options' => [
+                    'symlink' => false,
+                ],
+            ],
+        ],
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -21,31 +43,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->removeDirectory($workingDirectory);
         $this->ensureDirectoryExists($workingDirectory);
 
-        file_put_contents($workingDirectory . '/composer.json',
-            <<<TXT
-{
-    "name": "yiisoft/testpackage",
-    "type": "library",
-    "minimum-stability": "dev",
-    "require": {
-        "yiisoft/config": "*"
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../../"
-        },
-        {
-            "type": "path",
-            "url": "../Packages/first-vendor/first-package",
-            "options": {
-              "symlink": false
-            }
-        }
-    ]
-}
-TXT
-        );
+        $this->initComposer($workingDirectory);
         $this->execComposer('install');
     }
 
@@ -56,6 +54,21 @@ TXT
         $workingDirectory = $this->getWorkingDirectory();
 
         $this->removeDirectory($workingDirectory);
+    }
+
+    private function initComposer(string $workingDirectory): void
+    {
+        file_put_contents($workingDirectory . '/composer.json', $this->getArrayAsComposerConfigString($this->startComposerConfig));
+    }
+
+    private function getArrayAsComposerConfigString(array $array): string
+    {
+        return \json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+    }
+
+    private function getComposerConfigStringAsArray(string $composerConfigPath): array
+    {
+        return \json_decode(file_get_contents($composerConfigPath), true);
     }
 
     public function testRemovePackageConfig(): void

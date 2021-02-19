@@ -1,5 +1,6 @@
 {
     "name": "first-vendor/first-package",
+    "version": "1.0.0",
     "autoload": {
         "psr-4": {
             "FirstVendor\\FirstPackage\\": "src"
