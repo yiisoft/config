@@ -12,7 +12,7 @@ use Composer\Util\Filesystem;
 
 final class ComposerEventHandlerTest extends TestCase
 {
-    private $startComposerConfig = [
+    private array $startComposerConfig = [
         'name' => 'yiisoft/testpackage',
         'type' => 'library',
         'minimum-stability' => 'dev',
