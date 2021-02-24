@@ -18,6 +18,7 @@ use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Composer\Util\Filesystem;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\VarDumper\VarDumper;
 use function dirname;
 
@@ -30,6 +31,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private const MERGE_PLAN_FILENAME = 'merge_plan.php';
     private const DEFAULT_OUTPUT_PATH = '/config/packages';
     private const DEFAULT_CONFIG_SOURCE_PATH = '/config';
+
+    private const DIST_EXTENSION = '.dist';
 
     private ?Composer $composer = null;
 
@@ -165,12 +168,29 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     private function updateFile(string $source, string $destination): void
     {
-        // TODO: if update happened, do merge here
+        $fs = new Filesystem();
+
         if (!file_exists($destination)) {
-            $fs = new Filesystem();
+            // First install config
             $fs->ensureDirectoryExists(dirname($destination));
             $fs->copy($source, $destination);
+        } else {
+            // Update config
+            $sourceContent = file_get_contents($source);
+            $destinationContent = file_get_contents($destination);
+            $distContent = file_get_contents($destination . self::DIST_EXTENSION);
+
+            if (strcmp($destinationContent, $distContent) === 0) {
+                // Dist file equals with installed config. Installing with overwrite - silent.
+                $fs->copy($source, $destination);
+            } elseif (strcmp($sourceContent, $distContent) !== 0) {
+                // Dist file changed and installed config changed by user.
+                $output = new ConsoleOutput();
+                $output->writeln('<bg=magenta;fg=white>Config file has been changed. Please re-view file: ' . $destination . ' and change with file .dist</>');
+            }
         }
+
+        $fs->copy($source, $destination . self::DIST_EXTENSION);
     }
 
     /**
@@ -205,7 +225,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private function markPackageConfigAsRemoved(string $package, string $outputDirectory): void
     {
-        $packageConfigPath = $outputDirectory . '/'. $package;
+        $packageConfigPath = $outputDirectory . '/' . $package;
         if (!file_exists($packageConfigPath)) {
             return;
         }
