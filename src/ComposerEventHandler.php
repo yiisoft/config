@@ -32,7 +32,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private const DEFAULT_OUTPUT_PATH = '/config/packages';
     private const DEFAULT_CONFIG_SOURCE_PATH = '/config';
 
-    private const DIST_EXTENSION = '.dist';
+    private const DIST_DIRECTORY = 'dist';
 
     private ?Composer $composer = null;
 
@@ -128,9 +128,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                         foreach ($matches as $match) {
                             $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
-                            $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath;
-
-                            $this->updateFile($match, $destination);
+                            $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
                         }
 
                         $mergePlan[$group][$package->getPrettyName()][] = $file;
@@ -142,9 +140,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
-
-                    $this->updateFile($source, $destination);
+                    $this->updateFile($source, $outputDirectory . '/' . $package->getPrettyName() . '/' . $file);
 
                     $mergePlan[$group][$package->getPrettyName()][] = $file;
                 }
@@ -168,6 +164,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     private function updateFile(string $source, string $destination): void
     {
+        $distDestinationPath = dirname($destination) . '/' . self::DIST_DIRECTORY;
+        $distFilename = $distDestinationPath . '/' . basename($destination);
+
         $fs = new Filesystem();
 
         if (!file_exists($destination)) {
@@ -178,7 +177,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             // Update config
             $sourceContent = file_get_contents($source);
             $destinationContent = file_get_contents($destination);
-            $distContent = file_get_contents($destination . self::DIST_EXTENSION);
+            $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
             if (strcmp($destinationContent, $distContent) === 0) {
                 // Dist file equals with installed config. Installing with overwrite - silent.
@@ -190,7 +189,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             }
         }
 
-        $fs->copy($source, $destination . self::DIST_EXTENSION);
+        $fs->ensureDirectoryExists($distDestinationPath);
+        $fs->copy($source, $distFilename);
     }
 
     /**

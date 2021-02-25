@@ -90,7 +90,7 @@ final class ComposerEventHandlerTest extends TestCase
     public function testUpdatingPackageWithConfigSimple(): void
     {
         $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
-        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php.dist';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
 
         // STEP 1: First install
         $this->execComposer('require first-vendor/first-package');
@@ -115,10 +115,41 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
     }
 
+    public function testUpdatingPackageWithConfigAndRemoveDist(): void
+    {
+        $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
+
+        // STEP 1: First install
+        $this->execComposer('require first-vendor/first-package');
+
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        $this->assertFileExists($distConfigFilename);
+        $this->assertEquals($contentBefore, $distContentBefore);
+        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+
+        // Emulating remove dist file by user
+        $fs = new Filesystem();
+        $fs->unlink($distConfigFilename);
+
+        // STEP 2: Updating package (package without changed config)
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertFileExists($distConfigFilename);
+        $this->assertStringContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+    }
+
     public function testUpdatingToPackageWithChangedConfig(): void
     {
         $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
-        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php.dist';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
 
         // STEP 1: First install
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
@@ -147,7 +178,7 @@ final class ComposerEventHandlerTest extends TestCase
     public function testUpdatingPackageWithChangedUserConfig(): void
     {
         $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
-        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php.dist';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
 
         // STEP 1: First install
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
@@ -182,7 +213,7 @@ final class ComposerEventHandlerTest extends TestCase
     public function testUpdatingPackageWithChangedUserConfigAndNextStep1(): void
     {
         $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
-        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php.dist';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
 
         // STEP 1: First install
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
@@ -225,7 +256,7 @@ final class ComposerEventHandlerTest extends TestCase
     public function testUpdatingPackageWithChangedUserConfigAndNextStep2(): void
     {
         $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
-        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php.dist';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
 
         // STEP 1: First install
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
