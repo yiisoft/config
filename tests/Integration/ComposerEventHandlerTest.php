@@ -37,6 +37,7 @@ final class ComposerEventHandlerTest extends TestCase
     private string $stdoutFile;
     private string $stderrFile;
     private string $workingDirectory;
+    private string $reviewConfigPhrase = 'Config file has been changed. Please review';
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
@@ -100,7 +101,7 @@ final class ComposerEventHandlerTest extends TestCase
 
         $this->assertFileExists($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // STEP 2: Updating package (package without changed config)
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
@@ -112,7 +113,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertEquals($distContentBefore, $distContentAfter);
         $this->assertEquals($contentAfter, $distContentAfter);
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
     public function testUpdatingPackageWithConfigAndRemoveDist(): void
@@ -128,7 +129,7 @@ final class ComposerEventHandlerTest extends TestCase
 
         $this->assertFileExists($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // Emulating remove dist file by user
         $fs = new Filesystem();
@@ -143,7 +144,7 @@ final class ComposerEventHandlerTest extends TestCase
 
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertFileExists($distConfigFilename);
-        $this->assertStringContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
     public function testUpdatingToPackageWithChangedConfig(): void
@@ -160,7 +161,7 @@ final class ComposerEventHandlerTest extends TestCase
 
         $this->assertFileExists($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // STEP 2: Updating package (package with changed config). Shouldn't be warning message
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
@@ -172,7 +173,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertNotEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertEquals($contentAfter, $distContentAfter);
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
     public function testUpdatingPackageWithChangedUserConfig(): void
@@ -189,7 +190,7 @@ final class ComposerEventHandlerTest extends TestCase
 
         $this->assertFileExists($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // STEP2: Emulating user changes in config file
         file_put_contents($configFilename, PHP_EOL . '//', FILE_APPEND);
@@ -207,7 +208,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
     public function testUpdatingPackageWithChangedUserConfigAndNextStep1(): void
@@ -219,7 +220,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
         $this->execComposer('require first-vendor/first-package');
 
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // STEP2: Emulating user changes in config file
         file_put_contents($configFilename, PHP_EOL . '//', FILE_APPEND);
@@ -235,7 +236,7 @@ final class ComposerEventHandlerTest extends TestCase
 
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
-        $this->assertStringContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // STEP 4: Update package (package without changed config). Shouldn't have warning message
         $contentBefore = file_get_contents($configFilename);
@@ -250,7 +251,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
     public function testUpdatingPackageWithChangedUserConfigAndNextStep2(): void
@@ -262,7 +263,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
         $this->execComposer('require first-vendor/first-package');
 
-        $this->assertStringNotContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // STEP2: Emulating user changes in config file
         file_put_contents($configFilename, PHP_EOL . '//', FILE_APPEND);
@@ -279,7 +280,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         // STEP 4: Update package (package with changed config). Should be with warning message
         $contentBefore = file_get_contents($configFilename);
@@ -294,7 +295,7 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringContainsString('Config file has been changed. Please re-view file:', file_get_contents($this->stdoutFile));
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
     private function initComposer(): void

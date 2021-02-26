@@ -179,13 +179,13 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $destinationContent = file_get_contents($destination);
             $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
-            if (strcmp($destinationContent, $distContent) === 0) {
-                // Dist file equals with installed config. Installing with overwrite - silent.
+            if ($destinationContent === $distContent) {
+                // Dist file equals with installed config. Installing with overwrite - silently.
                 $fs->copy($source, $destination);
-            } elseif (strcmp($sourceContent, $distContent) !== 0) {
+            } elseif ($sourceContent !== $distContent) {
                 // Dist file changed and installed config changed by user.
                 $output = new ConsoleOutput();
-                $output->writeln('<bg=magenta;fg=white>Config file has been changed. Please re-view file: ' . $destination . ' and change with file .dist</>');
+                $output->writeln("<bg=magenta;fg=white>Config file has been changed. Please review \"{$destination}\" and change it according with .dist file.</>");
             }
         }
 
