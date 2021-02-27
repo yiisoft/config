@@ -20,6 +20,8 @@ use Composer\Script\ScriptEvents;
 use Composer\Util\Filesystem;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\VarDumper\VarDumper;
+
+use function count;
 use function dirname;
 
 /**
@@ -39,7 +41,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     /**
      * @var string[] Names of updated packages.
      */
-    private array $updates = [];
+    private array $updatedPackages = [];
 
     /**
      * @var string[] Names of removed packages.
@@ -60,12 +62,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $this->composer = $composer;
     }
 
-
     public function onPostUpdate(PackageEvent $event): void
     {
         $operation = $event->getOperation();
         if ($operation instanceof UpdateOperation) {
-            $this->updates[] = $operation->getTargetPackage()->getPrettyName();
+            $this->updatedPackages[] = $operation->getTargetPackage();
         }
     }
 
@@ -88,7 +89,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
-        $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+        $packages = count($this->updatedPackages) === 0
+            ? $composer->getRepositoryManager()->getLocalRepository()->getPackages()
+            : $this->updatedPackages;
 
         foreach ($this->removals as $packageName) {
             $this->markPackageConfigAsRemoved($packageName, $outputDirectory);

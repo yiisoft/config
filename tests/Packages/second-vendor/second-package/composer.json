@@ -1,0 +1,14 @@
+{
+    "name": "second-vendor/second-package",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "SecondVendor\\SecondPackage\\": "src"
+        }
+    },
+    "extra": {
+        "config-plugin": {
+            "params": "config/params.php"
+        }
+    }
+}
