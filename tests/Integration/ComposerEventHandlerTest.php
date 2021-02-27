@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
+use Composer\Util\Filesystem;
+
 use function dirname;
 use function in_array;
 use function file_get_contents;
-use Composer\Util\Filesystem;
 
 final class ComposerEventHandlerTest extends TestCase
 {
@@ -300,7 +301,23 @@ final class ComposerEventHandlerTest extends TestCase
 
     private function initComposer(): void
     {
-        file_put_contents($this->workingDirectory . '/composer.json', $this->getArrayAsComposerConfigString($this->startComposerConfig));
+        $config = $this->startComposerConfig;
+
+        // Load yiisoft/config dependencies locally
+        $packageConfig = $this->getComposerConfigStringAsArray(dirname(__DIR__, 2) . '/composer.lock');
+        foreach ($packageConfig['packages'] as $package) {
+            $config['repositories'][] = [
+                'type' => 'path',
+                'url' => '../../vendor/' . $package['name'],
+                'options' => [
+                    'versions' => [
+                        $package['name'] => $package['version'],
+                    ],
+                ],
+            ];
+        }
+
+        file_put_contents($this->workingDirectory . '/composer.json', $this->getArrayAsComposerConfigString($config));
     }
 
     private function getArrayAsComposerConfigString(array $array): string
