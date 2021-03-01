@@ -89,9 +89,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
-        $packages = count($this->updatedPackages) === 0
-            ? $composer->getRepositoryManager()->getLocalRepository()->getPackages()
-            : $this->updatedPackages;
+        $allPackages = array_filter(
+            $composer->getRepositoryManager()->getLocalRepository()->getPackages(),
+            static fn ($package) => $package instanceof CompletePackage
+        );
+        $packagesForCheck = array_map(
+            static fn (PackageInterface $package) => $package->getPrettyName(),
+            count($this->updatedPackages) === 0 ? $allPackages : $this->updatedPackages
+        );
 
         foreach ($this->removals as $packageName) {
             $this->markPackageConfigAsRemoved($packageName, $outputDirectory);
@@ -99,11 +104,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $mergePlan = [];
 
-        foreach ($packages as $package) {
-            if (!$package instanceof CompletePackage) {
-                continue;
-            }
-
+        foreach ($allPackages as $package) {
             $pluginConfig = $this->getPluginConfig($package);
             foreach ($pluginConfig as $group => $files) {
                 $files = (array)$files;
@@ -129,9 +130,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                             continue;
                         }
 
-                        foreach ($matches as $match) {
-                            $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
-                            $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
+                        if (in_array($package->getPrettyName(), $packagesForCheck)) {
+                            foreach ($matches as $match) {
+                                $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
+                                $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
+                            }
                         }
 
                         $mergePlan[$group][$package->getPrettyName()][] = $file;
@@ -143,7 +146,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    $this->updateFile($source, $outputDirectory . '/' . $package->getPrettyName() . '/' . $file);
+                    if (in_array($package->getPrettyName(), $packagesForCheck)) {
+                        $this->updateFile($source, $outputDirectory . '/' . $package->getPrettyName() . '/' . $file);
+                    }
 
                     $mergePlan[$group][$package->getPrettyName()][] = $file;
                 }

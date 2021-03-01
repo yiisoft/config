@@ -139,6 +139,21 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertFileExists($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
         $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+        $this->assertSameMergePlan([
+            'constants' => [
+                'first-vendor/first-package' => [
+                    'config/constants.php',
+                ],
+            ],
+            'params' => [
+                'second-vendor/second-package' => [
+                    'config/params.php',
+                ],
+                'first-vendor/first-package' => [
+                    'config/params.php',
+                ],
+            ],
+        ]);
 
         // Change second package config for test update only updated packages configs
         $secondPackageConfigFileName = $this->workingDirectory . '/config/packages/second-vendor/second-package/config/dist/params.php';
@@ -155,6 +170,22 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertEquals($contentAfter, $distContentAfter);
         $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        $this->assertSameMergePlan([
+            'constants' => [
+                'first-vendor/first-package' => [
+                    'config/constants.php',
+                ],
+            ],
+            'params' => [
+                'second-vendor/second-package' => [
+                    'config/params.php',
+                ],
+                'first-vendor/first-package' => [
+                    'config/params.php',
+                ],
+            ],
+        ]);
 
         // Assert second package config don't changed
         self::assertSame('42', file_get_contents($secondPackageConfigFileName));

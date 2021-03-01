@@ -47,6 +47,30 @@ abstract class ComposerTest extends TestCase
         $this->removeDirectory($this->workingDirectory);
     }
 
+    protected function assertSameMergePlan(array $expected): void
+    {
+        $mergePlan = require $this->workingDirectory . '/config/packages/merge_plan.php';
+
+        $this->assertSameMergePlanKeys($expected, $mergePlan);
+
+        foreach ($expected as $group => $packages) {
+            $this->assertSameMergePlanKeys($packages, $mergePlan[$group]);
+            foreach ($packages as $name => $files) {
+                self::assertSame($files, $mergePlan[$group][$name]);
+            }
+        }
+    }
+
+    private function assertSameMergePlanKeys(array $expected, array $array): void
+    {
+        $expectedKeys = array_keys($expected);
+        sort($expectedKeys);
+        $keys = array_keys($array);
+        sort($keys);
+
+        self::assertSame($expectedKeys, $keys);
+    }
+
     private function initComposer(): void
     {
         $config = $this->getStartComposerConfig();
