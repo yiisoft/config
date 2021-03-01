@@ -103,13 +103,11 @@ abstract class ComposerTest extends TestCase
 
     protected function removeDirectory(string $directory): void
     {
-        $fs = new Filesystem();
-        $fs->removeDirectory($directory);
+        (new Filesystem())->removeDirectory($directory);
     }
 
     protected function ensureDirectoryExists(string $directory): void
     {
-        $fs = new Filesystem();
-        $fs->ensureDirectoryExists($directory);
+        (new Filesystem())->ensureDirectoryExists($directory);
     }
 }
