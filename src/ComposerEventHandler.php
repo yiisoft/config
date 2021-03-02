@@ -39,7 +39,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private ?Composer $composer = null;
 
     /**
-     * @var string[] Names of updated packages.
+     * @var PackageInterface[] Updated packages.
      */
     private array $updatedPackages = [];
 
