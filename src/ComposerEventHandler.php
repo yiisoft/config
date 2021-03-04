@@ -18,8 +18,12 @@ use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Composer\Util\Filesystem;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\VarDumper\VarDumper;
+
+use function count;
 use function dirname;
+use function in_array;
 
 /**
  * ComposerEventHandler responds to composer event. In the package, its job is to copy configs from packages to
@@ -31,12 +35,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private const DEFAULT_OUTPUT_PATH = '/config/packages';
     private const DEFAULT_CONFIG_SOURCE_PATH = '/config';
 
+    private const DIST_DIRECTORY = 'dist';
+
     private ?Composer $composer = null;
 
     /**
-     * @var string[] Names of updated packages.
+     * @var PackageInterface[] Updated packages.
      */
-    private array $updates = [];
+    private array $updatedPackages = [];
 
     /**
      * @var string[] Names of removed packages.
@@ -57,12 +63,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $this->composer = $composer;
     }
 
-
     public function onPostUpdate(PackageEvent $event): void
     {
         $operation = $event->getOperation();
         if ($operation instanceof UpdateOperation) {
-            $this->updates[] = $operation->getTargetPackage()->getPrettyName();
+            $this->updatedPackages[] = $operation->getTargetPackage();
         }
     }
 
@@ -85,7 +90,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
-        $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+        $allPackages = array_filter(
+            $composer->getRepositoryManager()->getLocalRepository()->getPackages(),
+            static fn ($package) => $package instanceof CompletePackage
+        );
+        $packagesForCheck = array_map(
+            static fn (PackageInterface $package) => $package->getPrettyName(),
+            count($this->updatedPackages) === 0 ? $allPackages : $this->updatedPackages
+        );
 
         foreach ($this->removals as $packageName) {
             $this->markPackageConfigAsRemoved($packageName, $outputDirectory);
@@ -93,11 +105,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $mergePlan = [];
 
-        foreach ($packages as $package) {
-            if (!$package instanceof CompletePackage) {
-                continue;
-            }
-
+        foreach ($allPackages as $package) {
             $pluginConfig = $this->getPluginConfig($package);
             foreach ($pluginConfig as $group => $files) {
                 $files = (array)$files;
@@ -123,11 +131,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                             continue;
                         }
 
-                        foreach ($matches as $match) {
-                            $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
-                            $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath;
-
-                            $this->updateFile($match, $destination);
+                        if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
+                            foreach ($matches as $match) {
+                                $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
+                                $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
+                            }
                         }
 
                         $mergePlan[$group][$package->getPrettyName()][] = $file;
@@ -139,9 +147,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
-
-                    $this->updateFile($source, $destination);
+                    if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
+                        $this->updateFile($source, $outputDirectory . '/' . $package->getPrettyName() . '/' . $file);
+                    }
 
                     $mergePlan[$group][$package->getPrettyName()][] = $file;
                 }
@@ -165,12 +173,33 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     private function updateFile(string $source, string $destination): void
     {
-        // TODO: if update happened, do merge here
+        $distDestinationPath = dirname($destination) . '/' . self::DIST_DIRECTORY;
+        $distFilename = $distDestinationPath . '/' . basename($destination);
+
+        $fs = new Filesystem();
+
         if (!file_exists($destination)) {
-            $fs = new Filesystem();
+            // First install config
             $fs->ensureDirectoryExists(dirname($destination));
             $fs->copy($source, $destination);
+        } else {
+            // Update config
+            $sourceContent = file_get_contents($source);
+            $destinationContent = file_get_contents($destination);
+            $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
+
+            if ($destinationContent === $distContent) {
+                // Dist file equals with installed config. Installing with overwrite - silently.
+                $fs->copy($source, $destination);
+            } elseif ($sourceContent !== $distContent) {
+                // Dist file changed and installed config changed by user.
+                $output = new ConsoleOutput();
+                $output->writeln("<bg=magenta;fg=white>Config file has been changed. Please review \"{$destination}\" and change it according with .dist file.</>");
+            }
         }
+
+        $fs->ensureDirectoryExists($distDestinationPath);
+        $fs->copy($source, $distFilename);
     }
 
     /**
@@ -205,7 +234,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private function markPackageConfigAsRemoved(string $package, string $outputDirectory): void
     {
-        $packageConfigPath = $outputDirectory . '/'. $package;
+        $packageConfigPath = $outputDirectory . '/' . $package;
         if (!file_exists($packageConfigPath)) {
             return;
         }

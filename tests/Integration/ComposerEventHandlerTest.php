@@ -4,125 +4,312 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration;
 
-
-use PHPUnit\Framework\TestCase;
-use function dirname;
-use function in_array;
 use Composer\Util\Filesystem;
 
-final class ComposerEventHandlerTest extends TestCase
+use function file_get_contents;
+
+final class ComposerEventHandlerTest extends ComposerTest
 {
-    private array $startComposerConfig = [
-        'name' => 'yiisoft/testpackage',
-        'type' => 'library',
-        'minimum-stability' => 'dev',
-        'require' => [
-            'yiisoft/config' => '*',
-        ],
-        'repositories' => [
-            [
-                'type' => 'path',
-                'url' => '../../',
+    private string $reviewConfigPhrase = 'Config file has been changed. Please review';
+
+    protected function getStartComposerConfig(): array
+    {
+        return [
+            'name' => 'yiisoft/testpackage',
+            'type' => 'library',
+            'minimum-stability' => 'dev',
+            'require' => [
+                'yiisoft/config' => '*',
             ],
-            [
-                'type' => 'path',
-                'url' => '../Packages/first-vendor/first-package',
-                'options' => [
-                    'symlink' => false,
+            'repositories' => [
+                [
+                    'type' => 'path',
+                    'url' => '../../',
+                ],
+                [
+                    'type' => 'path',
+                    'url' => '../Packages/first-vendor/first-package',
+                    'options' => [
+                        'symlink' => false,
+                    ],
+                ],
+                [
+                    'type' => 'path',
+                    'url' => '../Packages/second-vendor/second-package',
+                    'options' => [
+                        'symlink' => false,
+                    ],
                 ],
             ],
-        ],
-    ];
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $workingDirectory = $this->getWorkingDirectory();
-
-        $this->removeDirectory($workingDirectory);
-        $this->ensureDirectoryExists($workingDirectory);
-
-        $this->initComposer($workingDirectory);
-        $this->execComposer('install');
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $workingDirectory = $this->getWorkingDirectory();
-
-        $this->removeDirectory($workingDirectory);
-    }
-
-    private function initComposer(string $workingDirectory): void
-    {
-        file_put_contents($workingDirectory . '/composer.json', $this->getArrayAsComposerConfigString($this->startComposerConfig));
-    }
-
-    private function getArrayAsComposerConfigString(array $array): string
-    {
-        return \json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
-    }
-
-    private function getComposerConfigStringAsArray(string $composerConfigPath): array
-    {
-        return \json_decode(file_get_contents($composerConfigPath), true);
+        ];
     }
 
     public function testRemovePackageConfig(): void
     {
-        $workingDirectory = $this->getWorkingDirectory();
-
         $this->execComposer('require first-vendor/first-package');
-        $this->assertDirectoryExists($workingDirectory.'/config/packages/first-vendor/first-package');
+        $this->assertDirectoryExists($this->workingDirectory . '/config/packages/first-vendor/first-package');
 
         $this->execComposer('remove first-vendor/first-package');
 
         // Used this construction without assertDirectoryDoesNotExist
-        $this->assertFileDoesNotExist($workingDirectory . '/config/packages/first-vendor/first-package');
-        $this->assertDirectoryExists($workingDirectory.'/config/packages/first-vendor/first-package.removed');
+        $this->assertFileDoesNotExist($this->workingDirectory . '/config/packages/first-vendor/first-package');
+        $this->assertDirectoryExists($this->workingDirectory . '/config/packages/first-vendor/first-package.removed');
     }
 
-    private function execComposer(string $command): void
+    private function changeInstallationPackagePath(string $path, int $index = 1): void
     {
-        $workingDirectory = $this->getWorkingDirectory();
-        $this->exec("composer $command -d $workingDirectory --no-interaction " . $this->suppressLogs());
+        $composerConfigPath = $this->workingDirectory . '/composer.json';
+
+        $composerArray = $this->getComposerConfigStringAsArray($composerConfigPath);
+        $composerArray['repositories'][$index]['url'] = '../Packages/' . $path;
+        file_put_contents($composerConfigPath, $this->getArrayAsComposerConfigString($composerArray));
     }
 
-    private function exec(string $command): void
+    public function testUpdatingPackageWithConfigSimple(): void
     {
-        $result = exec($command, $_, $returnCode);
-        if ((int) $returnCode !== 0) {
-            throw new \RuntimeException("$command return code was $returnCode. $result");
-        }
+        $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
+
+        // STEP 1: First install
+        $this->execComposer('require first-vendor/first-package');
+
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        $this->assertFileExists($distConfigFilename);
+        $this->assertEquals($contentBefore, $distContentBefore);
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        // STEP 2: Updating package (package without changed config)
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertEquals($distContentBefore, $distContentAfter);
+        $this->assertEquals($contentAfter, $distContentAfter);
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
-    private function getWorkingDirectory(): string
+    public function testUpdatingPackageWithConfigAndRemoveDist(): void
     {
-        return dirname(__DIR__) . '/Environment';
-    }
+        $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
 
-    private function removeDirectory(string $directory): void
-    {
+        // STEP 1: First install
+        $this->execComposer('require first-vendor/first-package');
+
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        $this->assertFileExists($distConfigFilename);
+        $this->assertEquals($contentBefore, $distContentBefore);
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        // Emulating remove dist file by user
         $fs = new Filesystem();
-        $fs->removeDirectory($directory);
+        $fs->unlink($distConfigFilename);
+
+        // STEP 2: Updating package (package without changed config)
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertFileExists($distConfigFilename);
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 
-    private function ensureDirectoryExists(string $directory): void
+    public function testUpdatingToPackageWithChangedConfig(): void
     {
-        $fs = new Filesystem();
-        $fs->ensureDirectoryExists($directory);
+        $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
+
+        // STEP 1: First install
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
+        $this->execComposer('require first-vendor/first-package second-vendor/second-package');
+
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        $this->assertFileExists($distConfigFilename);
+        $this->assertEquals($contentBefore, $distContentBefore);
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+        $this->assertSameMergePlan([
+            'constants' => [
+                'first-vendor/first-package' => [
+                    'config/constants.php',
+                ],
+            ],
+            'params' => [
+                'second-vendor/second-package' => [
+                    'config/params.php',
+                ],
+                'first-vendor/first-package' => [
+                    'config/params.php',
+                ],
+            ],
+        ]);
+
+        // Change second package config for test update only updated packages configs
+        $secondPackageConfigFileName = $this->workingDirectory . '/config/packages/second-vendor/second-package/config/dist/params.php';
+        file_put_contents($secondPackageConfigFileName, '42');
+
+        // STEP 2: Updating package (package with changed config). Shouldn't be warning message
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertNotEquals($contentBefore, $contentAfter);
+        $this->assertNotEquals($distContentBefore, $distContentAfter);
+        $this->assertEquals($contentAfter, $distContentAfter);
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        $this->assertSameMergePlan([
+            'constants' => [
+                'first-vendor/first-package' => [
+                    'config/constants.php',
+                ],
+            ],
+            'params' => [
+                'second-vendor/second-package' => [
+                    'config/params.php',
+                ],
+                'first-vendor/first-package' => [
+                    'config/params.php',
+                ],
+            ],
+        ]);
+
+        // Assert second package config don't changed
+        self::assertSame('42', file_get_contents($secondPackageConfigFileName));
     }
 
-    private function suppressLogs(): string
+    public function testUpdatingPackageWithChangedUserConfig(): void
     {
-        $commandArguments = $_SERVER['argv'] ?? [];
-        $isDebug = in_array('--debug', $commandArguments, true);
+        $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
 
-        $tempDirectory = sys_get_temp_dir();
+        // STEP 1: First install
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
+        $this->execComposer('require first-vendor/first-package');
 
-        return !$isDebug ? "2>{$tempDirectory}/yiisoft-hook" : '';
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        $this->assertFileExists($distConfigFilename);
+        $this->assertEquals($contentBefore, $distContentBefore);
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        // STEP2: Emulating user changes in config file
+        file_put_contents($configFilename, PHP_EOL . '//', FILE_APPEND);
+
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        // STEP 3: Updating package (package with changed config). Should be warning message
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.3-changed-config');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertNotEquals($distContentBefore, $distContentAfter);
+        $this->assertNotEquals($contentAfter, $distContentAfter);
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+    }
+
+    public function testUpdatingPackageWithChangedUserConfigAndNextStep1(): void
+    {
+        $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
+
+        // STEP 1: First install
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
+        $this->execComposer('require first-vendor/first-package');
+
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        // STEP2: Emulating user changes in config file
+        file_put_contents($configFilename, PHP_EOL . '//', FILE_APPEND);
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        // STEP 3: Update package (package with changed config). Should be warning message
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.3-changed-config');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertNotEquals($distContentBefore, $distContentAfter);
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        // STEP 4: Update package (package without changed config). Shouldn't have warning message
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.4');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertEquals($distContentBefore, $distContentAfter);
+        $this->assertNotEquals($contentAfter, $distContentAfter);
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+    }
+
+    public function testUpdatingPackageWithChangedUserConfigAndNextStep2(): void
+    {
+        $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
+        $distConfigFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
+
+        // STEP 1: First install
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.1');
+        $this->execComposer('require first-vendor/first-package');
+
+        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        // STEP2: Emulating user changes in config file
+        file_put_contents($configFilename, PHP_EOL . '//', FILE_APPEND);
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        // STEP 3: Update package (package with changed config). Should be with warning message
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertNotEquals($distContentBefore, $distContentAfter);
+        $this->assertNotEquals($contentAfter, $distContentAfter);
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+
+        // STEP 4: Update package (package with changed config). Should be with warning message
+        $contentBefore = file_get_contents($configFilename);
+        $distContentBefore = file_get_contents($distConfigFilename);
+
+        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.3-changed-config');
+        $this->execComposer('update');
+
+        $contentAfter = file_get_contents($configFilename);
+        $distContentAfter = file_get_contents($distConfigFilename);
+
+        $this->assertEquals($contentBefore, $contentAfter);
+        $this->assertNotEquals($distContentBefore, $distContentAfter);
+        $this->assertNotEquals($contentAfter, $distContentAfter);
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
     }
 }
