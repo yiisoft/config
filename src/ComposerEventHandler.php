@@ -23,6 +23,7 @@ use Yiisoft\VarDumper\VarDumper;
 
 use function count;
 use function dirname;
+use function in_array;
 
 /**
  * ComposerEventHandler responds to composer event. In the package, its job is to copy configs from packages to
@@ -130,7 +131,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                             continue;
                         }
 
-                        if (in_array($package->getPrettyName(), $packagesForCheck)) {
+                        if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
                             foreach ($matches as $match) {
                                 $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
                                 $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
@@ -146,7 +147,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    if (in_array($package->getPrettyName(), $packagesForCheck)) {
+                    if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
                         $this->updateFile($source, $outputDirectory . '/' . $package->getPrettyName() . '/' . $file);
                     }
 
