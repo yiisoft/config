@@ -96,7 +96,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         );
         $packagesForCheck = array_map(
             static fn (PackageInterface $package) => $package->getPrettyName(),
-            count($this->updatedPackages) === 0 ? $allPackages : $this->updatedPackages
+            $this->updatedPackages
         );
 
         foreach ($this->removals as $packageName) {
@@ -188,10 +188,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $destinationContent = file_get_contents($destination);
             $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
-            if ($destinationContent === $distContent) {
-                // Dist file equals with installed config. Installing with overwrite - silently.
-                $fs->copy($source, $destination);
-            } elseif ($sourceContent !== $distContent) {
+            if ($sourceContent !== $distContent) {
                 // Dist file changed and installed config changed by user.
                 $output = new ConsoleOutput();
                 $output->writeln("<bg=magenta;fg=white>Config file has been changed. Please review \"{$destination}\" and change it according with .dist file.</>");
