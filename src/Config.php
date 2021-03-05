@@ -91,6 +91,12 @@ final class Config
                     continue;
                 }
 
+                $vendorConfigPath = $this->rootPath . '/vendor/' . $packageName . '/' . $file;
+
+                if (!file_exists($path) && file_exists($vendorConfigPath)) {
+                    $path = $vendorConfigPath;
+                }
+
                 $buildConfig = $this->buildFile($group, $path);
                 $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $buildConfig);
             }
