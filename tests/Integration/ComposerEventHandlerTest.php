@@ -47,7 +47,7 @@ final class ComposerEventHandlerTest extends ComposerTest
     public function testRemovePackageConfig(): void
     {
         $this->execComposer('require first-vendor/first-package');
-        $this->assertDirectoryExists($this->workingDirectory . '/config/packages/first-vendor/first-package');
+        mkdir($this->workingDirectory . '/config/packages/first-vendor/first-package');
 
         $this->execComposer('remove first-vendor/first-package');
 
