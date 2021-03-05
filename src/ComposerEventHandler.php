@@ -173,29 +173,24 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     private function updateFile(string $source, string $destination): void
     {
+        if (!file_exists($destination)) {
+            return;
+        }
+
+        $sourceContent = file_get_contents($source);
+        $destinationContent = file_get_contents($destination);
         $distDestinationPath = dirname($destination) . '/' . self::DIST_DIRECTORY;
         $distFilename = $distDestinationPath . '/' . basename($destination);
-
+        $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
         $fs = new Filesystem();
 
-        if (!file_exists($destination)) {
-            // First install config
-            $fs->ensureDirectoryExists(dirname($destination));
+        if ($destinationContent === $distContent) {
+            // Dist file equals with installed config. Installing with overwrite - silently.
             $fs->copy($source, $destination);
-        } else {
-            // Update config
-            $sourceContent = file_get_contents($source);
-            $destinationContent = file_get_contents($destination);
-            $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
-
-            if ($destinationContent === $distContent) {
-                // Dist file equals with installed config. Installing with overwrite - silently.
-                $fs->copy($source, $destination);
-            } elseif ($sourceContent !== $distContent) {
-                // Dist file changed and installed config changed by user.
-                $output = new ConsoleOutput();
-                $output->writeln("<bg=magenta;fg=white>Config file has been changed. Please review \"{$destination}\" and change it according with .dist file.</>");
-            }
+        } elseif ($sourceContent !== $distContent) {
+            // Dist file changed and installed config changed by user.
+            $output = new ConsoleOutput();
+            $output->writeln("<bg=magenta;fg=white>Config file has been changed. Please review \"{$destination}\" and change it according with .dist file.</>");
         }
 
         $fs->ensureDirectoryExists($distDestinationPath);
