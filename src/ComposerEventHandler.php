@@ -6,6 +6,7 @@ namespace Yiisoft\Config;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Factory;
@@ -54,6 +55,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         return [
             PackageEvents::POST_PACKAGE_UPDATE => 'onPostUpdate',
             PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostUninstall',
+            PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
         ];
     }
@@ -61,6 +63,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     public function activate(Composer $composer, IOInterface $io): void
     {
         $this->composer = $composer;
+    }
+
+    public function onPostInstall(PackageEvent $event): void
+    {
+        $operation = $event->getOperation();
+        if ($operation instanceof InstallOperation) {
+            $this->updatedPackages[] = $operation->getPackage();
+        }
     }
 
     public function onPostUpdate(PackageEvent $event): void
