@@ -217,7 +217,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private function getPluginOutputDirectory(PackageInterface $package): string
     {
-        return $this->getRootPath() . (string)($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
+        return $this->getRootPath() . (string)($package->getExtra()['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
     private function ensureDirectoryExists(string $directoryPath): void
