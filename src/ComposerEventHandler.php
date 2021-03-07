@@ -32,9 +32,7 @@ use function in_array;
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
     private const MERGE_PLAN_FILENAME = 'merge_plan.php';
-    private const DEFAULT_OUTPUT_PATH = '/config/packages';
-    private const DEFAULT_CONFIG_SOURCE_PATH = '/config';
-
+    private const DEFAULT_OUTPUT_PATH = 'config/packages';
     private const DIST_DIRECTORY = 'dist';
 
     private ?Composer $composer = null;
@@ -217,7 +215,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private function getPluginOutputDirectory(PackageInterface $package): string
     {
-        return $this->getRootPath() . (string)($package->getExtra()['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
+        return $this->getRootPath() . '/' . (string)($package->getExtra()['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
     private function ensureDirectoryExists(string $directoryPath): void
