@@ -98,7 +98,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
         $rootConfig = $this->getPluginConfig($rootPackage);
-        $silentOverride = $rootConfig['silentOverride'] ?? false;
+        $silentOverride = (bool)($rootConfig['silentOverride'] ?? false);
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
