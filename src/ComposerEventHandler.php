@@ -97,6 +97,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
+        $rootConfig = $this->getPluginConfig($rootPackage);
+        $silentOverride = $rootConfig['silentOverride'] ?? false;
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
@@ -158,7 +160,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                     }
 
                     if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
-                        $this->updateFile($source, $outputDirectory . '/' . $package->getPrettyName() . '/' . $file);
+                        $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
+                        $this->updateFile($source, $destination, $silentOverride);
                     }
 
                     $mergePlan[$group][$package->getPrettyName()][] = $file;
@@ -167,7 +170,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
 
         // Append root package config.
-        $rootConfig = $this->getPluginConfig($rootPackage);
         foreach ($rootConfig as $group => $files) {
             $mergePlan[$group]['/'] = (array)$files;
         }
@@ -181,7 +183,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n");
     }
 
-    private function updateFile(string $source, string $destination): void
+    private function updateFile(string $source, string $destination, bool $silentOverride = false): void
     {
         $distDestinationPath = dirname($destination) . '/' . self::DIST_DIRECTORY;
         $distFilename = $distDestinationPath . '/' . basename($destination);
@@ -198,7 +200,10 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $destinationContent = file_get_contents($destination);
             $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
-            if ($sourceContent !== $distContent) {
+            if ($silentOverride && $destinationContent === $distContent) {
+                // Dist file equals with installed config. Installing with overwrite - silently.
+                $fs->copy($source, $destination);
+            } elseif ($sourceContent !== $distContent) {
                 // Dist file changed and installed config changed by user.
                 $output = new ConsoleOutput();
                 $output->writeln("<bg=magenta;fg=white>Config file has been changed. Please review \"{$destination}\" and change it according with .dist file.</>");
@@ -224,7 +229,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private function getPluginOutputDirectory(PackageInterface $package): string
     {
-        return $this->getRootPath() . (string)($package->getExtra()['config-plugin']['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
+        return $this->getRootPath() . (string)($this->getPluginConfig($package)['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
     private function ensureDirectoryExists(string $directoryPath): void
