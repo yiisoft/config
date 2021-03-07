@@ -197,7 +197,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         } else {
             // Update config
             $sourceContent = file_get_contents($source);
-            $destinationContent = file_get_contents($destination);
             $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
             if ($silentOverride && $destinationContent === $distContent) {

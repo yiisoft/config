@@ -159,17 +159,17 @@ final class ComposerEventHandlerTest extends ComposerTest
         $secondPackageConfigFileName = $this->workingDirectory . '/config/packages/second-vendor/second-package/config/dist/params.php';
         file_put_contents($secondPackageConfigFileName, '42');
 
-        // STEP 2: Updating package (package with changed config). Shouldn't be warning message
+        // STEP 2: Updating package (package with changed config). Should be warning message
         $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
         $this->execComposer('update');
 
         $contentAfter = file_get_contents($configFilename);
         $distContentAfter = file_get_contents($distConfigFilename);
 
-        $this->assertNotEquals($contentBefore, $contentAfter);
+        $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
-        $this->assertEquals($contentAfter, $distContentAfter);
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
+        $this->assertNotEquals($contentAfter, $distContentAfter);
+        $this->assertStringContainsString($this->reviewConfigPhrase, file_get_contents($this->stdoutFile));
 
         $this->assertSameMergePlan([
             'constants' => [
