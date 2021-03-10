@@ -6,6 +6,7 @@ namespace Yiisoft\Config;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Factory;
@@ -52,6 +53,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         return [
             PackageEvents::POST_PACKAGE_UPDATE => 'onPostUpdate',
             PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostUninstall',
+            PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
         ];
     }
@@ -59,6 +61,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     public function activate(Composer $composer, IOInterface $io): void
     {
         $this->composer = $composer;
+    }
+
+    public function onPostInstall(PackageEvent $event): void
+    {
+        $operation = $event->getOperation();
+        if ($operation instanceof InstallOperation) {
+            $this->updatedPackages[] = $operation->getPackage();
+        }
     }
 
     public function onPostUpdate(PackageEvent $event): void
@@ -85,6 +95,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
+        $rootConfig = $this->getPluginConfig($rootPackage);
+        $silentOverride = (bool)($rootConfig['silentOverride'] ?? false);
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
@@ -94,7 +106,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         );
         $packagesForCheck = array_map(
             static fn (PackageInterface $package) => $package->getPrettyName(),
-            count($this->updatedPackages) === 0 ? $allPackages : $this->updatedPackages
+            $this->updatedPackages
         );
 
         foreach ($this->removals as $packageName) {
@@ -146,7 +158,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                     }
 
                     if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
-                        $this->updateFile($source, $outputDirectory . '/' . $package->getPrettyName() . '/' . $file);
+                        $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
+                        $this->updateFile($source, $destination, $silentOverride);
                     }
 
                     $mergePlan[$group][$package->getPrettyName()][] = $file;
@@ -155,7 +168,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
 
         // Append root package config.
-        $rootConfig = $this->getPluginConfig($rootPackage);
         foreach ($rootConfig as $group => $files) {
             $mergePlan[$group]['/'] = (array)$files;
         }
@@ -169,7 +181,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n");
     }
 
-    private function updateFile(string $source, string $destination): void
+    private function updateFile(string $source, string $destination, bool $silentOverride = false): void
     {
         $distDestinationPath = dirname($destination) . '/' . self::DIST_DIRECTORY;
         $distFilename = $distDestinationPath . '/' . basename($destination);
@@ -186,7 +198,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $destinationContent = file_get_contents($destination);
             $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
-            if ($destinationContent === $distContent) {
+            if ($silentOverride && $destinationContent === $distContent) {
                 // Dist file equals with installed config. Installing with overwrite - silently.
                 $fs->copy($source, $destination);
             } elseif ($sourceContent !== $distContent) {
