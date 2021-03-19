@@ -58,6 +58,8 @@ final class PackagesListBuilder
             $packageDepths[$name] = [$depth, ++$n];
         }
 
+        /** @psalm-var array<string, array{0:int,1:int}> $packageDepths */
+
         uasort($packageDepths, static function (array $a, array $b) {
             $result = $a[0] <=> $b[0];
             return $result === 0 ? $a[1] <=> $b[1] : $result;
