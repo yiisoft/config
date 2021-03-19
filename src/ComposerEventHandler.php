@@ -13,7 +13,6 @@ use Composer\Factory;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
-use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
@@ -22,7 +21,6 @@ use Composer\Util\Filesystem;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\VarDumper\VarDumper;
 
-use function count;
 use function dirname;
 use function in_array;
 
@@ -100,10 +98,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
-        $allPackages = array_filter(
-            $composer->getRepositoryManager()->getLocalRepository()->getPackages(),
-            static fn ($package) => $package instanceof CompletePackage
-        );
+        $allPackages = (new PackagesListBuilder($composer))->build();
         $packagesForCheck = array_map(
             static fn (PackageInterface $package) => $package->getPrettyName(),
             $this->updatedPackages
