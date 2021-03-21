@@ -13,7 +13,6 @@ use Composer\Factory;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
-use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
@@ -22,7 +21,7 @@ use Composer\Util\Filesystem;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\VarDumper\VarDumper;
 
-use function count;
+use function array_key_exists;
 use function dirname;
 use function in_array;
 
@@ -100,10 +99,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
         $this->ensureDirectoryExists($outputDirectory);
 
-        $allPackages = array_filter(
-            $composer->getRepositoryManager()->getLocalRepository()->getPackages(),
-            static fn ($package) => $package instanceof CompletePackage
-        );
+        $allPackages = (new PackagesListBuilder($composer))->build();
         $packagesForCheck = array_map(
             static fn (PackageInterface $package) => $package->getPrettyName(),
             $this->updatedPackages
@@ -169,13 +165,12 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         // Append root package config.
         foreach ($rootConfig as $group => $files) {
-            $mergePlan[$group]['/'] = (array)$files;
+            $mergePlan[$group] = ['/' => (array)$files] +
+                (array_key_exists($group, $mergePlan) ? $mergePlan[$group] : []);
         }
 
-        // Reverse package order in groups.
-        foreach ($mergePlan as $group => $files) {
-            $mergePlan[$group] = array_reverse($files, true);
-        }
+        // Sort groups by alphabetical
+        ksort($mergePlan);
 
         $packageOptions = $outputDirectory . '/' . self::MERGE_PLAN_FILENAME;
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n");

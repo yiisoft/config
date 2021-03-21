@@ -1,0 +1,17 @@
+{
+    "name": "test/ba",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "Test\\Yii\\View\\": "src"
+        }
+    },
+    "require": {
+        "test/a": "*"
+    },
+    "extra": {
+        "config-plugin": {
+            "web": "config/web.php"
+        }
+    }
+}
