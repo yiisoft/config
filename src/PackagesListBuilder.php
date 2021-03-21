@@ -32,7 +32,7 @@ final class PackagesListBuilder
         $allPackages = $this->getAllPackages();
 
         $packageDepths = [];
-        $this->calcPackageDepths($allPackages, $packageDepths, 0, $this->composer->getPackage(), true);
+        $this->calculatePackageDepths($allPackages, $packageDepths, 0, $this->composer->getPackage(), true);
 
         $result = [];
         foreach ($this->getSortedPackageNames($packageDepths) as $name) {
@@ -74,7 +74,7 @@ final class PackagesListBuilder
      * @psalm-param array<string, CompletePackage> $allPackages
      * @psalm-param array<string, int> $packageDepths
      */
-    private function calcPackageDepths(
+    private function calculatePackageDepths(
         array $allPackages,
         array &$packageDepths,
         int $depth,
@@ -102,7 +102,7 @@ final class PackagesListBuilder
 
         foreach ($dependencies as $dependency) {
             if (array_key_exists($dependency, $allPackages)) {
-                $this->calcPackageDepths($allPackages, $packageDepths, $depth, $allPackages[$dependency], false);
+                $this->calculatePackageDepths($allPackages, $packageDepths, $depth, $allPackages[$dependency], false);
             }
         }
     }
@@ -115,10 +115,12 @@ final class PackagesListBuilder
     private function getAllPackages(): array
     {
         $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getPackages();
-        $packages = array_filter($packages, static fn ($package) => $package instanceof CompletePackage);
 
         $result = [];
         foreach ($packages as $package) {
+            if (!$$package instanceof CompletePackage) {
+                continue;
+            }
             $result[$package->getPrettyName()] = $package;
         }
 
