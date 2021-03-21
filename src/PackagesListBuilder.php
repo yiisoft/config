@@ -118,7 +118,7 @@ final class PackagesListBuilder
 
         $result = [];
         foreach ($packages as $package) {
-            if (!$$package instanceof CompletePackage) {
+            if (!$package instanceof CompletePackage) {
                 continue;
             }
             $result[$package->getPrettyName()] = $package;
