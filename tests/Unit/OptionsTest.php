@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use stdClass;
-use Yiisoft\Config\Exception\IncorrectOutputDirectoryOptionException;
-use Yiisoft\Config\Exception\IncorrectSilentOverrideOptionException;
 use Yiisoft\Config\Options;
 
 final class OptionsTest extends TestCase
@@ -32,29 +29,6 @@ final class OptionsTest extends TestCase
         $this->assertFalse($options->silentOverride());
     }
 
-    public function dataIncorrectSilentOverride(): array
-    {
-        return [
-            ['string'],
-            [42],
-            [new stdClass()],
-            [7.92]
-        ];
-    }
-
-    /**
-     * @dataProvider dataIncorrectSilentOverride
-     */
-    public function testIncorrectSilentOverride($value): void
-    {
-        $this->expectException(IncorrectSilentOverrideOptionException::class);
-        new Options([
-            'config-plugin-options' => [
-                'silent-override' => $value,
-            ],
-        ]);
-    }
-
     public function testOutputDirectory(): void
     {
         $options = new Options([]);
@@ -66,28 +40,5 @@ final class OptionsTest extends TestCase
             ],
         ]);
         $this->assertSame('custom-dir-packages', $options->outputDirectory());
-    }
-
-    public function dataIncorrectOutputDirectory(): array
-    {
-        return [
-            [''],
-            [42],
-            [new stdClass()],
-            [7.92],
-        ];
-    }
-
-    /**
-     * @dataProvider dataIncorrectOutputDirectory
-     */
-    public function testIncorrectOutputDirectory($value): void
-    {
-        $this->expectException(IncorrectOutputDirectoryOptionException::class);
-        new Options([
-            'config-plugin-options' => [
-                'output-directory' => $value,
-            ],
-        ]);
     }
 }
