@@ -56,15 +56,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertDirectoryExists($this->workingDirectory . '/config/packages/first-vendor/first-package.removed');
     }
 
-    private function changeInstallationPackagePath(string $path, int $index = 1): void
-    {
-        $composerConfigPath = $this->workingDirectory . '/composer.json';
-
-        $composerArray = $this->getComposerConfigStringAsArray($composerConfigPath);
-        $composerArray['repositories'][$index]['url'] = '../Packages/' . $path;
-        file_put_contents($composerConfigPath, $this->getArrayAsComposerConfigString($composerArray));
-    }
-
     public function testUpdatingPackageWithConfigSimple(): void
     {
         $configFilename = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';

@@ -32,7 +32,6 @@ use function in_array;
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
     private const MERGE_PLAN_FILENAME = 'merge_plan.php';
-    private const DEFAULT_OUTPUT_PATH = 'config/packages';
     private const DIST_DIRECTORY = 'dist';
 
     private ?Composer $composer = null;
@@ -95,8 +94,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
         $rootConfig = $this->getPluginConfig($rootPackage);
-        $silentOverride = (bool)($rootConfig['silentOverride'] ?? false);
-        $outputDirectory = $this->getPluginOutputDirectory($rootPackage);
+        $options = new Options($rootPackage->getExtra());
+
+        $outputDirectory = $this->getRootPath() . '/' . $options->outputDirectory();
         $this->ensureDirectoryExists($outputDirectory);
 
         $allPackages = (new PackagesListBuilder($composer))->build();
@@ -155,7 +155,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                     if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
                         $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
-                        $this->updateFile($source, $destination, $silentOverride);
+                        $this->updateFile($source, $destination, $options->silentOverride());
                     }
 
                     $mergePlan[$group][$package->getPrettyName()][] = $file;
@@ -214,15 +214,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private function getPluginConfig(PackageInterface $package): array
     {
         return $package->getExtra()['config-plugin'] ?? [];
-    }
-
-    /**
-     * @psalm-return string
-     * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
-     */
-    private function getPluginOutputDirectory(PackageInterface $package): string
-    {
-        return $this->getRootPath() . '/' . (string)($package->getExtra()['config-plugin-output-dir'] ?? self::DEFAULT_OUTPUT_PATH);
     }
 
     private function ensureDirectoryExists(string $directoryPath): void

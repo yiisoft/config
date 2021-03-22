@@ -115,6 +115,15 @@ abstract class ComposerTest extends TestCase
         }
     }
 
+    protected function changeInstallationPackagePath(string $path, int $index = 1): void
+    {
+        $composerConfigPath = $this->workingDirectory . '/composer.json';
+
+        $composerArray = $this->getComposerConfigStringAsArray($composerConfigPath);
+        $composerArray['repositories'][$index]['url'] = '../Packages/' . $path;
+        file_put_contents($composerConfigPath, $this->getArrayAsComposerConfigString($composerArray));
+    }
+
     protected function getArrayAsComposerConfigString(array $array): string
     {
         return json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
