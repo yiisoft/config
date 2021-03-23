@@ -166,7 +166,22 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         // Append root package config.
         foreach ($rootConfig as $group => $files) {
-            $mergePlan[$group] = ['/' => (array)$files] +
+            $files = array_map(
+                function ($file) use ($options) {
+                    $isOptional = $this->isOptional($file);
+                    if ($isOptional) {
+                        $file = substr($file, 1);
+                    }
+
+                    $result = $isOptional ? '?' : '';
+                    if ($options->sourceDirectory() !== '/') {
+                        $result .= ltrim($options->sourceDirectory(), '/') . '/';
+                    }
+                    return $result . $file;
+                },
+                (array)$files
+            );
+            $mergePlan[$group] = ['/' => $files] +
                 (array_key_exists($group, $mergePlan) ? $mergePlan[$group] : []);
         }
 

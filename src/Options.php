@@ -34,16 +34,7 @@ final class Options
 
     private function normalizeRelativePath(string $value): string
     {
-        $value = str_replace('\\', '/', $value);
-        if ($value === '/' || $value === '') {
-            return '/';
-        }
-
-        $value = rtrim($value, '/');
-
-        return $value[0] === '/'
-            ? $value
-            : ('/' . $value);
+        return '/' . trim(str_replace('\\', '/', $value), '/');
     }
 
 
