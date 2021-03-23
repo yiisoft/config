@@ -12,6 +12,7 @@ final class PackagesListBuilderTest extends ComposerTest
             'a',
             'ba',
             'c',
+            'custom-source',
         ];
 
         $repositories = [
@@ -134,6 +135,42 @@ final class PackagesListBuilderTest extends ComposerTest
                 ],
                 'test/c' => [
                     'config/web.php',
+                ],
+                'test/a' => [
+                    'config/web.php',
+                ],
+            ],
+        ]);
+
+        $this->execComposer('require test/custom-source');
+        $this->assertMergePlan([
+            'params' => [
+                '/' => [
+                    'config/params.php',
+                    '?config/params-local.php',
+                ],
+                'test/c' => [
+                    'config/params.php',
+                ],
+                'test/custom-source' => [
+                    'params.php',
+                ],
+                'test/a' => [
+                    'config/params.php',
+                ],
+            ],
+            'web' => [
+                '/' => [
+                    'config/web.php',
+                ],
+                'test/ba' => [
+                    'config/web.php',
+                ],
+                'test/c' => [
+                    'config/web.php',
+                ],
+                'test/custom-source' => [
+                    'web.php',
                 ],
                 'test/a' => [
                     'config/web.php',

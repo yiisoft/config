@@ -12,6 +12,7 @@ use function is_array;
 final class Options
 {
     private bool $silentOverride;
+    private string $sourceDirectory;
     private string $outputDirectory;
 
     public function __construct(array $extra)
@@ -23,12 +24,37 @@ final class Options
         }
 
         $this->silentOverride = (bool)($options['silent-override'] ?? false);
-        $this->outputDirectory = (string)($options['output-directory'] ?? 'config/packages');
+        $this->sourceDirectory = isset($options['source-directory'])
+            ? $this->normalizeRelativePath((string)$options['source-directory'])
+            : '/';
+        $this->outputDirectory = isset($options['output-directory'])
+            ? $this->normalizeRelativePath((string)$options['output-directory'])
+            : '/config/packages';
     }
+
+    private function normalizeRelativePath(string $value): string
+    {
+        $value = str_replace('\\', '/', $value);
+        if ($value === '/' || $value === '') {
+            return '/';
+        }
+
+        $value = rtrim($value, '/');
+
+        return $value[0] === '/'
+            ? $value
+            : ('/' . $value);
+    }
+
 
     public function silentOverride(): bool
     {
         return $this->silentOverride;
+    }
+
+    public function sourceDirectory(): string
+    {
+        return $this->sourceDirectory;
     }
 
     public function outputDirectory(): string

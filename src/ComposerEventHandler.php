@@ -96,7 +96,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $rootConfig = $this->getPluginConfig($rootPackage);
         $options = new Options($rootPackage->getExtra());
 
-        $outputDirectory = $this->getRootPath() . '/' . $options->outputDirectory();
+        $outputDirectory = $this->getRootPath() . $options->outputDirectory();
         $this->ensureDirectoryExists($outputDirectory);
 
         $allPackages = (new PackagesListBuilder($composer))->build();
@@ -113,6 +113,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         foreach ($allPackages as $package) {
             $pluginConfig = $this->getPluginConfig($package);
+            $pluginOptions = new Options($package->getExtra());
             foreach ($pluginConfig as $group => $files) {
                 $files = (array)$files;
                 foreach ($files as $file) {
@@ -129,7 +130,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    $source = $this->getPackagePath($package) . '/' . $file;
+                    $source = $this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/' . $file;
 
                     if ($this->containsWildcard($file)) {
                         $matches = glob($source);
