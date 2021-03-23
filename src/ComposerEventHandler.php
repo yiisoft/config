@@ -100,7 +100,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $this->ensureDirectoryExists($outputDirectory);
 
         $allPackages = (new PackagesListBuilder($composer))->build();
-        $packagesForCheck = array_map(
+        $packagesForCheck = $options->forceCheck() ? [] : array_map(
             static fn (PackageInterface $package) => $package->getPrettyName(),
             $this->updatedPackages
         );
@@ -153,7 +153,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
+                    if ($options->forceCheck() || in_array($package->getPrettyName(), $packagesForCheck, true)) {
                         $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
                         $this->updateFile($source, $destination, $options->silentOverride());
                     }

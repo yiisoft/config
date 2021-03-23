@@ -29,6 +29,26 @@ final class OptionsTest extends TestCase
         $this->assertFalse($options->silentOverride());
     }
 
+    public function testForceCheck(): void
+    {
+        $options = new Options([]);
+        $this->assertFalse($options->forceCheck());
+
+        $options = new Options([
+            'config-plugin-options' => [
+                'force-check' => true,
+            ],
+        ]);
+        $this->assertTrue($options->forceCheck());
+
+        $options = new Options([
+            'config-plugin-options' => [
+                'force-check' => false,
+            ],
+        ]);
+        $this->assertFalse($options->forceCheck());
+    }
+
     public function testOutputDirectory(): void
     {
         $options = new Options([]);

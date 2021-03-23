@@ -12,6 +12,7 @@ use function is_array;
 final class Options
 {
     private bool $silentOverride;
+    private bool $forceCheck;
     private string $outputDirectory;
 
     public function __construct(array $extra)
@@ -23,12 +24,18 @@ final class Options
         }
 
         $this->silentOverride = (bool)($options['silent-override'] ?? false);
+        $this->forceCheck = (bool)($options['force-check'] ?? false);
         $this->outputDirectory = (string)($options['output-directory'] ?? 'config/packages');
     }
 
     public function silentOverride(): bool
     {
         return $this->silentOverride;
+    }
+
+    public function forceCheck(): bool
+    {
+        return $this->forceCheck;
     }
 
     public function outputDirectory(): string
