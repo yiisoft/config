@@ -12,6 +12,7 @@ use function is_array;
 final class Options
 {
     private bool $silentOverride;
+    private bool $forceCheck;
     private string $sourceDirectory;
     private string $outputDirectory;
 
@@ -24,6 +25,7 @@ final class Options
         }
 
         $this->silentOverride = (bool)($options['silent-override'] ?? false);
+        $this->forceCheck = (bool)($options['force-check'] ?? false);
         $this->sourceDirectory = isset($options['source-directory'])
             ? $this->normalizeRelativePath((string)$options['source-directory'])
             : '/';
@@ -41,6 +43,11 @@ final class Options
     public function silentOverride(): bool
     {
         return $this->silentOverride;
+    }
+
+    public function forceCheck(): bool
+    {
+        return $this->forceCheck;
     }
 
     public function sourceDirectory(): string
