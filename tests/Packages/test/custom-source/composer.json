@@ -1,0 +1,14 @@
+{
+    "name": "test/custom-source",
+    "version": "1.0.0",
+    "extra": {
+        "config-plugin-options": {
+            "source-directory": "custom-dir"
+        },
+        "config-plugin": {
+            "params": "params.php",
+            "web": "web.php",
+            "subdir": "subdir/*.php"
+        }
+    }
+}

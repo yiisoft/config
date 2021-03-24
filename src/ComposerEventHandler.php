@@ -96,7 +96,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $rootConfig = $this->getPluginConfig($rootPackage);
         $options = new Options($rootPackage->getExtra());
 
-        $outputDirectory = $this->getRootPath() . '/' . $options->outputDirectory();
+        $outputDirectory = $this->getRootPath() . $options->outputDirectory();
         $this->ensureDirectoryExists($outputDirectory);
 
         $allPackages = (new PackagesListBuilder($composer))->build();
@@ -113,6 +113,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         foreach ($allPackages as $package) {
             $pluginConfig = $this->getPluginConfig($package);
+            $pluginOptions = new Options($package->getExtra());
             foreach ($pluginConfig as $group => $files) {
                 $files = (array)$files;
                 foreach ($files as $file) {
@@ -129,7 +130,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    $source = $this->getPackagePath($package) . '/' . $file;
+                    $source = $this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/' . $file;
 
                     if ($this->containsWildcard($file)) {
                         $matches = glob($source);
@@ -139,7 +140,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                         if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
                             foreach ($matches as $match) {
-                                $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
+                                $relativePath = str_replace($this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/', '', $match);
                                 $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
                             }
                         }
@@ -165,7 +166,22 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         // Append root package config.
         foreach ($rootConfig as $group => $files) {
-            $mergePlan[$group] = ['/' => (array)$files] +
+            $files = array_map(
+                function ($file) use ($options) {
+                    $isOptional = $this->isOptional($file);
+                    if ($isOptional) {
+                        $file = substr($file, 1);
+                    }
+
+                    $result = $isOptional ? '?' : '';
+                    if ($options->sourceDirectory() !== '/') {
+                        $result .= ltrim($options->sourceDirectory(), '/') . '/';
+                    }
+                    return $result . $file;
+                },
+                (array)$files
+            );
+            $mergePlan[$group] = ['/' => $files] +
                 (array_key_exists($group, $mergePlan) ? $mergePlan[$group] : []);
         }
 

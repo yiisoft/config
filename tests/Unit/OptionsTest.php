@@ -49,16 +49,67 @@ final class OptionsTest extends TestCase
         $this->assertFalse($options->forceCheck());
     }
 
-    public function testOutputDirectory(): void
+    public function testDefaultOutputDirectory(): void
     {
         $options = new Options([]);
-        $this->assertSame('config/packages', $options->outputDirectory());
+        $this->assertSame('/config/packages', $options->outputDirectory());
+    }
 
+    public function dataOutputDirectory(): array
+    {
+        return [
+            ['/', ''],
+            ['/', '/'],
+            ['/', '\\'],
+            ['/custom-dir', 'custom-dir'],
+            ['/custom-dir', '/custom-dir'],
+            ['/custom-dir', '/custom-dir/'],
+            ['/custom-dir', '\\custom-dir\\'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataOutputDirectory
+     */
+    public function testOutputDirectory(string $expected, string $path): void
+    {
         $options = new Options([
             'config-plugin-options' => [
-                'output-directory' => 'custom-dir-packages',
+                'output-directory' => $path,
             ],
         ]);
-        $this->assertSame('custom-dir-packages', $options->outputDirectory());
+        $this->assertSame($expected, $options->outputDirectory());
+    }
+
+    public function testDefaultSourceDirectory(): void
+    {
+        $options = new Options([]);
+        $this->assertSame('/', $options->sourceDirectory());
+    }
+
+    public function dataSourceDirectory(): array
+    {
+        return [
+            ['/', ''],
+            ['/', '/'],
+            ['/', '\\'],
+            ['/custom-dir', 'custom-dir'],
+            ['/custom-dir', '/custom-dir'],
+            ['/custom-dir', '/custom-dir/'],
+            ['/custom-dir', '\\custom-dir\\'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataSourceDirectory
+     */
+    public function testSourceDirectory(string $expected, string $path): void
+    {
+        $options = new Options([
+            'config-plugin-options' => [
+                'source-directory' => $path,
+            ],
+        ]);
+        $this->assertSame($expected, $options->sourceDirectory());
     }
 }
