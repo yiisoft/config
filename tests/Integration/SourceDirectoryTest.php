@@ -36,5 +36,6 @@ final class SourceDirectoryTest extends ComposerTest
     {
         $this->assertFileExists($this->workingDirectory . '/config/packages/test/custom-source/params.php');
         $this->assertFileExists($this->workingDirectory . '/config/packages/test/custom-source/web.php');
+        $this->assertFileExists($this->workingDirectory . '/config/packages/test/custom-source/subdir/a.php');
     }
 }

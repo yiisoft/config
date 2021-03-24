@@ -140,7 +140,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                         if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
                             foreach ($matches as $match) {
-                                $relativePath = str_replace($this->getPackagePath($package) . '/', '', $match);
+                                $relativePath = str_replace($this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/', '', $match);
                                 $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
                             }
                         }

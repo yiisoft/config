@@ -7,7 +7,8 @@
         },
         "config-plugin": {
             "params": "params.php",
-            "web": "web.php"
+            "web": "web.php",
+            "subdir": "subdir/*.php"
         }
     }
 }
