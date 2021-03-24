@@ -159,6 +159,11 @@ final class PackagesListBuilderTest extends ComposerTest
                     'config/params.php',
                 ],
             ],
+            'subdir' => [
+                'test/custom-source' => [
+                    'subdir/*.php'
+                ],
+            ],
             'web' => [
                 '/' => [
                     'config/web.php',
