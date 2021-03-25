@@ -168,6 +168,10 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         foreach ($rootConfig as $group => $files) {
             $files = array_map(
                 function ($file) use ($options) {
+                    if ($this->isVariable($file)) {
+                        return $file;
+                    }
+
                     $isOptional = $this->isOptional($file);
                     if ($isOptional) {
                         $file = substr($file, 1);
