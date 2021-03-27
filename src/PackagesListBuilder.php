@@ -97,8 +97,8 @@ final class PackagesListBuilder
         ++$depth;
 
         $dependencies = $includingDev
-            ? array_keys($package->getRequires())
-            : [...array_keys($package->getRequires()), ...array_keys($package->getDevRequires())];
+            ? [...array_keys($package->getRequires()), ...array_keys($package->getDevRequires())]
+            : array_keys($package->getRequires());
 
         foreach ($dependencies as $dependency) {
             if (array_key_exists($dependency, $allPackages)) {

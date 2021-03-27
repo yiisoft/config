@@ -1,0 +1,17 @@
+{
+    "name": "test/d-dev-c",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "Test\\Yii\\View\\": "src"
+        }
+    },
+    "require-dev": {
+        "test/c": "*"
+    },
+    "extra": {
+        "config-plugin": {
+            "web": "config/web.php"
+        }
+    }
+}
