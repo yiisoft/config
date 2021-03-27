@@ -33,9 +33,10 @@ abstract class ComposerTest extends TestCase
 
         $this->workingDirectory = dirname(__DIR__) . '/Environment';
 
-        $tempDirectory = sys_get_temp_dir();
-        $this->stdoutFile = $tempDirectory . '/yiisoft/config/hook-stdout';
-        $this->stderrFile = $tempDirectory . '/yiisoft/config/hook-stderr';
+        $tempDirectory = sys_get_temp_dir() . '/yiisoft/config';
+        $this->ensureDirectoryExists($tempDirectory);
+        $this->stdoutFile = $tempDirectory . '/hook-stdout';
+        $this->stderrFile = $tempDirectory . '/hook-stderr';
     }
 
     protected function setUp(): void
