@@ -16,7 +16,7 @@ final class ComposerEventHandlerTest extends ComposerTest
             'require' => [
                 'yiisoft/config' => '*',
             ],
-        ], ['first-package', 'second-package']);
+        ]);
     }
 
     public function testRemovePackageConfig(): void
