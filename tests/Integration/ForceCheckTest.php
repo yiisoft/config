@@ -4,32 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration;
 
-use function dirname;
-
 final class ForceCheckTest extends ComposerTest
 {
-    protected function getStartComposerConfig(): array
+    public function testBase(): void
     {
-        return [
-            'name' => 'yiisoft/testpackage',
-            'type' => 'library',
-            'minimum-stability' => 'dev',
+        $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',
                 'first-vendor/first-package' => '*',
-            ],
-            'repositories' => [
-                [
-                    'type' => 'path',
-                    'url' => '../../',
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/first-vendor/first-package',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ],
             ],
             'extra' => [
                 'config-plugin-options' => [
@@ -43,18 +25,15 @@ final class ForceCheckTest extends ComposerTest
                     'web' => ['config/web.php'],
                 ],
             ],
-        ];
-    }
+        ]);
 
-    public function testBase(): void
-    {
-        $fileDist = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
-        $filePackage = dirname(__DIR__) . '/Packages/first-vendor/first-package/config/params.php';
+        $fileDist = '/config/packages/first-vendor/first-package/config/dist/params.php';
+        $filePackage = '/vendor/first-vendor/first-package/config/params.php';
 
-        file_put_contents($fileDist, '<?php return [];');
-        $this->assertFileNotEquals($filePackage, $fileDist);
+        $this->putEnvironmentFileContents($fileDist, '<?php return [];');
+        $this->assertEnvironmentFileNotEquals($filePackage, $fileDist);
 
         $this->execComposer('du');
-        $this->assertFileEquals($filePackage, $fileDist);
+        $this->assertEnvironmentFileEquals($filePackage, $fileDist);
     }
 }

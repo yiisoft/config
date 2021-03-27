@@ -6,39 +6,12 @@ namespace Yiisoft\Config\Tests\Integration;
 
 final class PackagesListBuilderTest extends ComposerTest
 {
-    protected function getStartComposerConfig(): array
+    public function testBase(): void
     {
-        $packages = [
-            'a',
-            'ba',
-            'c',
-            'custom-source',
-        ];
-
-        $repositories = [
-            [
-                'type' => 'path',
-                'url' => '../../',
-            ],
-        ];
-        foreach ($packages as $package) {
-            $repositories[] = [
-                'type' => 'path',
-                'url' => '../Packages/test/' . $package,
-                'options' => [
-                    'symlink' => false,
-                ],
-            ];
-        }
-
-        return [
-            'name' => 'yiisoft/testpackage',
-            'type' => 'library',
-            'minimum-stability' => 'dev',
+        $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',
             ],
-            'repositories' => $repositories,
             'extra' => [
                 'config-plugin' => [
                     'params' => [
@@ -48,11 +21,8 @@ final class PackagesListBuilderTest extends ComposerTest
                     'web' => ['config/web.php'],
                 ],
             ],
-        ];
-    }
+        ]);
 
-    public function testBase(): void
-    {
         $this->assertMergePlan([
             'params' => [
                 '/' => [
@@ -182,10 +152,5 @@ final class PackagesListBuilderTest extends ComposerTest
                 ],
             ],
         ]);
-    }
-
-    private function assertMergePlan(array $mergePlan): void
-    {
-        $this->assertSame($mergePlan, require $this->workingDirectory . '/config/packages/merge_plan.php');
     }
 }

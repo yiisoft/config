@@ -6,28 +6,12 @@ namespace Yiisoft\Config\Tests\Integration;
 
 final class PackagesListBuilderWithVariablesTest extends ComposerTest
 {
-    protected function getStartComposerConfig(): array
+    public function testBase(): void
     {
-        return [
-            'name' => 'yiisoft/testpackage',
-            'type' => 'library',
-            'minimum-stability' => 'dev',
+        $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',
                 'test/a' => '*',
-            ],
-            'repositories' => [
-                [
-                    'type' => 'path',
-                    'url' => '../../',
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/test/a',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ]
             ],
             'extra' => [
                 'config-plugin-options' => [
@@ -45,11 +29,8 @@ final class PackagesListBuilderWithVariablesTest extends ComposerTest
                     ],
                 ],
             ],
-        ];
-    }
+        ]);
 
-    public function testBase(): void
-    {
         $this->assertMergePlan([
             'common' => [
                 '/' => [
@@ -75,10 +56,5 @@ final class PackagesListBuilderWithVariablesTest extends ComposerTest
                 ],
             ],
         ]);
-    }
-
-    private function assertMergePlan(array $mergePlan): void
-    {
-        $this->assertSame($mergePlan, require $this->workingDirectory . '/config/packages/merge_plan.php');
     }
 }

@@ -6,12 +6,9 @@ namespace Yiisoft\Config\Tests\Integration;
 
 final class PackagesListBuilderWithDevTest extends ComposerTest
 {
-    protected function getStartComposerConfig(): array
+    public function testBase(): void
     {
-        return [
-            'name' => 'yiisoft/testpackage',
-            'type' => 'library',
-            'minimum-stability' => 'dev',
+        $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',
                 'test/d-dev-c' => '*',
@@ -19,38 +16,8 @@ final class PackagesListBuilderWithDevTest extends ComposerTest
             'require-dev' => [
                 'test/a' => '*',
             ],
-            'repositories' => [
-                [
-                    'type' => 'path',
-                    'url' => '../../',
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/test/a',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/test/c',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/test/d-dev-c',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ],
-            ],
-        ];
-    }
+        ]);
 
-    public function testBase(): void
-    {
         $this->assertMergePlan([
             'params' => [
                 'test/a' => [
@@ -66,10 +33,5 @@ final class PackagesListBuilderWithDevTest extends ComposerTest
                 ],
             ],
         ]);
-    }
-
-    private function assertMergePlan(array $mergePlan): void
-    {
-        $this->assertSame($mergePlan, require $this->workingDirectory . '/config/packages/merge_plan.php');
     }
 }
