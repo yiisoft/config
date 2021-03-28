@@ -6,36 +6,17 @@ namespace Yiisoft\Config\Tests\Integration;
 
 final class SourceDirectoryTest extends ComposerTest
 {
-    protected function getStartComposerConfig(): array
+    public function testBase(): void
     {
-        return [
-            'name' => 'yiisoft/testpackage',
-            'type' => 'library',
-            'minimum-stability' => 'dev',
+        $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',
                 'test/custom-source' => '*',
             ],
-            'repositories' => [
-                [
-                    'type' => 'path',
-                    'url' => '../../',
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/test/custom-source',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ],
-            ],
-        ];
-    }
+        ]);
 
-    public function testBase(): void
-    {
-        $this->assertFileExists($this->workingDirectory . '/config/packages/test/custom-source/params.php');
-        $this->assertFileExists($this->workingDirectory . '/config/packages/test/custom-source/web.php');
-        $this->assertFileExists($this->workingDirectory . '/config/packages/test/custom-source/subdir/a.php');
+        $this->assertEnvironmentFileExist('/config/packages/test/custom-source/params.php');
+        $this->assertEnvironmentFileExist('/config/packages/test/custom-source/web.php');
+        $this->assertEnvironmentFileExist('/config/packages/test/custom-source/subdir/a.php');
     }
 }

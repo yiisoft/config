@@ -6,28 +6,12 @@ namespace Yiisoft\Config\Tests\Integration;
 
 final class SilentOverrideTest extends ComposerTest
 {
-    protected function getStartComposerConfig(): array
+    public function testBase(): void
     {
-        return [
-            'name' => 'yiisoft/testpackage',
-            'type' => 'library',
-            'minimum-stability' => 'dev',
+        $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',
                 'first-vendor/first-package' => '*',
-            ],
-            'repositories' => [
-                [
-                    'type' => 'path',
-                    'url' => '../../',
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/first-vendor/first-package',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ],
             ],
             'extra' => [
                 'config-plugin-options' => [
@@ -41,17 +25,14 @@ final class SilentOverrideTest extends ComposerTest
                     'web' => ['config/web.php'],
                 ],
             ],
-        ];
-    }
+        ]);
 
-    public function testBase(): void
-    {
-        $fileConfig = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/params.php';
-        $fileDist = $this->workingDirectory . '/config/packages/first-vendor/first-package/config/dist/params.php';
+        $fileConfig = '/config/packages/first-vendor/first-package/config/params.php';
+        $fileDist = '/config/packages/first-vendor/first-package/config/dist/params.php';
 
-        $this->changeInstallationPackagePath('first-vendor/first-package-1.0.2-changed-config');
+        $this->changeTestPackageDir('first-package', 'first-package-1.0.2-changed-config');
         $this->execComposer('update');
 
-        $this->assertFileEquals($fileConfig, $fileDist);
+        $this->assertEnvironmentFileEquals($fileConfig, $fileDist);
     }
 }

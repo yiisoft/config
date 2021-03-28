@@ -13,9 +13,19 @@ use function in_array;
 
 abstract class ComposerTest extends TestCase
 {
-    protected string $workingDirectory;
-    protected string $stdoutFile;
-    protected string $stderrFile;
+    private const TEST_PACKAGES = [
+        'a',
+        'ba',
+        'c',
+        'custom-source',
+        'd-dev-c',
+        'first-package',
+        'second-package',
+    ];
+
+    private string $workingDirectory;
+    private string $stdoutFile;
+    private string $stderrFile;
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
@@ -23,22 +33,17 @@ abstract class ComposerTest extends TestCase
 
         $this->workingDirectory = dirname(__DIR__) . '/Environment';
 
-        $tempDirectory = sys_get_temp_dir();
-        $this->stdoutFile = $tempDirectory . '/yiisoft-hook-stdout';
-        $this->stderrFile = $tempDirectory . '/yiisoft-hook-stderr';
+        $tempDirectory = sys_get_temp_dir() . '/yiisoft/config';
+        $this->ensureDirectoryExists($tempDirectory);
+        $this->stdoutFile = $tempDirectory . '/hook-stdout';
+        $this->stderrFile = $tempDirectory . '/hook-stderr';
     }
-
-    abstract protected function getStartComposerConfig(): array;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->removeDirectory($this->workingDirectory);
         $this->ensureDirectoryExists($this->workingDirectory);
-
-        $this->initComposer();
-        $this->execComposer('install');
     }
 
     protected function tearDown(): void
@@ -47,40 +52,76 @@ abstract class ComposerTest extends TestCase
         $this->removeDirectory($this->workingDirectory);
     }
 
-    protected function assertSameMergePlan(array $expected): void
+    protected function assertMergePlan(array $expected): void
     {
-        $mergePlan = require $this->workingDirectory . '/config/packages/merge_plan.php';
-
-        $this->assertSameMergePlanKeys($expected, $mergePlan);
-
-        foreach ($expected as $group => $packages) {
-            $this->assertSameMergePlanKeys($packages, $mergePlan[$group]);
-            foreach ($packages as $name => $files) {
-                self::assertSame($files, $mergePlan[$group][$name]);
-            }
-        }
+        $this->assertSame($expected, require $this->workingDirectory . '/config/packages/merge_plan.php');
     }
 
-    private function assertSameMergePlanKeys(array $expected, array $array): void
+    protected function assertEnvironmentDirectoryExists(string $directory): void
     {
-        $expectedKeys = array_keys($expected);
-        sort($expectedKeys);
-        $keys = array_keys($array);
-        sort($keys);
-
-        self::assertSame($expectedKeys, $keys);
+        $this->assertDirectoryExists($this->workingDirectory . $directory);
     }
 
-    private function initComposer(): void
+    protected function assertEnvironmentFileDoesNotExist(string $filename): void
     {
-        $config = $this->getStartComposerConfig();
+        $this->assertFileDoesNotExist($this->workingDirectory . $filename);
+    }
+
+    protected function assertEnvironmentFileExist(string $filename): void
+    {
+        $this->assertFileExists($this->workingDirectory . $filename);
+    }
+
+    protected function assertEnvironmentFileNotEquals(string $expected, string $actual): void
+    {
+        $this->assertFileNotEquals($this->workingDirectory . $expected, $this->workingDirectory . $actual);
+    }
+
+    protected function assertEnvironmentFileEquals(string $expected, string $actual): void
+    {
+        $this->assertFileEquals($this->workingDirectory . $expected, $this->workingDirectory . $actual);
+    }
+
+    protected function getEnvironmentFileContents(string $filename): string
+    {
+        return file_get_contents($this->workingDirectory . $filename);
+    }
+
+    protected function putEnvironmentFileContents(string $filename, string $content, $context = null): void
+    {
+        $context === null
+            ? file_put_contents($this->workingDirectory . $filename, $content)
+            : file_put_contents($this->workingDirectory . $filename, $content, $context);
+    }
+
+    protected function removeEnvironmentFile(string $filename): void
+    {
+        (new Filesystem())->unlink($this->workingDirectory . $filename);
+    }
+
+    protected function getStdout(): string
+    {
+        return file_get_contents($this->stdoutFile);
+    }
+
+    protected function initComposer(array $config): void
+    {
+        $root = $this->getRoot();
+
+        // Load yiisoft/config locally
+        $repositories = [
+            [
+                'type' => 'path',
+                'url' => $root,
+            ],
+        ];
 
         // Load yiisoft/config dependencies locally
-        $packageConfig = $this->getComposerConfigStringAsArray(dirname(__DIR__, 2) . '/composer.lock');
+        $packageConfig = $this->getComposerJson(dirname(__DIR__, 2) . '/composer.lock');
         foreach ($packageConfig['packages'] as $package) {
-            $config['repositories'][] = [
+            $repositories[] = [
                 'type' => 'path',
-                'url' => '../../vendor/' . $package['name'],
+                'url' => $root . '/vendor/' . $package['name'],
                 'options' => [
                     'versions' => [
                         $package['name'] => $package['version'],
@@ -89,7 +130,35 @@ abstract class ComposerTest extends TestCase
             ];
         }
 
-        file_put_contents($this->workingDirectory . '/composer.json', $this->getArrayAsComposerConfigString($config));
+        // Load test packages
+        foreach (self::TEST_PACKAGES as $package) {
+            $repositories[] = [
+                'type' => 'path',
+                'url' => $root . '/tests/Packages/' . $package,
+                'options' => [
+                    'symlink' => false,
+                    '__name' => $package,
+                ],
+            ];
+        }
+
+        $config = array_merge($config, [
+            'name' => 'yiisoft/test-package',
+            'type' => 'library',
+            'minimum-stability' => 'dev',
+            'repositories' => $repositories,
+        ]);
+
+        $this->setComposerJson($config);
+        $this->execComposer('install');
+    }
+
+    private function setComposerJson(array $config): void
+    {
+        file_put_contents(
+            $this->workingDirectory . '/composer.json',
+            json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
     }
 
     protected function execComposer(string $command): void
@@ -115,32 +184,40 @@ abstract class ComposerTest extends TestCase
         }
     }
 
-    protected function changeInstallationPackagePath(string $path, int $index = 1): void
+    protected function changeTestPackageDir(string $package, string $dir): void
     {
-        $composerConfigPath = $this->workingDirectory . '/composer.json';
+        $config = $this->getComposerJson();
+        foreach ($config['repositories'] as $i => $data) {
+            if (($data['options']['__name'] ?? null) === $package) {
+                $config['repositories'][$i]['url'] = $this->getRoot() . '/tests/Packages/' . $dir;
+                break;
+            }
+        }
 
-        $composerArray = $this->getComposerConfigStringAsArray($composerConfigPath);
-        $composerArray['repositories'][$index]['url'] = '../Packages/' . $path;
-        file_put_contents($composerConfigPath, $this->getArrayAsComposerConfigString($composerArray));
+        $this->setComposerJson($config);
     }
 
-    protected function getArrayAsComposerConfigString(array $array): string
+    private function getComposerJson(string $path = null): array
     {
-        return json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        if ($path === null) {
+            $path = $this->workingDirectory . '/composer.json';
+        }
+
+        return json_decode(file_get_contents($path), true);
     }
 
-    protected function getComposerConfigStringAsArray(string $composerConfigPath): array
-    {
-        return json_decode(file_get_contents($composerConfigPath), true);
-    }
-
-    protected function removeDirectory(string $directory): void
+    private function removeDirectory(string $directory): void
     {
         (new Filesystem())->removeDirectory($directory);
     }
 
-    protected function ensureDirectoryExists(string $directory): void
+    private function ensureDirectoryExists(string $directory): void
     {
         (new Filesystem())->ensureDirectoryExists($directory);
+    }
+
+    private function getRoot(): string
+    {
+        return dirname(__DIR__, 2);
     }
 }

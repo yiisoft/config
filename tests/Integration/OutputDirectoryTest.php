@@ -6,28 +6,12 @@ namespace Yiisoft\Config\Tests\Integration;
 
 final class OutputDirectoryTest extends ComposerTest
 {
-    protected function getStartComposerConfig(): array
+    public function testBase(): void
     {
-        return [
-            'name' => 'yiisoft/testpackage',
-            'type' => 'library',
-            'minimum-stability' => 'dev',
+        $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',
                 'first-vendor/first-package' => '*',
-            ],
-            'repositories' => [
-                [
-                    'type' => 'path',
-                    'url' => '../../',
-                ],
-                [
-                    'type' => 'path',
-                    'url' => '../Packages/first-vendor/first-package',
-                    'options' => [
-                        'symlink' => false,
-                    ],
-                ],
             ],
             'extra' => [
                 'config-plugin-options' => [
@@ -41,11 +25,8 @@ final class OutputDirectoryTest extends ComposerTest
                     'web' => ['config/web.php'],
                 ],
             ],
-        ];
-    }
+        ]);
 
-    public function testBase(): void
-    {
-        $this->assertFileExists($this->workingDirectory . '/custom-dir/packages/merge_plan.php');
+        $this->assertEnvironmentFileExist('/custom-dir/packages/merge_plan.php');
     }
 }
