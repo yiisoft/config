@@ -1,11 +1,8 @@
 <?php
 
-
 declare(strict_types=1);
 
-
 namespace Yiisoft\Config;
-
 
 use ErrorException;
 use function array_key_exists;
@@ -19,13 +16,14 @@ use function is_int;
 final class Config
 {
     private const MERGE_PLAN_FILENAME = 'merge_plan.php';
-    private const DEFAULT_CONFIGS_PATH = '/config/packages';
+    private const DEFAULT_CONFIGS_PATH = 'config/packages';
 
     /**
      * @var string Path to composer.json directory.
      */
     private string $rootPath;
     private string $configsPath;
+    private string $relativeConfigsPath;
 
     /**
      * @psalm-var array<string, array<string, list<string>>>
@@ -44,10 +42,10 @@ final class Config
     public function __construct(
         string $rootPath,
         string $configsPath = null
-    )
-    {
+    ) {
         $this->rootPath = $rootPath;
-        $this->configsPath = $this->rootPath . ($configsPath ?? self::DEFAULT_CONFIGS_PATH);
+        $this->relativeConfigsPath = ltrim($configsPath ?? self::DEFAULT_CONFIGS_PATH, '/');
+        $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
         $this->mergePlan = require $this->configsPath . '/' . self::MERGE_PLAN_FILENAME;
@@ -193,7 +191,7 @@ final class Config
         $config = $this->mergePlan[$group];
         unset($config[$packageName]);
 
-        $suggestedConfigPaths = [];
+        $configPaths = [$this->getRelativeConfigPath($packageName, $file)];
         foreach ($config as $package => $packageConfigs) {
             foreach ($packageConfigs as $packageConfig) {
                 if ($this->isVariable($packageConfig)) {
@@ -209,17 +207,27 @@ final class Config
                 if (file_exists($fullConfigPath)) {
                     $configContents = file_get_contents($fullConfigPath);
                     if (strpos($configContents, $key) !== false) {
-                        $suggestedConfigPaths[] = $fullConfigPath;
+                        $configPaths[] = $this->getRelativeConfigPath($package, $packageConfig);
                     }
                 }
             }
         }
 
+        $configPaths = array_map(
+            static fn (string $path) => ' - ' . $path,
+            $configPaths
+        );
+
+        usort($configPaths, static function (string $a, string $b) {
+            $countDirsA = substr_count($a, '/');
+            $countDirsB = substr_count($b, '/');
+            return $countDirsA === $countDirsB ? $a <=> $b : $countDirsA <=> $countDirsB;
+        });
+
         return sprintf(
-            'Duplicate key "%s" in "%s". Configs with the same key: "%s".',
+            "Duplicate key \"%s\" in configs:\n%s",
             $path ? $path . ' => ' . $key : $key,
-            $this->getConfigsPath($packageName) . '/' . $file,
-            implode('", "', $suggestedConfigPaths)
+            implode("\n", $configPaths)
         );
     }
 
@@ -227,6 +235,7 @@ final class Config
      * Get path to package configs.
      *
      * @param string $packageName Name of the package. "/" stands for application package.
+     *
      * @return string Path to package configs.
      */
     private function getConfigsPath(string $packageName): string
@@ -236,5 +245,22 @@ final class Config
         }
 
         return "$this->configsPath/$packageName";
+    }
+
+    /**
+     * Get relative path to package config.
+     *
+     * @param string $packageName Name of the package. "/" stands for application package.
+     * @param string $file Config file.
+     *
+     * @return string Relative path to package configs.
+     */
+    private function getRelativeConfigPath(string $packageName, string $file): string
+    {
+        $dir = $packageName === '/'
+            ? ''
+            : "$this->relativeConfigsPath/$packageName/";
+
+        return $dir . $file;
     }
 }
