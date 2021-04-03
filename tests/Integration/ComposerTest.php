@@ -32,9 +32,10 @@ abstract class ComposerTest extends TestCase
     {
         parent::__construct($name, $data, $dataName);
 
-        $this->workingDirectory = dirname(__DIR__) . '/Environment';
-
         $tempDirectory = sys_get_temp_dir() . '/yiisoft/config';
+
+        $this->workingDirectory = $tempDirectory . '/Environment';
+
         $this->ensureDirectoryExists($tempDirectory);
         $this->stdoutFile = $tempDirectory . '/hook-stdout';
         $this->stderrFile = $tempDirectory . '/hook-stderr';
