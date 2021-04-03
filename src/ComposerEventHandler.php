@@ -31,15 +31,16 @@ use function in_array;
  */
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
+    private const CONFIG_PACKAGE_PRETTY_NAME = 'yiisoft/config';
     private const MERGE_PLAN_FILENAME = 'merge_plan.php';
     private const DIST_DIRECTORY = 'dist';
 
     private ?Composer $composer = null;
 
     /**
-     * @var PackageInterface[] Updated packages.
+     * @var string[] Pretty names of updated packages.
      */
-    private array $updatedPackages = [];
+    private array $updatedPackagesPrettyNames = [];
 
     /**
      * @var string[] Names of removed packages.
@@ -65,7 +66,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         $operation = $event->getOperation();
         if ($operation instanceof InstallOperation) {
-            $this->updatedPackages[] = $operation->getPackage();
+            $this->updatedPackagesPrettyNames[] = $operation->getPackage()->getPrettyName();
         }
     }
 
@@ -73,7 +74,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         $operation = $event->getOperation();
         if ($operation instanceof UpdateOperation) {
-            $this->updatedPackages[] = $operation->getTargetPackage();
+            $this->updatedPackagesPrettyNames[] = $operation->getTargetPackage()->getPrettyName();
         }
     }
 
@@ -96,14 +97,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $rootConfig = $this->getPluginConfig($rootPackage);
         $options = new Options($rootPackage->getExtra());
 
+        $forceCheck = $options->forceCheck() ||
+            in_array(self::CONFIG_PACKAGE_PRETTY_NAME, $this->updatedPackagesPrettyNames, true);
+
         $outputDirectory = $this->getRootPath() . $options->outputDirectory();
         $this->ensureDirectoryExists($outputDirectory);
 
         $allPackages = (new PackagesListBuilder($composer))->build();
-        $packagesForCheck = $options->forceCheck() ? [] : array_map(
-            static fn (PackageInterface $package) => $package->getPrettyName(),
-            $this->updatedPackages
-        );
+        $packagesForCheck = $forceCheck ? [] : $this->updatedPackagesPrettyNames;
 
         foreach ($this->removals as $packageName) {
             $this->markPackageConfigAsRemoved($packageName, $outputDirectory);
@@ -117,7 +118,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             foreach ($pluginConfig as $group => $files) {
                 $files = (array)$files;
                 foreach ($files as $file) {
-                    /** @var string $file */
                     $isOptional = false;
                     if ($this->isOptional($file)) {
                         $isOptional = true;
@@ -130,6 +130,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
+                    $checkFileOnUpdate = $forceCheck || in_array($package->getPrettyName(), $packagesForCheck, true);
+
                     $source = $this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/' . $file;
 
                     if ($this->containsWildcard($file)) {
@@ -138,7 +140,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                             continue;
                         }
 
-                        if (in_array($package->getPrettyName(), $packagesForCheck, true)) {
+                        if ($checkFileOnUpdate) {
                             foreach ($matches as $match) {
                                 $relativePath = str_replace($this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/', '', $match);
                                 $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
@@ -154,7 +156,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    if ($options->forceCheck() || in_array($package->getPrettyName(), $packagesForCheck, true)) {
+                    if ($checkFileOnUpdate) {
                         $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
                         $this->updateFile($source, $destination, $options->silentOverride());
                     }

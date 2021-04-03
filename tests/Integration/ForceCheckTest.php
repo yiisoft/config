@@ -36,4 +36,20 @@ final class ForceCheckTest extends ComposerTest
         $this->execComposer('du');
         $this->assertEnvironmentFileEquals($filePackage, $fileDist);
     }
+
+    public function testForceOnInstallOrUpdateConfigPackage(): void
+    {
+        $this->initComposer([
+            'require' => [
+                'test/a' => '*',
+            ],
+        ]);
+
+        $this->assertEnvironmentFileDoesNotExist('/config/packages/merge_plan.php');
+
+        $this->execComposer('require yiisoft/config');
+        $this->assertEnvironmentFileExist('/config/packages/merge_plan.php');
+        $this->assertEnvironmentFileExist('/config/packages/test/a/config/dist/params.php');
+        $this->assertEnvironmentFileExist('/config/packages/test/a/config/dist/web.php');
+    }
 }
