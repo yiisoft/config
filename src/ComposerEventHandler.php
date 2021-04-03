@@ -47,6 +47,16 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private array $removals = [];
 
+    /**
+     * @var string[]
+     */
+    private array $newConfigFiles = [];
+
+    /**
+     * @var string[]
+     */
+    private array $updatedConfigFiles = [];
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -100,7 +110,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $forceCheck = $options->forceCheck() ||
             in_array(self::CONFIG_PACKAGE_PRETTY_NAME, $this->updatedPackagesPrettyNames, true);
 
-        $outputDirectory = $this->getRootPath() . $options->outputDirectory();
+        $rootPath = $this->getRootPath();
+        $outputDirectory = $rootPath . $options->outputDirectory();
         $this->ensureDirectoryExists($outputDirectory);
 
         $allPackages = (new PackagesListBuilder($composer))->build();
@@ -143,7 +154,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         if ($checkFileOnUpdate) {
                             foreach ($matches as $match) {
                                 $relativePath = str_replace($this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/', '', $match);
-                                $this->updateFile($match, $outputDirectory . '/' . $package->getPrettyName() . '/' . $relativePath);
+                                $this->updateFile(
+                                    $match,
+                                    $rootPath,
+                                    $options->outputDirectory() . '/' . $package->getPrettyName() . '/' . $relativePath
+                                );
                             }
                         }
 
@@ -157,8 +172,12 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                     }
 
                     if ($checkFileOnUpdate) {
-                        $destination = $outputDirectory . '/' . $package->getPrettyName() . '/' . $file;
-                        $this->updateFile($source, $destination, $options->silentOverride());
+                        $this->updateFile(
+                            $source,
+                            $rootPath,
+                            $options->outputDirectory() . '/' . $package->getPrettyName() . '/' . $file,
+                            $options->silentOverride()
+                        );
                     }
 
                     $mergePlan[$group][$package->getPrettyName()][] = $file;
@@ -196,10 +215,45 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $packageOptions = $outputDirectory . '/' . self::MERGE_PLAN_FILENAME;
         file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n");
+
+        $this->outputMessages();
     }
 
-    private function updateFile(string $source, string $destination, bool $silentOverride = false): void
+    private function outputMessages(): void
     {
+        $message = [];
+
+        if ($this->newConfigFiles) {
+            $message[] = 'Config files has been added:';
+            foreach ($this->newConfigFiles as $file) {
+                $message[] = ' - ' . $file;
+            }
+        }
+
+        if ($this->updatedConfigFiles) {
+            if ($message) {
+                $message[] = '';
+            }
+            $message[] = 'Config files has been changed:';
+            foreach ($this->updatedConfigFiles as $file) {
+                $message[] = ' - ' . $file;
+            }
+            $message[] = 'Please review files above and change it according with .dist files.';
+        }
+
+        if ($message) {
+            (new ConsoleOutput())->writeln('<bg=magenta;fg=white>' . implode("\n", $message) . '</>');
+        }
+    }
+
+    private function updateFile(
+        string $source,
+        string $destinationDirectory,
+        string $destinationFile,
+        bool $silentOverride = false
+    ): void {
+        $destination = $destinationDirectory . $destinationFile;
+
         $distDestinationPath = dirname($destination) . '/' . self::DIST_DIRECTORY;
         $distFilename = $distDestinationPath . '/' . basename($destination);
 
@@ -209,6 +263,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             // First install config
             $fs->ensureDirectoryExists(dirname($destination));
             $fs->copy($source, $destination);
+            $this->newConfigFiles[] = ltrim($destinationFile, '/');
         } else {
             // Update config
             $sourceContent = file_get_contents($source);
@@ -220,8 +275,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                 $fs->copy($source, $destination);
             } elseif ($sourceContent !== $distContent) {
                 // Dist file changed and installed config changed by user.
-                $output = new ConsoleOutput();
-                $output->writeln("<bg=magenta;fg=white>Config file has been changed. Please review \"{$destination}\" and change it according with .dist file.</>");
+                $this->updatedConfigFiles[] = ltrim($destinationFile, '/');
             }
         }
 

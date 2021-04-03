@@ -20,6 +20,7 @@ abstract class ComposerTest extends TestCase
         'custom-source',
         'd-dev-c',
         'first-package',
+        'k',
         'second-package',
     ];
 

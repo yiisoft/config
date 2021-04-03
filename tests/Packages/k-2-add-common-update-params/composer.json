@@ -1,0 +1,15 @@
+{
+    "name": "test/k",
+    "version": "2.0.0",
+    "autoload": {
+        "psr-4": {
+            "Test\\Yii\\Config\\K\\": "src"
+        }
+    },
+    "extra": {
+        "config-plugin": {
+            "params": "config/params.php",
+            "common": "config/common.php"
+        }
+    }
+}

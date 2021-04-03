@@ -1,0 +1,15 @@
+{
+    "name": "test/a",
+    "version": "2.0.0",
+    "autoload": {
+        "psr-4": {
+            "Test\\Yii\\View\\": "src"
+        }
+    },
+    "extra": {
+        "config-plugin": {
+            "params": "config/params.php",
+            "web": "config/web.php"
+        }
+    }
+}
