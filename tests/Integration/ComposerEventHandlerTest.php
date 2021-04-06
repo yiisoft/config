@@ -6,8 +6,6 @@ namespace Yiisoft\Config\Tests\Integration;
 
 final class ComposerEventHandlerTest extends ComposerTest
 {
-    private string $reviewConfigPhrase = 'Config file has been changed. Please review';
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,7 +42,6 @@ final class ComposerEventHandlerTest extends ComposerTest
 
         $this->assertEnvironmentFileExist($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         // STEP 2: Updating package (package without changed config)
         $this->changeTestPackageDir('first-package', 'first-package-1.0.1');
@@ -56,7 +53,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertEquals($distContentBefore, $distContentAfter);
         $this->assertEquals($contentAfter, $distContentAfter);
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
     }
 
     public function testUpdatingPackageWithConfigAndRemoveDist(): void
@@ -72,7 +68,6 @@ final class ComposerEventHandlerTest extends ComposerTest
 
         $this->assertEnvironmentFileExist($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         // Emulating remove dist file by user
         $this->removeEnvironmentFile($distConfigFilename);
@@ -85,7 +80,6 @@ final class ComposerEventHandlerTest extends ComposerTest
 
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertEnvironmentFileExist($distConfigFilename);
-        $this->assertStringContainsString($this->reviewConfigPhrase, $this->getStdout());
     }
 
     public function testUpdatingToPackageWithChangedConfig(): void
@@ -102,7 +96,6 @@ final class ComposerEventHandlerTest extends ComposerTest
 
         $this->assertEnvironmentFileExist($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
         $this->assertMergePlan([
             'constants' => [
                 'first-vendor/first-package' => [
@@ -133,7 +126,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         $this->assertMergePlan([
             'constants' => [
@@ -169,7 +161,6 @@ final class ComposerEventHandlerTest extends ComposerTest
 
         $this->assertEnvironmentFileExist($distConfigFilename);
         $this->assertEquals($contentBefore, $distContentBefore);
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         // STEP2: Emulating user changes in config file
         $this->putEnvironmentFileContents($configFilename, PHP_EOL . '//', FILE_APPEND);
@@ -187,7 +178,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringContainsString($this->reviewConfigPhrase, $this->getStdout());
     }
 
     public function testUpdatingPackageWithChangedUserConfigAndNextStep1(): void
@@ -198,8 +188,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         // STEP 1: First install
         $this->changeTestPackageDir('first-package', 'first-package-1.0.2-changed-config');
         $this->execComposer('require first-vendor/first-package');
-
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         // STEP2: Emulating user changes in config file
         $this->putEnvironmentFileContents($configFilename, PHP_EOL . '//', FILE_APPEND);
@@ -215,7 +203,6 @@ final class ComposerEventHandlerTest extends ComposerTest
 
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
-        $this->assertStringContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         // STEP 4: Update package (package without changed config). Shouldn't have warning message
         $contentBefore = $this->getEnvironmentFileContents($configFilename);
@@ -230,7 +217,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
     }
 
     public function testUpdatingPackageWithChangedUserConfigAndNextStep2(): void
@@ -241,8 +227,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         // STEP 1: First install
         $this->changeTestPackageDir('first-package', 'first-package-1.0.1');
         $this->execComposer('require first-vendor/first-package');
-
-        $this->assertStringNotContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         // STEP2: Emulating user changes in config file
         $this->putEnvironmentFileContents($configFilename, PHP_EOL . '//', FILE_APPEND);
@@ -259,7 +243,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringContainsString($this->reviewConfigPhrase, $this->getStdout());
 
         // STEP 4: Update package (package with changed config). Should be with warning message
         $contentBefore = $this->getEnvironmentFileContents($configFilename);
@@ -274,6 +257,5 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEquals($contentBefore, $contentAfter);
         $this->assertNotEquals($distContentBefore, $distContentAfter);
         $this->assertNotEquals($contentAfter, $distContentAfter);
-        $this->assertStringContainsString($this->reviewConfigPhrase, $this->getStdout());
     }
 }
