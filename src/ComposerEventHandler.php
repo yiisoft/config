@@ -262,7 +262,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             foreach ($this->updatedConfigFiles as $file) {
                 $message[] = ' - ' . $file;
             }
-            $message[] = 'Please review files above and change it according with .dist files.';
+            $message[] = 'Please review files above and change it according with files from dist.';
         }
 
         if ($message) {
