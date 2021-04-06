@@ -81,7 +81,7 @@ final class MessagesTest extends ComposerTest
             "\n" .
             'Config files has been changed:' . "\n" .
             ' - config/packages/test/k/config/params.php' . "\n" .
-            'Please review files above and change it according with files from dist.' . "\n"
+            'Please review files above and change it according with dist files.' . "\n"
         );
     }
 
