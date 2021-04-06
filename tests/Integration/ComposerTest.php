@@ -101,6 +101,11 @@ abstract class ComposerTest extends TestCase
         (new Filesystem())->unlink($this->workingDirectory . $filename);
     }
 
+    protected function removeEnvironmentDirectory(string $filename): void
+    {
+        (new Filesystem())->removeDirectory($this->workingDirectory . $filename);
+    }
+
     protected function getStdout(): string
     {
         return file_get_contents($this->stdoutFile);

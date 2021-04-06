@@ -14,6 +14,8 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
+use Composer\Plugin\CommandEvent;
+use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
@@ -57,13 +59,17 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private array $updatedConfigFiles = [];
 
+    private bool $runOnAutoloadDump = false;
+
     public static function getSubscribedEvents(): array
     {
         return [
             PackageEvents::POST_PACKAGE_UPDATE => 'onPostUpdate',
             PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostUninstall',
             PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
+            PluginEvents::COMMAND => 'onCommand',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
+            ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
         ];
     }
 
@@ -96,13 +102,31 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
     }
 
+    public function onCommand(CommandEvent $event): void
+    {
+        if ($event->getCommandName() === 'dump-autoload') {
+            $this->runOnAutoloadDump = true;
+        }
+    }
+
     public function onPostAutoloadDump(Event $event): void
+    {
+        if ($this->runOnAutoloadDump) {
+            $this->processConfigs($event->getComposer());
+        }
+    }
+
+    public function onPostUpdateCommandDump(Event $event): void
+    {
+        $this->processConfigs($event->getComposer());
+    }
+
+    private function processConfigs(Composer $composer): void
     {
         // Register autoloader.
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
-        require_once $event->getComposer()->getConfig()->get('vendor-dir') . '/autoload.php';
+        require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
-        $composer = $event->getComposer();
         $rootPackage = $composer->getPackage();
         $rootConfig = $this->getPluginConfig($rootPackage);
         $options = new Options($rootPackage->getExtra());
