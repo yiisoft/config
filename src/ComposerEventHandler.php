@@ -237,10 +237,27 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         // Sort groups by alphabetical
         ksort($mergePlan);
 
-        $packageOptions = $outputDirectory . '/' . self::MERGE_PLAN_FILENAME;
-        file_put_contents($packageOptions, "<?php\n\ndeclare(strict_types=1);\n\n// Do not edit. Content will be replaced.\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n");
+        $this->makeMergePlanFile($outputDirectory . '/' . self::MERGE_PLAN_FILENAME, $mergePlan);
 
         $this->outputMessages();
+    }
+
+    private function makeMergePlanFile(string $file, array $mergePlan): void
+    {
+        $oldContent = file_exists($file) ? file_get_contents($file) : '';
+
+        $content = '<?php' .
+            "\n\n" .
+            'declare(strict_types=1);' .
+            "\n\n" .
+            '// Do not edit. Content will be replaced.' .
+            "\n" .
+            'return ' . VarDumper::create($mergePlan)->export(true) . ';' .
+            "\n";
+
+        if (!$this->equalIgnoringLineEndings($oldContent, $content)) {
+            file_put_contents($file, $content);
+        }
     }
 
     private function outputMessages(): void
@@ -288,23 +305,42 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $fs->ensureDirectoryExists(dirname($destination));
             $fs->copy($source, $destination);
             $this->newConfigFiles[] = ltrim($destinationFile, '/');
+            $configChanged = true;
         } else {
             // Update config
             $sourceContent = file_get_contents($source);
             $destinationContent = file_get_contents($destination);
             $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
-            if ($silentOverride && $destinationContent === $distContent) {
-                // Dist file equals with installed config. Installing with overwrite - silently.
-                $fs->copy($source, $destination);
-            } elseif ($sourceContent !== $distContent) {
-                // Dist file changed and installed config changed by user.
-                $this->updatedConfigFiles[] = ltrim($destinationFile, '/');
+            $configChanged = !$this->equalIgnoringLineEndings($sourceContent, $distContent);
+            if ($configChanged) {
+                if ($silentOverride && $this->equalIgnoringLineEndings($destinationContent, $distContent)) {
+                    // Dist file equals with installed config. Installing with overwrite - silently.
+                    $fs->copy($source, $destination);
+                } else {
+                    // Dist file changed and installed config changed by user.
+                    $this->updatedConfigFiles[] = ltrim($destinationFile, '/');
+                }
             }
         }
 
-        $fs->ensureDirectoryExists($distDestinationPath);
-        $fs->copy($source, $distFilename);
+        if ($configChanged) {
+            $fs->ensureDirectoryExists($distDestinationPath);
+            $fs->copy($source, $distFilename);
+        }
+    }
+
+    private function equalIgnoringLineEndings(string $a, string $b): bool
+    {
+        return $this->normalizeLineEndings($a) === $this->normalizeLineEndings($b);
+    }
+
+    private function normalizeLineEndings(string $value): string
+    {
+        return strtr($value, [
+            "\r\n" => "\n",
+            "\r" => "\n",
+        ]);
     }
 
     /**
