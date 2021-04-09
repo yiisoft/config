@@ -237,14 +237,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         // Sort groups by alphabetical
         ksort($mergePlan);
 
-        $this->makeMergePlanFile($outputDirectory . '/' . self::MERGE_PLAN_FILENAME, $mergePlan);
+        $this->writeMergePlanFile($outputDirectory . '/' . self::MERGE_PLAN_FILENAME, $mergePlan);
 
         $this->outputMessages();
     }
 
-    private function makeMergePlanFile(string $file, array $mergePlan): void
+    private function writeMergePlanFile(string $filePath, array $mergePlan): void
     {
-        $oldContent = file_exists($file) ? file_get_contents($file) : '';
+        $oldContent = file_exists($filePath) ? file_get_contents($filePath) : '';
 
         $content = '<?php' .
             "\n\n" .
@@ -255,8 +255,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             'return ' . VarDumper::create($mergePlan)->export(true) . ';' .
             "\n";
 
-        if (!$this->equalIgnoringLineEndings($oldContent, $content)) {
-            file_put_contents($file, $content);
+        if (!$this->equalsIgnoringLineEndings($oldContent, $content)) {
+            file_put_contents($filePath, $content);
         }
     }
 
@@ -312,9 +312,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $destinationContent = file_get_contents($destination);
             $distContent = file_exists($distFilename) ? file_get_contents($distFilename) : '';
 
-            $configChanged = !$this->equalIgnoringLineEndings($sourceContent, $distContent);
+            $configChanged = !$this->equalsIgnoringLineEndings($sourceContent, $distContent);
             if ($configChanged) {
-                if ($silentOverride && $this->equalIgnoringLineEndings($destinationContent, $distContent)) {
+                if ($silentOverride && $this->equalsIgnoringLineEndings($destinationContent, $distContent)) {
                     // Dist file equals with installed config. Installing with overwrite - silently.
                     $fs->copy($source, $destination);
                 } else {
@@ -330,7 +330,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
     }
 
-    private function equalIgnoringLineEndings(string $a, string $b): bool
+    private function equalsIgnoringLineEndings(string $a, string $b): bool
     {
         return $this->normalizeLineEndings($a) === $this->normalizeLineEndings($b);
     }
