@@ -19,7 +19,7 @@ final class MessagesTest extends ComposerTest
         ]);
 
         $this->assertMessage(
-            'Config files has been added:' . "\n" .
+            "\n" . 'Config files has been added:' . "\n" .
             ' - config/packages/test/a/config/params.php' . "\n" .
             ' - config/packages/test/a/config/web.php' . "\n"
         );
@@ -38,7 +38,7 @@ final class MessagesTest extends ComposerTest
         $this->execComposer('require test/k');
 
         $this->assertMessage(
-            'Config files has been added:' . "\n" .
+            "\n" . 'Config files has been added:' . "\n" .
             ' - config/packages/test/k/config/web.php' . "\n"
         );
     }
@@ -56,7 +56,7 @@ final class MessagesTest extends ComposerTest
         $this->execComposer('require test/a');
 
         $this->assertMessage(
-            'Config files has been changed:' . "\n" .
+            "\n" . 'Config files has been copied with the ".dist" postfix:' . "\n" .
             ' - config/packages/test/a/config/params.php' . "\n" .
             ' - config/packages/test/a/config/web.php' . "\n" .
             'Please review files above and change it according with dist files.' . "\n"
@@ -76,12 +76,12 @@ final class MessagesTest extends ComposerTest
         $this->execComposer('require test/k');
 
         $this->assertMessage(
-            'Config files has been added:' . "\n" .
+            "\n" . 'Config files has been added:' . "\n" .
             ' - config/packages/test/k/config/common.php' . "\n" .
             "\n" .
-            'Config files has been changed:' . "\n" .
+            'Config files has been copied with the ".dist" postfix:' . "\n" .
             ' - config/packages/test/k/config/params.php' . "\n" .
-            'Please review files above and change it according with dist files.' . "\n"
+            "Please review files above and change it according with dist files." . "\n"
         );
     }
 

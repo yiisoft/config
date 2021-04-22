@@ -8,7 +8,7 @@ final class GeneralTest extends ComposerTest
 {
     public function testIgnoringLineEndings(): void
     {
-        $paramsFile = '/config/packages/test/a/config/dist/params.php';
+        $paramsFile = '/config/packages/test/a/config/params.php';
         $mergePlanFile = '/config/packages/merge_plan.php';
 
         $this->initComposer([

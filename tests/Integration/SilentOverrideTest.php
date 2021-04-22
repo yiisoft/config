@@ -28,11 +28,11 @@ final class SilentOverrideTest extends ComposerTest
         ]);
 
         $fileConfig = '/config/packages/first-vendor/first-package/config/params.php';
-        $fileDist = '/config/packages/first-vendor/first-package/config/dist/params.php';
+        $filePackage = '/vendor/first-vendor/first-package/config/params.php';
 
         $this->changeTestPackageDir('first-package', 'first-package-1.0.2-changed-config');
         $this->execComposer('update');
 
-        $this->assertEnvironmentFileEquals($fileConfig, $fileDist);
+        $this->assertEnvironmentFileEquals($filePackage, $fileConfig);
     }
 }
