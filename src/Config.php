@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config;
 
 use ErrorException;
+
 use function array_key_exists;
 use function is_array;
 use function is_int;
@@ -15,9 +16,6 @@ use function is_int;
  */
 final class Config
 {
-    private const MERGE_PLAN_FILENAME = 'merge_plan.php';
-    private const DEFAULT_CONFIGS_PATH = 'config/packages';
-
     /**
      * @var string Path to composer.json directory.
      */
@@ -31,7 +29,7 @@ final class Config
     private array $mergePlan;
 
     /**
-     * @psalm-var array<string, array<array-key, mixed>>
+     * @psalm-var array<string, array>
      */
     private array $build = [];
 
@@ -39,16 +37,21 @@ final class Config
      * @param string $rootPath Path to the project root where composer.json is located.
      * @param string|null $configsPath Path to where configs are stored.
      */
-    public function __construct(
-        string $rootPath,
-        string $configsPath = null
-    ) {
+    public function __construct(string $rootPath, string $configsPath = null)
+    {
         $this->rootPath = $rootPath;
-        $this->relativeConfigsPath = ltrim($configsPath ?? self::DEFAULT_CONFIGS_PATH, '/');
+        $this->relativeConfigsPath = ltrim($configsPath ?? Options::DEFAULT_CONFIGS_PATH, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
-        $this->mergePlan = require $this->configsPath . '/' . self::MERGE_PLAN_FILENAME;
+        $this->mergePlan = require $this->configsPath . '/' . Options::MERGE_PLAN_FILENAME;
+    }
+
+    public function get(string $name): array
+    {
+        $this->buildGroup('params');
+        $this->buildGroup($name);
+        return $this->build[$name];
     }
 
     private function buildGroup(string $group): void
@@ -61,21 +64,21 @@ final class Config
 
         foreach ($this->mergePlan[$group] as $packageName => $files) {
             foreach ($files as $file) {
-                if ($this->isVariable($file)) {
+                if (ConfigFiles::isVariable($file)) {
                     $variableName = substr($file, 1);
                     $this->buildGroup($variableName);
                     $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $this->build[$variableName]);
                     continue;
                 }
 
-                $isOptional = $this->isOptional($file);
+                $isOptional = ConfigFiles::isOptional($file);
                 if ($isOptional) {
                     $file = substr($file, 1);
                 }
 
                 $path = $this->getConfigsPath($packageName) . '/' . $file;
 
-                if ($this->containsWildcard($file)) {
+                if (ConfigFiles::containsWildcard($file)) {
                     $matches = glob($path);
 
                     foreach ($matches as $match) {
@@ -126,28 +129,6 @@ final class Config
         return $scopeRequire($this, $filePath, $scope);
     }
 
-    public function get(string $name): array
-    {
-        $this->buildGroup('params');
-        $this->buildGroup($name);
-        return $this->build[$name];
-    }
-
-    private function containsWildcard(string $file): bool
-    {
-        return strpos($file, '*') !== false;
-    }
-
-    private function isOptional(string $file): bool
-    {
-        return strpos($file, '?') === 0;
-    }
-
-    private function isVariable(string $file): bool
-    {
-        return strpos($file, '$') === 0;
-    }
-
     /**
      * @psalm-param array{string, string, string} $context
      */
@@ -194,11 +175,11 @@ final class Config
         $configPaths = [$this->getRelativeConfigPath($packageName, $file)];
         foreach ($config as $package => $packageConfigs) {
             foreach ($packageConfigs as $packageConfig) {
-                if ($this->isVariable($packageConfig)) {
+                if (ConfigFiles::isVariable($packageConfig)) {
                     continue;
                 }
 
-                if ($this->isOptional($packageConfig)) {
+                if (ConfigFiles::isOptional($packageConfig)) {
                     $packageConfig = substr($packageConfig, 1);
                 }
 
