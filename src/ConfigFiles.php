@@ -14,6 +14,7 @@ use function file_exists;
 use function file_get_contents;
 use function file_put_contents;
 use function ksort;
+use function sprintf;
 use function strpos;
 use function trim;
 
@@ -25,12 +26,12 @@ final class ConfigFiles
     private const HIDE_CHOICE_CONFIRMATION = 0;
     private const UPDATE_CHOICE_IGNORE = 1;
     private const UPDATE_CHOICE_REPLACE = 2;
-    private const UPDATE_CHOICE_COPY = 3;
+    private const UPDATE_CHOICE_COPY_DIST = 3;
 
     private const UPDATE_CHOICES = [
         self::UPDATE_CHOICE_IGNORE => 'Ignore, do nothing (default).',
         self::UPDATE_CHOICE_REPLACE => 'Replace the local version with the new version.',
-        self::UPDATE_CHOICE_COPY => 'Copy the new version of the file with the ".dist" postfix.',
+        self::UPDATE_CHOICE_COPY_DIST => 'Copy the new version of the file with the ".dist" postfix.',
     ];
 
     private IOInterface $io;
@@ -110,7 +111,7 @@ final class ConfigFiles
         }
 
         if (!$this->io->isInteractive()) {
-            $this->dist($sourceFile, $destinationFile);
+            $this->ignore($destinationFile);
             return;
         }
 
@@ -156,12 +157,12 @@ final class ConfigFiles
             return;
         }
 
-        if ($choice === self::UPDATE_CHOICE_COPY) {
+        if ($choice === self::UPDATE_CHOICE_COPY_DIST) {
             $this->dist($sourceFile, $destinationFile);
             return;
         }
 
-        $this->ignoredConfigFiles[] = $this->getDestinationFileWithConfigsPath($destinationFile);
+        $this->ignore($destinationFile);
     }
 
     private function add(string $sourceFile, string $destinationFile): void
@@ -176,6 +177,11 @@ final class ConfigFiles
     {
         $this->filesystem->copy($sourceFile,  $this->getDestinationPath($destinationFile . '.dist'));
         $this->copiedConfigFiles[] = $this->getDestinationFileWithConfigsPath($destinationFile);
+    }
+
+    private function ignore(string $destinationFile): void
+    {
+        $this->ignoredConfigFiles[] = $this->getDestinationFileWithConfigsPath($destinationFile);
     }
 
     private function update(string $sourceFile, string $destinationFile): void
@@ -232,7 +238,7 @@ final class ConfigFiles
             $this->addMessage(
                 $messages,
                 $this->ignoredConfigFiles,
-                'Config files has been ignored',
+                'Changes in the config files were ignored',
                 'Please review the files above and change them yourself if necessary.',
             );
             $this->ignoredConfigFiles = [];

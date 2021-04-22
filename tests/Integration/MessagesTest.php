@@ -56,10 +56,10 @@ final class MessagesTest extends ComposerTest
         $this->execComposer('require test/a');
 
         $this->assertMessage(
-            "\n" . 'Config files has been copied with the ".dist" postfix:' . "\n" .
+            "\n" . 'Changes in the config files were ignored:' . "\n" .
             ' - config/packages/test/a/config/params.php' . "\n" .
             ' - config/packages/test/a/config/web.php' . "\n" .
-            'Please review files above and change it according with dist files.' . "\n"
+            'Please review the files above and change them yourself if necessary.' . "\n"
         );
     }
 
@@ -79,9 +79,9 @@ final class MessagesTest extends ComposerTest
             "\n" . 'Config files has been added:' . "\n" .
             ' - config/packages/test/k/config/common.php' . "\n" .
             "\n" .
-            'Config files has been copied with the ".dist" postfix:' . "\n" .
+            'Changes in the config files were ignored:' . "\n" .
             ' - config/packages/test/k/config/params.php' . "\n" .
-            "Please review files above and change it according with dist files." . "\n"
+            "Please review the files above and change them yourself if necessary." . "\n"
         );
     }
 
