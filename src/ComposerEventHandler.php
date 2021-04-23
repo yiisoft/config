@@ -200,7 +200,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         // Append root package config.
         foreach ($rootConfig as $group => $files) {
-            $files = array_map(function ($file) use ($options) {
+            $files = array_map(static function ($file) use ($options) {
                 if (Options::isVariable($file)) {
                     return $file;
                 }
