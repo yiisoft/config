@@ -64,21 +64,21 @@ final class Config
 
         foreach ($this->mergePlan[$group] as $packageName => $files) {
             foreach ($files as $file) {
-                if (ConfigFiles::isVariable($file)) {
+                if (Options::isVariable($file)) {
                     $variableName = substr($file, 1);
                     $this->buildGroup($variableName);
                     $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $this->build[$variableName]);
                     continue;
                 }
 
-                $isOptional = ConfigFiles::isOptional($file);
+                $isOptional = Options::isOptional($file);
                 if ($isOptional) {
                     $file = substr($file, 1);
                 }
 
                 $path = $this->getConfigsPath($packageName) . '/' . $file;
 
-                if (ConfigFiles::containsWildcard($file)) {
+                if (Options::containsWildcard($file)) {
                     $matches = glob($path);
 
                     foreach ($matches as $match) {
@@ -175,11 +175,11 @@ final class Config
         $configPaths = [$this->getRelativeConfigPath($packageName, $file)];
         foreach ($config as $package => $packageConfigs) {
             foreach ($packageConfigs as $packageConfig) {
-                if (ConfigFiles::isVariable($packageConfig)) {
+                if (Options::isVariable($packageConfig)) {
                     continue;
                 }
 
-                if (ConfigFiles::isOptional($packageConfig)) {
+                if (Options::isOptional($packageConfig)) {
                     $packageConfig = substr($packageConfig, 1);
                 }
 

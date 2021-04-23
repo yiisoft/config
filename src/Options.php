@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Config;
 
 use function is_array;
+use function str_replace;
+use function strpos;
+use function trim;
 
 /**
  * @internal
@@ -40,9 +43,19 @@ final class Options
         ;
     }
 
-    private function normalizeRelativePath(string $value): string
+    public static function containsWildcard(string $file): bool
     {
-        return '/' . trim(str_replace('\\', '/', $value), '/');
+        return strpos($file, '*') !== false;
+    }
+
+    public static function isOptional(string $file): bool
+    {
+        return strpos($file, '?') === 0;
+    }
+
+    public static function isVariable(string $file): bool
+    {
+        return strpos($file, '$') === 0;
     }
 
     public function silentOverride(): bool
@@ -63,5 +76,10 @@ final class Options
     public function outputDirectory(): string
     {
         return $this->outputDirectory;
+    }
+
+    private function normalizeRelativePath(string $value): string
+    {
+        return '/' . trim(str_replace('\\', '/', $value), '/');
     }
 }

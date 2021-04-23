@@ -17,18 +17,6 @@ final class ComposerEventHandlerTest extends ComposerTest
         ]);
     }
 
-    public function testRemovePackageConfig(): void
-    {
-        $this->execComposer('require first-vendor/first-package');
-        $this->assertEnvironmentDirectoryExists('/config/packages/first-vendor/first-package');
-
-        $this->execComposer('remove first-vendor/first-package');
-
-        // Used this construction without assertDirectoryDoesNotExist
-        $this->assertEnvironmentFileDoesNotExist('/config/packages/first-vendor/first-package');
-        $this->assertEnvironmentDirectoryExists('/config/packages/first-vendor/first-package.removed');
-    }
-
     public function testUpdatingPackageWithConfigSimple(): void
     {
         $fileConfig = '/config/packages/first-vendor/first-package/config/params.php';

@@ -19,11 +19,17 @@ use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use Composer\Util\Filesystem;
 
 use function array_key_exists;
+use function array_map;
 use function dirname;
+use function file_exists;
+use function glob;
 use function in_array;
+use function ltrim;
+use function realpath;
+use function str_replace;
+use function substr;
 
 /**
  * ComposerEventHandler responds to composer event. In the package, its job is to copy configs from packages to
@@ -41,7 +47,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     /**
      * @var string[] Names of removed packages.
      */
-    private array $removals = [];
+    private array $removedPackages = [];
 
     private bool $runOnAutoloadDump = false;
 
@@ -82,7 +88,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         $operation = $event->getOperation();
         if ($operation instanceof UninstallOperation) {
-            $this->removals[] = $operation->getPackage()->getPrettyName();
+            $this->removedPackages[] = $operation->getPackage()->getPrettyName();
         }
     }
 
@@ -105,28 +111,32 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $this->processConfigs($event->getComposer(), $event->getIO());
     }
 
+    public function deactivate(Composer $composer, IOInterface $io): void
+    {
+        // do nothing
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io): void
+    {
+        // do nothing
+    }
+
     private function processConfigs(Composer $composer, IOInterface $io): void
     {
         // Register autoloader.
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
         require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
-        $rootPath = $this->getRootPath();
         $rootPackage = $composer->getPackage();
         $rootConfig = $this->getPluginConfig($rootPackage);
         $options = new Options($rootPackage->getExtra());
-        $configFiles = new ConfigFiles($io, $rootPath, $options->outputDirectory());
-        $this->ensureDirectoryExists($rootPath . $options->outputDirectory());
 
         $forceCheck = $options->forceCheck() ||
             in_array(Options::CONFIG_PACKAGE_PRETTY_NAME, $this->updatedPackagesPrettyNames, true);
         $packagesForCheck = $forceCheck ? [] : $this->updatedPackagesPrettyNames;
 
-        foreach ($this->removals as $packageName) {
-            $this->markPackageConfigAsRemoved($packageName, $rootPath . $options->outputDirectory());
-        }
-
         $mergePlan = [];
+        $configFiles = [];
 
         foreach ((new PackagesListBuilder($composer))->build() as $package) {
             $pluginConfig = $this->getPluginConfig($package);
@@ -138,22 +148,23 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                 foreach ($files as $file) {
                     $isOptional = false;
 
-                    if (ConfigFiles::isOptional($file)) {
+                    if (Options::isOptional($file)) {
                         $isOptional = true;
                         $file = substr($file, 1);
                     }
 
                     // Do not copy variables.
-                    if (ConfigFiles::isVariable($file)) {
+                    if (Options::isVariable($file)) {
                         $mergePlan[$group][$package->getPrettyName()][] = $file;
                         continue;
                     }
 
                     $checkFileOnUpdate = $forceCheck || in_array($package->getPrettyName(), $packagesForCheck, true);
-                    $source = $this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/' . $file;
+                    $sourceFilePath = $this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/' . $file;
 
-                    if (ConfigFiles::containsWildcard($file)) {
-                        $matches = glob($source);
+                    if (Options::containsWildcard($file)) {
+                        $matches = glob($sourceFilePath);
+
                         if ($isOptional && $matches === []) {
                             continue;
                         }
@@ -161,7 +172,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         if ($checkFileOnUpdate) {
                             foreach ($matches as $match) {
                                 $relativePath = str_replace($this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/', '', $match);
-                                $configFiles->updateConfiguration($match, $package->getPrettyName() . '/' . $relativePath);
+                                $configFiles[] = new ConfigFile($match, $package->getPrettyName() . '/' . $relativePath);
                             }
                         }
 
@@ -169,14 +180,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                         continue;
                     }
 
-                    if ($isOptional && !file_exists($source)) {
+                    if ($isOptional && !file_exists($sourceFilePath)) {
                         // Skip it in both copying and final config.
                         continue;
                     }
 
                     if ($checkFileOnUpdate) {
-                        $configFiles->updateConfiguration(
-                            $source,
+                        $configFiles[] = new ConfigFile(
+                            $sourceFilePath,
                             $package->getPrettyName() . '/' . $file,
                             $options->silentOverride(),
                         );
@@ -190,73 +201,29 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         // Append root package config.
         foreach ($rootConfig as $group => $files) {
             $files = array_map(function ($file) use ($options) {
-                if (ConfigFiles::isVariable($file)) {
+                if (Options::isVariable($file)) {
                     return $file;
                 }
 
-                $isOptional = ConfigFiles::isOptional($file);
+                $isOptional = Options::isOptional($file);
+                $result = $isOptional ? '?' : '';
+
                 if ($isOptional) {
                     $file = substr($file, 1);
                 }
 
-                $result = $isOptional ? '?' : '';
                 if ($options->sourceDirectory() !== '/') {
                     $result .= ltrim($options->sourceDirectory(), '/') . '/';
                 }
+
                 return $result . $file;
             }, (array) $files);
 
             $mergePlan[$group] = ['/' => $files] + (array_key_exists($group, $mergePlan) ? $mergePlan[$group] : []);
         }
 
-        $configFiles->updateMergePlaneAndOutputResult($mergePlan);
-    }
-
-    /**
-     * @psalm-return array<string, string|list<string>>
-     * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
-     */
-    private function getPluginConfig(PackageInterface $package): array
-    {
-        return $package->getExtra()['config-plugin'] ?? [];
-    }
-
-    private function ensureDirectoryExists(string $directoryPath): void
-    {
-        $fs = new Filesystem();
-        $fs->ensureDirectoryExists($directoryPath);
-    }
-
-    /**
-     * Remove application config for the package name specified.
-     *
-     * @param string $package Package name to remove application config for.
-     * @param string $outputDirectory
-     */
-    private function markPackageConfigAsRemoved(string $package, string $outputDirectory): void
-    {
-        $packageConfigPath = $outputDirectory . '/' . $package;
-        if (!file_exists($packageConfigPath)) {
-            return;
-        }
-
-        $removedPackageConfigPath = $packageConfigPath . '.removed';
-
-        $fs = new Filesystem();
-        if (file_exists($removedPackageConfigPath)) {
-            $fs->removeDirectory($removedPackageConfigPath);
-        }
-        $fs->rename($packageConfigPath, $removedPackageConfigPath);
-    }
-
-    public function deactivate(Composer $composer, IOInterface $io): void
-    {
-        // do nothing
-    }
-
-    public function uninstall(Composer $composer, IOInterface $io): void
-    {
-        // do nothing
+        $configFileHandler = new ConfigFileHandler($io, $this->getRootPath(), $options->outputDirectory());
+        $configFileHandler->handle($configFiles, $this->removedPackages, $mergePlan);
     }
 
     /**
@@ -272,5 +239,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         /** @psalm-suppress PossiblyNullReference */
         return $this->composer->getInstallationManager()->getInstallPath($package);
+    }
+
+    /**
+     * @psalm-return array<string, string|list<string>>
+     * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
+     */
+    private function getPluginConfig(PackageInterface $package): array
+    {
+        return $package->getExtra()['config-plugin'] ?? [];
     }
 }
