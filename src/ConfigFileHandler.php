@@ -154,7 +154,7 @@ final class ConfigFileHandler
             self::UPDATE_CHOICES,
             (string) self::UPDATE_CHOICE_IGNORE,
             false,
-            'Value "%s" is invalid. Must be "1" or "2" or "3".',
+            'Value "%s" is invalid. Must be a number: 1, 2, or 3.',
             false,
         );
 
