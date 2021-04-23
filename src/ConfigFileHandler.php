@@ -82,9 +82,9 @@ final class ConfigFileHandler
     {
         $this->io = $io;
         $this->filesystem = new Filesystem();
-        $this->rootPath = trim($rootPath, '/');
+        $this->rootPath = rtrim($rootPath, '/');
         $this->configsPath = trim($configsPath, '/');
-        $this->filesystem->ensureDirectoryExists('/' . $this->rootPath . '/' . $this->configsPath);
+        $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsPath);
     }
 
     /**
@@ -375,6 +375,6 @@ final class ConfigFileHandler
 
     private function getDestinationPath(string $destinationFile): string
     {
-        return '/' . $this->rootPath . '/' . $this->configsPath . '/' . $destinationFile;
+        return $this->rootPath . '/' . $this->configsPath . '/' . $destinationFile;
     }
 }
