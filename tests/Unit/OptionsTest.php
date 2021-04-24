@@ -112,4 +112,15 @@ final class OptionsTest extends TestCase
         ]);
         $this->assertSame($expected, $options->sourceDirectory());
     }
+
+    public function testExtraOptionsNotArray(): void
+    {
+        $options = new Options([
+            'config-plugin-options' => true,
+        ]);
+        $this->assertFalse($options->silentOverride());
+        $this->assertFalse($options->forceCheck());
+        $this->assertSame('/', $options->sourceDirectory());
+        $this->assertSame('/' . Options::DEFAULT_CONFIGS_PATH, $options->outputDirectory());
+    }
 }

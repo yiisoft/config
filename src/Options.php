@@ -18,29 +18,34 @@ final class Options
     public const DEFAULT_CONFIGS_PATH = 'config/packages';
     public const CONFIG_PACKAGE_PRETTY_NAME = 'yiisoft/config';
 
-    private bool $silentOverride;
-    private bool $forceCheck;
-    private string $sourceDirectory;
-    private string $outputDirectory;
+    private bool $silentOverride = false;
+    private bool $forceCheck = false;
+    private string $sourceDirectory = '/';
+    private string $outputDirectory = '/' . self::DEFAULT_CONFIGS_PATH;
 
     public function __construct(array $extra)
     {
-        /** @var mixed */
-        $options = $extra['config-plugin-options'] ?? [];
-        if (!is_array($options)) {
-            $options = [];
+        if (!isset($extra['config-plugin-options']) || !is_array($extra['config-plugin-options'])) {
+            return;
         }
 
-        $this->silentOverride = (bool) ($options['silent-override'] ?? false);
-        $this->forceCheck = (bool) ($options['force-check'] ?? false);
-        $this->sourceDirectory = isset($options['source-directory'])
-            ? $this->normalizeRelativePath((string) $options['source-directory'])
-            : '/'
-        ;
-        $this->outputDirectory = isset($options['output-directory'])
-            ? $this->normalizeRelativePath((string) $options['output-directory'])
-            : '/' . self::DEFAULT_CONFIGS_PATH
-        ;
+        $options = $extra['config-plugin-options'];
+
+        if (isset($options['silent-override'])) {
+            $this->silentOverride = (bool) $options['silent-override'];
+        }
+
+        if (isset($options['force-check'])) {
+            $this->forceCheck = (bool) $options['force-check'];
+        }
+
+        if (isset($options['source-directory'])) {
+            $this->sourceDirectory = $this->normalizeRelativePath((string) $options['source-directory']);
+        }
+
+        if (isset($options['output-directory'])) {
+            $this->outputDirectory = $this->normalizeRelativePath((string) $options['output-directory']);
+        }
     }
 
     public static function containsWildcard(string $file): bool
