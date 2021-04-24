@@ -49,14 +49,15 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private array $removedPackages = [];
 
+    private bool $runOnCreateProject = false;
     private bool $runOnAutoloadDump = false;
 
     public static function getSubscribedEvents(): array
     {
         return [
+            PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             PackageEvents::POST_PACKAGE_UPDATE => 'onPostUpdate',
             PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostUninstall',
-            PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             PluginEvents::COMMAND => 'onCommand',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
             ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
@@ -95,7 +96,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     public function onCommand(CommandEvent $event): void
     {
-        if ($event->getCommandName() === 'dump-autoload') {
+        if ($event->getCommandName() === 'create-project') {
+            $this->runOnCreateProject = true;
+        } elseif ($event->getCommandName() === 'dump-autoload') {
             $this->runOnAutoloadDump = true;
         }
     }
@@ -224,6 +227,12 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
 
         $configFileHandler = new ConfigFileHandler($io, $this->getRootPath(), $options->outputDirectory());
+
+        if ($this->runOnCreateProject) {
+            $configFileHandler->handleAfterCreateProject($configFiles, $mergePlan);
+            return;
+        }
+
         $configFileHandler->handle($configFiles, $this->removedPackages, $mergePlan);
     }
 

@@ -14,6 +14,7 @@ use function dirname;
 use function file_exists;
 use function file_get_contents;
 use function file_put_contents;
+use function implode;
 use function ksort;
 use function rtrim;
 use function sprintf;
@@ -89,6 +90,29 @@ final class ConfigFileHandler
     }
 
     /**
+     * Handles config files after running the `composer create-project` command.
+     *
+     * @param ConfigFile[] $configFiles Configuration files to change.
+     * @param array $mergePlan Data for changing the merge plan.
+     */
+    public function handleAfterCreateProject(array $configFiles, array $mergePlan): void
+    {
+        foreach ($configFiles as $configFile) {
+            if (!$this->destinationConfigFileExist($configFile)) {
+                $this->addFile($configFile);
+                continue;
+            }
+
+            if (!$this->equalsConfigFileContents($configFile)) {
+                $this->ignoreFile($configFile);
+            }
+        }
+
+        $this->updateMergePlan($mergePlan);
+        $this->outputMessagesAfterCreateProject();
+    }
+
+    /**
      * Updates and removes package configurations.
      *
      * @param ConfigFile[] $configFiles Configuration files to change.
@@ -114,15 +138,12 @@ final class ConfigFileHandler
 
     private function update(ConfigFile $configFile, bool $isUpdateMultiple): void
     {
-        $sourceFilePath = $configFile->getSourceFilePath();
-        $destination = $this->getDestinationPath($configFile->getDestinationFile());
-
-        if (!file_exists($destination)) {
+        if (!$this->destinationConfigFileExist($configFile)) {
             $this->addFile($configFile);
             return;
         }
 
-        if ($this->equalsIgnoringLineEndings(file_get_contents($sourceFilePath), file_get_contents($destination))) {
+        if ($this->equalsConfigFileContents($configFile)) {
             return;
         }
 
@@ -288,52 +309,51 @@ final class ConfigFileHandler
         }
     }
 
+    private function outputMessagesAfterCreateProject(): void
+    {
+        $messages = [];
+
+        $this->addMessage(
+            $messages,
+            $this->ignoredConfigFiles,
+            'Config files were changed to run the application template',
+            sprintf(
+                'You can change any configuration files located in the "%s" for yourself.',
+                $this->configsPath,
+            ),
+        );
+
+        $this->displayOutputMessages($messages);
+    }
+
     private function outputMessages(): void
     {
         $messages = [];
 
-        if ($this->addedConfigFiles) {
-            $this->addMessage($messages, $this->addedConfigFiles, 'Config files has been added');
-        }
+        $this->addMessage($messages, $this->addedConfigFiles, 'Config files has been added');
+        $this->addMessage($messages, $this->updatedConfigFiles, 'Config files has been updated');
+        $this->addMessage(
+            $messages,
+            $this->copiedConfigFiles,
+            'Config files has been copied with the ".dist" postfix',
+            'Please review files above and change it according with dist files.',
+        );
+        $this->addMessage(
+            $messages,
+            $this->ignoredConfigFiles,
+            'Changes in the config files were ignored',
+            'Please review the files above and change them yourself if necessary.',
+        );
 
-        if ($this->updatedConfigFiles) {
-            $this->addMessage($messages, $this->updatedConfigFiles, 'Config files has been updated');
-        }
+        $this->addMessage($messages, $this->removedPackages, 'Configurations has been removed');
+        $this->addMessage(
+            $messages,
+            $this->ignoredRemovedPackages,
+            'The packages were removed from the vendor, but the configurations remained',
+            'Please review the files above and remove them yourself if necessary.',
+        );
 
-        if ($this->copiedConfigFiles) {
-            $this->addMessage(
-                $messages,
-                $this->copiedConfigFiles,
-                'Config files has been copied with the ".dist" postfix',
-                'Please review files above and change it according with dist files.',
-            );
-        }
-
-        if ($this->ignoredConfigFiles) {
-            $this->addMessage(
-                $messages,
-                $this->ignoredConfigFiles,
-                'Changes in the config files were ignored',
-                'Please review the files above and change them yourself if necessary.',
-            );
-        }
-
-        if ($this->removedPackages) {
-            $this->addMessage($messages, $this->removedPackages, 'Configurations has been removed');
-        }
-
-        if ($this->ignoredRemovedPackages) {
-            $this->addMessage(
-                $messages,
-                $this->ignoredRemovedPackages,
-                'The packages were removed from the vendor, but the configurations remained',
-                'Please review the files above and remove them yourself if necessary.',
-            );
-        }
-
-        if ($messages) {
-            (new ConsoleOutput())->writeln('<bg=magenta;fg=white>' . implode("\n", $messages) . '</>');
-        }
+        $this->displayOutputMessages($messages);
     }
 
     /**
@@ -344,6 +364,10 @@ final class ConfigFileHandler
      */
     private function addMessage(array &$messages, array $files, string $title, string $description = null): void
     {
+        if (empty($files)) {
+            return;
+        }
+
         $messages[] = '';
         $messages[] = $title . ':';
 
@@ -354,6 +378,39 @@ final class ConfigFileHandler
         if ($description !== null) {
             $messages[] = $description;
         }
+    }
+
+    /**
+     * @param string[] $messages
+     */
+    private function displayOutputMessages(array $messages): void
+    {
+        if (!empty($messages)) {
+            (new ConsoleOutput())->writeln('<bg=magenta;fg=white>' . implode("\n", $messages) . '</>');
+        }
+    }
+
+    private function getDestinationWithConfigsPath(string $destinationFile): string
+    {
+        return $this->configsPath . '/' . $destinationFile;
+    }
+
+    private function getDestinationPath(string $destinationFile): string
+    {
+        return $this->rootPath . '/' . $this->configsPath . '/' . $destinationFile;
+    }
+
+    private function destinationConfigFileExist(ConfigFile $configFile): bool
+    {
+        return file_exists($this->getDestinationPath($configFile->getDestinationFile()));
+    }
+
+    private function equalsConfigFileContents(ConfigFile $configFile): bool
+    {
+        return $this->equalsIgnoringLineEndings(
+            file_get_contents($configFile->getSourceFilePath()),
+            file_get_contents($this->getDestinationPath($configFile->getDestinationFile())),
+        );
     }
 
     private function equalsIgnoringLineEndings(string $a, string $b): bool
@@ -367,15 +424,5 @@ final class ConfigFileHandler
             "\r\n" => "\n",
             "\r" => "\n",
         ]);
-    }
-
-    private function getDestinationWithConfigsPath(string $destinationFile): string
-    {
-        return $this->configsPath . '/' . $destinationFile;
-    }
-
-    private function getDestinationPath(string $destinationFile): string
-    {
-        return $this->rootPath . '/' . $this->configsPath . '/' . $destinationFile;
     }
 }
