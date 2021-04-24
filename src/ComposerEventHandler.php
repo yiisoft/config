@@ -59,6 +59,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             PluginEvents::COMMAND => 'onCommand',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
+            ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
             ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
         ];
     }
