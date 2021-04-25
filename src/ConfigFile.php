@@ -20,17 +20,17 @@ final class ConfigFile
         $this->silentOverride = $silentOverride;
     }
 
-    public function getSourceFilePath(): string
+    public function sourceFilePath(): string
     {
         return $this->sourceFilePath;
     }
 
-    public function getDestinationFile(): string
+    public function destinationFile(): string
     {
         return $this->destinationFile;
     }
 
-    public function isSilentOverride(): bool
+    public function silentOverride(): bool
     {
         return $this->silentOverride;
     }

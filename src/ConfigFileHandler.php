@@ -6,7 +6,6 @@ namespace Yiisoft\Config;
 
 use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\VarDumper\VarDumper;
 
 use function count;
@@ -147,7 +146,7 @@ final class ConfigFileHandler
             return;
         }
 
-        if ($configFile->isSilentOverride()) {
+        if ($configFile->silentOverride()) {
             $this->updateFile($configFile);
             return;
         }
@@ -171,7 +170,7 @@ final class ConfigFileHandler
             sprintf(
                 "\nThe local version of the \"%s\" config file differs with the new version"
                 . " of the file from the vendor.\nSelect one of the following actions:",
-                $this->getDestinationWithConfigsPath($configFile->getDestinationFile()),
+                $this->getDestinationWithConfigsPath($configFile->destinationFile()),
             ),
             self::UPDATE_CHOICES,
             (string) self::UPDATE_CHOICE_IGNORE,
@@ -211,33 +210,33 @@ final class ConfigFileHandler
 
     private function addFile(ConfigFile $configFile): void
     {
-        $destination = $this->getDestinationPath($configFile->getDestinationFile());
+        $destination = $this->getDestinationPath($configFile->destinationFile());
         $this->filesystem->ensureDirectoryExists(dirname($destination));
-        $this->filesystem->copy($configFile->getSourceFilePath(), $destination);
-        $this->addedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->getDestinationFile());
+        $this->filesystem->copy($configFile->sourceFilePath(), $destination);
+        $this->addedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
     }
 
     private function copyDistFile(ConfigFile $configFile): void
     {
         $this->filesystem->copy(
-            $configFile->getSourceFilePath(),
-            $this->getDestinationPath($configFile->getDestinationFile() . '.dist'),
+            $configFile->sourceFilePath(),
+            $this->getDestinationPath($configFile->destinationFile() . '.dist'),
         );
-        $this->copiedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->getDestinationFile());
+        $this->copiedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
     }
 
     private function ignoreFile(ConfigFile $configFile): void
     {
-        $this->ignoredConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->getDestinationFile());
+        $this->ignoredConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
     }
 
     private function updateFile(ConfigFile $configFile): void
     {
         $this->filesystem->copy(
-            $configFile->getSourceFilePath(),
-            $this->getDestinationPath($configFile->getDestinationFile()),
+            $configFile->sourceFilePath(),
+            $this->getDestinationPath($configFile->destinationFile()),
         );
-        $this->updatedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->getDestinationFile());
+        $this->updatedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
     }
 
     private function removePackage(string $packageName, bool $isRemoveMultiple): void
@@ -386,7 +385,7 @@ final class ConfigFileHandler
     private function displayOutputMessages(array $messages): void
     {
         if (!empty($messages)) {
-            (new ConsoleOutput())->writeln('<bg=magenta;fg=white>' . implode("\n", $messages) . '</>');
+            $this->io->write('<bg=magenta;fg=white>' . implode("\n", $messages) . '</>');
         }
     }
 
@@ -402,14 +401,14 @@ final class ConfigFileHandler
 
     private function destinationConfigFileExist(ConfigFile $configFile): bool
     {
-        return file_exists($this->getDestinationPath($configFile->getDestinationFile()));
+        return file_exists($this->getDestinationPath($configFile->destinationFile()));
     }
 
     private function equalsConfigFileContents(ConfigFile $configFile): bool
     {
         return $this->equalsIgnoringLineEndings(
-            file_get_contents($configFile->getSourceFilePath()),
-            file_get_contents($this->getDestinationPath($configFile->getDestinationFile())),
+            file_get_contents($configFile->sourceFilePath()),
+            file_get_contents($this->getDestinationPath($configFile->destinationFile())),
         );
     }
 

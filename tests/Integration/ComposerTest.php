@@ -43,9 +43,8 @@ abstract class ComposerTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->removeDirectory($this->workingDirectory);
         $this->ensureDirectoryExists($this->workingDirectory);
+        parent::setUp();
     }
 
     protected function tearDown(): void
