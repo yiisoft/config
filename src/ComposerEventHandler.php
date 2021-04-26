@@ -17,6 +17,7 @@ use Composer\Package\PackageInterface;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
+use Composer\Plugin\PreCommandRunEvent;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 
@@ -58,11 +59,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             PackageEvents::POST_PACKAGE_UPDATE => 'onPostUpdate',
             PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostUninstall',
+            PluginEvents::PRE_COMMAND_RUN => 'onPreCommandRun',
             PluginEvents::COMMAND => 'onCommand',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
             ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
             ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
-            ScriptEvents::POST_ROOT_PACKAGE_INSTALL => 'onPostCreateProject',
         ];
     }
 
@@ -94,17 +95,19 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $this->removedPackages[] = $operation->getPackage()->getPrettyName();
         }
     }
+    
+    public function onPreCommandRun(PreCommandRunEvent $event): void
+    {
+        if ($event->getCommand() === 'create-project') {
+            $this->runOnCreateProject = true;
+        }
+    }
 
     public function onCommand(CommandEvent $event): void
     {
         if ($event->getCommandName() === 'dump-autoload') {
             $this->runOnAutoloadDump = true;
         }
-    }
-    
-    public function onPostCreateProject(): void
-    {
-        $this->runOnCreateProject = true;
     }
 
     public function onPostAutoloadDump(Event $event): void
