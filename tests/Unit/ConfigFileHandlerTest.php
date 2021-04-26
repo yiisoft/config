@@ -92,13 +92,13 @@ final class ConfigFileHandlerTest extends TestCase
         $this->putPackagesFileContents([
             $file2 => 'changed-2',
             $file3 => 'content-3',
+            $file4 => 'changed-3',
             'merge_plan.php' => '',
         ]);
 
         $this->ensurePackagesDirectoryExists($packageRemove1);
 
         $this->assertFileDoesNotExist($this->getPackagesPath($file1));
-        $this->assertFileDoesNotExist($this->getPackagesPath($file4));
 
         $this->assertFileExists($this->getPackagesPath($file2));
         $this->assertNotEqualsFileContents($file2);
@@ -106,6 +106,7 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertFileExists($this->getPackagesPath($file3));
         $this->assertEqualsFileContents($file3);
 
+        $this->assertFileExists($this->getPackagesPath($file4));
         $this->assertDirectoryExists($this->getPackagesPath($packageRemove1));
         $this->assertDirectoryDoesNotExist($this->getPackagesPath($packageRemove2));
         $this->assertFileExists($this->getPackagesPath('merge_plan.php'));
@@ -132,13 +133,13 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertFileExists($this->getPackagesPath($file1));
         $this->assertEqualsFileContents($file1);
         $this->assertNotEqualsFileContents($file2);
-        $this->assertFileExists($this->getPackagesPath($file4));
         $this->assertDirectoryExists($this->getPackagesPath($packageRemove1));
         $this->assertMergePlan([]);
 
         $this->assertOutputMessages(
             "Config files has been added:\n"
             . " - config/packages/first/package/file-1.php\n"
+            . "\nConfig files has been updated:\n"
             . " - config/packages/second/package/file-4.php\n"
             . "\nChanges in the config files were ignored:\n"
             . " - config/packages/first/package/file-2.php\n"
@@ -196,6 +197,59 @@ final class ConfigFileHandlerTest extends TestCase
             "Config files has been added:\n"
             . " - config/packages/first/package/file-1.php\n"
             . "\nChanges in the config files were ignored:\n"
+            . " - config/packages/first/package/file-2.php\n"
+            . 'Please review the files above and change them yourself if necessary.'
+        );
+    }
+
+    /**
+     * @dataProvider askConfirmationDataProvider
+     *
+     * @param bool $confirm
+     */
+    public function testHandleWithDefaultIgnoreWhenInvalidChoice(bool $confirm): void
+    {
+        $file1 = 'first/package/file-1.php';
+        $file2 = 'first/package/file-2.php';
+
+        $this->putVendorFileContents([
+            $file1 => 'content-1',
+            $file2 => 'content-2',
+        ]);
+
+        $this->assertFileExists($this->getVendorPath($file1));
+        $this->assertFileExists($this->getVendorPath($file2));
+
+        $this->putPackagesFileContents([
+            $file1 => 'changed-1',
+            $file2 => 'changed-2',
+        ]);
+
+        $this->assertFileExists($this->getPackagesPath($file1));
+        $this->assertNotEqualsFileContents($file1);
+        $this->assertFileExists($this->getPackagesPath($file2));
+        $this->assertNotEqualsFileContents($file2);
+
+        $io = $this->createIoMock();
+        $io->expects($this->exactly(2))->method('isInteractive')->willReturn(true);
+        $io->expects($this->exactly($confirm ? 1 : 2))->method('select')->willReturn(0);
+        $io->expects($this->once())->method('askConfirmation')->willReturn($confirm);
+
+        $this->createConfigFileHandler($io)->handle(
+            [
+                $this->createConfigFile($file1),
+                $this->createConfigFile($file2),
+            ],
+            [],
+            [],
+        );
+
+        $this->assertNotEqualsFileContents($file1);
+        $this->assertNotEqualsFileContents($file2);
+
+        $this->assertOutputMessages(
+            "Changes in the config files were ignored:\n"
+            . " - config/packages/first/package/file-1.php\n"
             . " - config/packages/first/package/file-2.php\n"
             . 'Please review the files above and change them yourself if necessary.'
         );
