@@ -62,6 +62,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
             ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
             ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
+            ScriptEvents::POST_CREATE_PROJECT_CMD => 'onPostCreateProject',
         ];
     }
 
@@ -96,11 +97,14 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     public function onCommand(CommandEvent $event): void
     {
-        if ($event->getCommandName() === 'create-project') {
-            $this->runOnCreateProject = true;
-        } elseif ($event->getCommandName() === 'dump-autoload') {
+        if ($event->getCommandName() === 'dump-autoload') {
             $this->runOnAutoloadDump = true;
         }
+    }
+    
+    public function onPostCreateProject(): void
+    {
+        $this->runOnCreateProject = true;
     }
 
     public function onPostAutoloadDump(Event $event): void
