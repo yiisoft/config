@@ -27,14 +27,13 @@ final class ForceCheckTest extends ComposerTest
             ],
         ]);
 
-        $fileDist = '/config/packages/first-vendor/first-package/config/dist/params.php';
+        $fileConfig = '/config/packages/first-vendor/first-package/config/params.php';
         $filePackage = '/vendor/first-vendor/first-package/config/params.php';
 
-        $this->putEnvironmentFileContents($fileDist, '<?php return [];');
-        $this->assertEnvironmentFileNotEquals($filePackage, $fileDist);
+        $this->assertEnvironmentFileEquals($filePackage, $fileConfig);
 
         $this->execComposer('du');
-        $this->assertEnvironmentFileEquals($filePackage, $fileDist);
+        $this->assertEnvironmentFileEquals($filePackage, $fileConfig);
     }
 
     public function testForceOnInstallOrUpdateConfigPackage(): void
@@ -49,7 +48,5 @@ final class ForceCheckTest extends ComposerTest
 
         $this->execComposer('require yiisoft/config');
         $this->assertEnvironmentFileExist('/config/packages/merge_plan.php');
-        $this->assertEnvironmentFileExist('/config/packages/test/a/config/dist/params.php');
-        $this->assertEnvironmentFileExist('/config/packages/test/a/config/dist/web.php');
     }
 }

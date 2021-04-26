@@ -24,7 +24,7 @@ final class InstallCommandTest extends ComposerTest
 
         $this->assertEnvironmentFileDoesNotExist('/config/packages/test/a/config/params.php');
         $this->assertEnvironmentFileDoesNotExist('/config/packages/test/a/config/web.php');
-        $this->assertEnvironmentFileDoesNotExist('/config/packages/merge_plan.php');
+        $this->assertEnvironmentFileExist('/config/packages/merge_plan.php');
     }
 
     public function testWithVendor(): void
@@ -44,8 +44,8 @@ final class InstallCommandTest extends ComposerTest
         $this->assertEnvironmentFileExist('/composer.lock');
         $this->execComposer('install');
 
-        $this->assertEnvironmentFileDoesNotExist('/config/packages/test/a/config/params.php');
-        $this->assertEnvironmentFileDoesNotExist('/config/packages/test/a/config/web.php');
-        $this->assertEnvironmentFileDoesNotExist('/config/packages/merge_plan.php');
+        $this->assertEnvironmentFileExist('/config/packages/test/a/config/params.php');
+        $this->assertEnvironmentFileExist('/config/packages/test/a/config/web.php');
+        $this->assertEnvironmentFileExist('/config/packages/merge_plan.php');
     }
 }

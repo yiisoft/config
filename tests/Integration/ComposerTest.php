@@ -43,9 +43,8 @@ abstract class ComposerTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->removeDirectory($this->workingDirectory);
         $this->ensureDirectoryExists($this->workingDirectory);
+        parent::setUp();
     }
 
     protected function tearDown(): void
@@ -175,19 +174,16 @@ abstract class ComposerTest extends TestCase
 
         $cliCommand = "composer $command -d {$this->workingDirectory} --no-interaction >{$this->stdoutFile} 2>{$this->stderrFile}";
 
-        $this->exec($cliCommand);
+        exec($cliCommand, $output, $returnCode);
+
         if ($isDebug) {
             echo 'COMMAND: ' . $cliCommand . PHP_EOL;
             echo 'STDOUT:' . PHP_EOL . file_get_contents($this->stdoutFile);
             echo 'STDERR:' . PHP_EOL . file_get_contents($this->stderrFile) . PHP_EOL;
         }
-    }
 
-    private function exec(string $command): void
-    {
-        $result = exec($command, $_, $returnCode);
         if ($returnCode !== 0) {
-            throw new RuntimeException("$command return code was $returnCode. $result");
+            throw new RuntimeException("$cliCommand return code was $returnCode.");
         }
     }
 
