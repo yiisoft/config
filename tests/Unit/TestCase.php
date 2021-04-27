@@ -7,6 +7,8 @@ namespace Yiisoft\Config\Tests\Unit;
 use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\Console\Helper\Helper;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\Config\ConfigFile;
 
 use function dirname;
@@ -114,7 +116,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function assertOutputMessages(string $expected): void
     {
-        $this->assertSame("<bg=magenta;fg=white>\n$expected</>", $this->output);
+        $this->assertSame(
+            "\n= Yii Config =\n$expected",
+            Helper::removeDecoration((new ConsoleOutput())->getFormatter(), $this->output),
+        );
     }
 
     protected function createConfigFile(string $file, bool $silentOverride = false): ConfigFile

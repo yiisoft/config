@@ -43,6 +43,7 @@ final class ConfigFileHandler
     private ?int $updateChoice = null;
     private ?bool $removeChoice = null;
     private bool $confirmedMultipleRemoval = false;
+    private bool $displayedOutputTitle = false;
 
     /**
      * @var string[]
@@ -166,6 +167,8 @@ final class ConfigFileHandler
             return;
         }
 
+        $this->displayOutputTitle();
+
         $choice = (int) $this->io->select(
             sprintf(
                 "\nThe local version of the \"%s\" config file differs with the new version"
@@ -254,6 +257,8 @@ final class ConfigFileHandler
             $this->removePackageChoice($this->removeChoice, $packageName);
             return;
         }
+
+        $this->displayOutputTitle();
 
         $choice = $this->io->askConfirmation(
             sprintf(
@@ -385,7 +390,16 @@ final class ConfigFileHandler
     private function displayOutputMessages(array $messages): void
     {
         if (!empty($messages)) {
+            $this->displayOutputTitle();
             $this->io->write('<bg=magenta;fg=white>' . implode("\n", $messages) . '</>');
+        }
+    }
+
+    private function displayOutputTitle(): void
+    {
+        if (!$this->displayedOutputTitle) {
+            $this->displayedOutputTitle = true;
+            $this->io->write("\n<bg=magenta;fg=white;options=bold>= Yii Config =</>");
         }
     }
 
