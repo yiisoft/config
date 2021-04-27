@@ -207,59 +207,6 @@ final class ConfigFileHandlerTest extends TestCase
      *
      * @param bool $confirm
      */
-    public function testHandleWithDefaultIgnoreWhenInvalidChoice(bool $confirm): void
-    {
-        $file1 = 'first/package/file-1.php';
-        $file2 = 'first/package/file-2.php';
-
-        $this->putVendorFileContents([
-            $file1 => 'content-1',
-            $file2 => 'content-2',
-        ]);
-
-        $this->assertFileExists($this->getVendorPath($file1));
-        $this->assertFileExists($this->getVendorPath($file2));
-
-        $this->putPackagesFileContents([
-            $file1 => 'changed-1',
-            $file2 => 'changed-2',
-        ]);
-
-        $this->assertFileExists($this->getPackagesPath($file1));
-        $this->assertNotEqualsFileContents($file1);
-        $this->assertFileExists($this->getPackagesPath($file2));
-        $this->assertNotEqualsFileContents($file2);
-
-        $io = $this->createIoMock();
-        $io->expects($this->exactly(2))->method('isInteractive')->willReturn(true);
-        $io->expects($this->exactly($confirm ? 1 : 2))->method('select')->willReturn(0);
-        $io->expects($this->once())->method('askConfirmation')->willReturn($confirm);
-
-        $this->createConfigFileHandler($io)->handle(
-            [
-                $this->createConfigFile($file1),
-                $this->createConfigFile($file2),
-            ],
-            [],
-            [],
-        );
-
-        $this->assertNotEqualsFileContents($file1);
-        $this->assertNotEqualsFileContents($file2);
-
-        $this->assertOutputMessages(
-            "Changes in the config files were ignored:\n"
-            . " - config/packages/first/package/file-1.php\n"
-            . " - config/packages/first/package/file-2.php\n"
-            . 'Please review the files above and change them yourself if necessary.'
-        );
-    }
-
-    /**
-     * @dataProvider askConfirmationDataProvider
-     *
-     * @param bool $confirm
-     */
     public function testHandleWithUpdateChoice(bool $confirm): void
     {
         $file1 = 'first/package/file-1.php';

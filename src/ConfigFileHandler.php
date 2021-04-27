@@ -31,7 +31,7 @@ final class ConfigFileHandler
     private const UPDATE_CHOICE_COPY_DIST = 3;
 
     private const UPDATE_CHOICES = [
-        self::UPDATE_CHOICE_IGNORE => 'Ignore, do nothing (default).',
+        self::UPDATE_CHOICE_IGNORE => 'Ignore, do nothing.',
         self::UPDATE_CHOICE_REPLACE => 'Replace the local version with the new version.',
         self::UPDATE_CHOICE_COPY_DIST => 'Copy the new version of the file with the ".dist" postfix.',
     ];
@@ -43,6 +43,7 @@ final class ConfigFileHandler
     private ?int $updateChoice = null;
     private ?bool $removeChoice = null;
     private bool $confirmedMultipleRemoval = false;
+    private bool $displayedOutputTitle = false;
 
     /**
      * @var string[]
@@ -166,6 +167,8 @@ final class ConfigFileHandler
             return;
         }
 
+        $this->displayOutputTitle();
+
         $choice = (int) $this->io->select(
             sprintf(
                 "\nThe local version of the \"%s\" config file differs with the new version"
@@ -173,15 +176,11 @@ final class ConfigFileHandler
                 $this->getDestinationWithConfigsPath($configFile->destinationFile()),
             ),
             self::UPDATE_CHOICES,
-            (string) self::UPDATE_CHOICE_IGNORE,
+            false,
             false,
             'Value "%s" is invalid. Must be a number: 1, 2, or 3.',
             false,
         );
-
-        if (!isset(self::UPDATE_CHOICES[$choice])) {
-            $choice = self::UPDATE_CHOICE_IGNORE;
-        }
 
         if ($isUpdateMultiple && $this->updateChoice === null) {
             $this->updateChoice = $this->io->askConfirmation(self::BATH_ACTION_CONFIRMATION_MESSAGE, false)
@@ -254,6 +253,8 @@ final class ConfigFileHandler
             $this->removePackageChoice($this->removeChoice, $packageName);
             return;
         }
+
+        $this->displayOutputTitle();
 
         $choice = $this->io->askConfirmation(
             sprintf(
@@ -385,7 +386,16 @@ final class ConfigFileHandler
     private function displayOutputMessages(array $messages): void
     {
         if (!empty($messages)) {
+            $this->displayOutputTitle();
             $this->io->write('<bg=magenta;fg=white>' . implode("\n", $messages) . '</>');
+        }
+    }
+
+    private function displayOutputTitle(): void
+    {
+        if (!$this->displayedOutputTitle) {
+            $this->displayedOutputTitle = true;
+            $this->io->write("\n<bg=magenta;fg=white;options=bold>= Yii Config =</>");
         }
     }
 

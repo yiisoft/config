@@ -14,12 +14,10 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use Composer\Plugin\CommandEvent;
-use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
-use Composer\Plugin\PreCommandRunEvent;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use Symfony\Component\Console\Input\ArgvInput;
 
 use function array_key_exists;
 use function array_map;
@@ -38,6 +36,7 @@ use function substr;
  */
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
+    private ArgvInput $input;
     private ?Composer $composer = null;
 
     /**
@@ -50,8 +49,10 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private array $removedPackages = [];
 
-    private bool $runOnCreateProject = false;
-    private bool $runOnAutoloadDump = false;
+    public function __construct()
+    {
+        $this->input = new ArgvInput();
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -59,8 +60,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             PackageEvents::POST_PACKAGE_UPDATE => 'onPostUpdate',
             PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostUninstall',
-            PluginEvents::PRE_COMMAND_RUN => 'onPreCommandRun',
-            PluginEvents::COMMAND => 'onCommand',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
             ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
             ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
@@ -95,24 +94,10 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             $this->removedPackages[] = $operation->getPackage()->getPrettyName();
         }
     }
-    
-    public function onPreCommandRun(PreCommandRunEvent $event): void
-    {
-        if ($event->getCommand() === 'create-project') {
-            $this->runOnCreateProject = true;
-        }
-    }
-
-    public function onCommand(CommandEvent $event): void
-    {
-        if ($event->getCommandName() === 'dump-autoload') {
-            $this->runOnAutoloadDump = true;
-        }
-    }
 
     public function onPostAutoloadDump(Event $event): void
     {
-        if ($this->runOnAutoloadDump) {
+        if ($this->runOnAutoloadDump()) {
             $this->processConfigs($event->getComposer(), $event->getIO());
         }
     }
@@ -235,7 +220,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
         $configFileHandler = new ConfigFileHandler($io, $this->getRootPath(), $options->outputDirectory());
 
-        if ($this->runOnCreateProject) {
+        if ($this->runOnCreateProject()) {
             $configFileHandler->handleAfterCreateProject($configFiles, $mergePlan);
             return;
         }
@@ -265,5 +250,15 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     private function getPluginConfig(PackageInterface $package): array
     {
         return $package->getExtra()['config-plugin'] ?? [];
+    }
+
+    private function runOnAutoloadDump(): bool
+    {
+        return $this->input->getFirstArgument() === 'dump-autoload';
+    }
+
+    private function runOnCreateProject(): bool
+    {
+        return $this->input->getFirstArgument() === 'create-project';
     }
 }
