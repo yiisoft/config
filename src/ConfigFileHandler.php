@@ -176,15 +176,11 @@ final class ConfigFileHandler
                 $this->getDestinationWithConfigsPath($configFile->destinationFile()),
             ),
             self::UPDATE_CHOICES,
-            (string) self::UPDATE_CHOICE_IGNORE,
+            false,
             false,
             'Value "%s" is invalid. Must be a number: 1, 2, or 3.',
             false,
         );
-
-        if (!isset(self::UPDATE_CHOICES[$choice])) {
-            $choice = self::UPDATE_CHOICE_IGNORE;
-        }
 
         if ($isUpdateMultiple && $this->updateChoice === null) {
             $this->updateChoice = $this->io->askConfirmation(self::BATH_ACTION_CONFIRMATION_MESSAGE, false)
