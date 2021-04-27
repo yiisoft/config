@@ -31,7 +31,7 @@ final class ConfigFileHandler
     private const UPDATE_CHOICE_COPY_DIST = 3;
 
     private const UPDATE_CHOICES = [
-        self::UPDATE_CHOICE_IGNORE => 'Ignore, do nothing (default).',
+        self::UPDATE_CHOICE_IGNORE => 'Ignore, do nothing.',
         self::UPDATE_CHOICE_REPLACE => 'Replace the local version with the new version.',
         self::UPDATE_CHOICE_COPY_DIST => 'Copy the new version of the file with the ".dist" postfix.',
     ];
