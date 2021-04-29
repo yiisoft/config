@@ -25,7 +25,6 @@ use function dirname;
 use function file_exists;
 use function glob;
 use function in_array;
-use function ltrim;
 use function realpath;
 use function str_replace;
 use function substr;
@@ -37,7 +36,6 @@ use function substr;
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface
 {
     private ArgvInput $input;
-    private ?Composer $composer = null;
 
     /**
      * @var string[] Pretty names of updated packages.
@@ -64,11 +62,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
             ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
         ];
-    }
-
-    public function activate(Composer $composer, IOInterface $io): void
-    {
-        $this->composer = $composer;
     }
 
     public function onPostInstall(PackageEvent $event): void
@@ -107,6 +100,11 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $this->processConfigs($event->getComposer(), $event->getIO());
     }
 
+    public function activate(Composer $composer, IOInterface $io): void
+    {
+        // do nothing
+    }
+
     public function deactivate(Composer $composer, IOInterface $io): void
     {
         // do nothing
@@ -124,7 +122,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
         $rootPackage = $composer->getPackage();
-        $rootConfig = $this->getPluginConfig($rootPackage);
         $options = new Options($rootPackage->getExtra());
 
         $forceCheck = $options->forceCheck() ||
@@ -135,10 +132,9 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         $configFiles = [];
 
         foreach ((new PackagesListBuilder($composer))->build() as $package) {
-            $pluginConfig = $this->getPluginConfig($package);
-            $pluginOptions = new Options($package->getExtra());
+            $packageOptions = new Options($package->getExtra());
 
-            foreach ($pluginConfig as $group => $files) {
+            foreach ($this->getPackageConfig($package) as $group => $files) {
                 $files = (array) $files;
 
                 foreach ($files as $file) {
@@ -156,7 +152,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                     }
 
                     $checkFileOnUpdate = $forceCheck || in_array($package->getPrettyName(), $packagesForCheck, true);
-                    $sourceFilePath = $this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/' . $file;
+                    $sourceFilePath = $this->getPackageSourcePath($composer, $package, $packageOptions) . '/' . $file;
 
                     if (Options::containsWildcard($file)) {
                         $matches = glob($sourceFilePath);
@@ -167,7 +163,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
                         if ($checkFileOnUpdate) {
                             foreach ($matches as $match) {
-                                $relativePath = str_replace($this->getPackagePath($package) . $pluginOptions->sourceDirectory() . '/', '', $match);
+                                $relativePath = str_replace($this->getPackageSourcePath($composer, $package, $packageOptions) . '/', '', $match);
                                 $configFiles[] = new ConfigFile($match, $package->getPrettyName() . '/' . $relativePath);
                             }
                         }
@@ -195,7 +191,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
 
         // Append root package config.
-        foreach ($rootConfig as $group => $files) {
+        foreach ($this->getPackageConfig($rootPackage) as $group => $files) {
             $files = array_map(static function ($file) use ($options) {
                 if (Options::isVariable($file)) {
                     return $file;
@@ -208,8 +204,8 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
                     $file = substr($file, 1);
                 }
 
-                if ($options->sourceDirectory() !== '/') {
-                    $result .= ltrim($options->sourceDirectory(), '/') . '/';
+                if ($options->sourceDirectory() !== '') {
+                    $result .= $options->sourceDirectory() . '/';
                 }
 
                 return $result . $file;
@@ -237,17 +233,18 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         return realpath(dirname(Factory::getComposerFile()));
     }
 
-    private function getPackagePath(PackageInterface $package): string
+    private function getPackageSourcePath(Composer $composer, PackageInterface $package, Options $options): string
     {
-        /** @psalm-suppress PossiblyNullReference */
-        return $this->composer->getInstallationManager()->getInstallPath($package);
+        return $composer->getInstallationManager()->getInstallPath($package)
+            . ($options->sourceDirectory() === '' ? '' : '/' . $options->sourceDirectory())
+        ;
     }
 
     /**
      * @psalm-return array<string, string|list<string>>
      * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
      */
-    private function getPluginConfig(PackageInterface $package): array
+    private function getPackageConfig(PackageInterface $package): array
     {
         return $package->getExtra()['config-plugin'] ?? [];
     }

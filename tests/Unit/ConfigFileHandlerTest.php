@@ -6,6 +6,7 @@ namespace Yiisoft\Config\Tests\Unit;
 
 use Composer\IO\IOInterface;
 use Yiisoft\Config\ConfigFileHandler;
+use Yiisoft\Config\Options;
 
 final class ConfigFileHandlerTest extends TestCase
 {
@@ -351,6 +352,6 @@ final class ConfigFileHandlerTest extends TestCase
 
     private function createConfigFileHandler(IOInterface $io): ConfigFileHandler
     {
-        return new ConfigFileHandler($io, $this->getWorkingDirectory());
+        return new ConfigFileHandler($io, $this->getWorkingDirectory(), Options::DEFAULT_CONFIGS_DIRECTORY);
     }
 }

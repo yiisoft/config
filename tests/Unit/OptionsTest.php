@@ -52,24 +52,26 @@ final class OptionsTest extends TestCase
     public function testDefaultOutputDirectory(): void
     {
         $options = new Options([]);
-        $this->assertSame('/config/packages', $options->outputDirectory());
+        $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $options->outputDirectory());
     }
 
-    public function dataOutputDirectory(): array
+    public function directoryDataProvider(): array
     {
         return [
-            ['/', ''],
-            ['/', '/'],
-            ['/', '\\'],
-            ['/custom-dir', 'custom-dir'],
-            ['/custom-dir', '/custom-dir'],
-            ['/custom-dir', '/custom-dir/'],
-            ['/custom-dir', '\\custom-dir\\'],
+            ['', ''],
+            ['', '/'],
+            ['', '//'],
+            ['', '\\'],
+            ['custom/dir', 'custom/dir'],
+            ['custom/dir', '/custom/dir'],
+            ['custom/dir', '/custom/dir/'],
+            ['custom/dir', '//custom/dir//'],
+            ['custom/dir', '\\custom\\dir\\'],
         ];
     }
 
     /**
-     * @dataProvider dataOutputDirectory
+     * @dataProvider directoryDataProvider
      */
     public function testOutputDirectory(string $expected, string $path): void
     {
@@ -84,24 +86,11 @@ final class OptionsTest extends TestCase
     public function testDefaultSourceDirectory(): void
     {
         $options = new Options([]);
-        $this->assertSame('/', $options->sourceDirectory());
-    }
-
-    public function dataSourceDirectory(): array
-    {
-        return [
-            ['/', ''],
-            ['/', '/'],
-            ['/', '\\'],
-            ['/custom-dir', 'custom-dir'],
-            ['/custom-dir', '/custom-dir'],
-            ['/custom-dir', '/custom-dir/'],
-            ['/custom-dir', '\\custom-dir\\'],
-        ];
+        $this->assertSame('', $options->sourceDirectory());
     }
 
     /**
-     * @dataProvider dataSourceDirectory
+     * @dataProvider directoryDataProvider
      */
     public function testSourceDirectory(string $expected, string $path): void
     {
@@ -120,7 +109,7 @@ final class OptionsTest extends TestCase
         ]);
         $this->assertFalse($options->silentOverride());
         $this->assertFalse($options->forceCheck());
-        $this->assertSame('/', $options->sourceDirectory());
-        $this->assertSame('/' . Options::DEFAULT_CONFIGS_PATH, $options->outputDirectory());
+        $this->assertSame('', $options->sourceDirectory());
+        $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $options->outputDirectory());
     }
 }

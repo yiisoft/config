@@ -15,9 +15,7 @@ use function file_get_contents;
 use function file_put_contents;
 use function implode;
 use function ksort;
-use function rtrim;
 use function sprintf;
-use function trim;
 
 /**
  * @internal
@@ -77,15 +75,15 @@ final class ConfigFileHandler
 
     /**
      * @param IOInterface $io The IO instance.
-     * @param string $rootPath Path to directory containing composer.json.
-     * @param string $configsPath Path to directory containing configuration files.
+     * @param string $rootPath The full path to directory containing composer.json.
+     * @param string $configsDirectory The name of the directory containing the configuration files.
      */
-    public function __construct(IOInterface $io, string $rootPath, string $configsPath = Options::DEFAULT_CONFIGS_PATH)
+    public function __construct(IOInterface $io, string $rootPath, string $configsDirectory)
     {
         $this->io = $io;
         $this->filesystem = new Filesystem();
-        $this->rootPath = rtrim($rootPath, '/');
-        $this->configsPath = trim($configsPath, '/');
+        $this->rootPath = $rootPath;
+        $this->configsPath = $configsDirectory;
         $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsPath);
     }
 
