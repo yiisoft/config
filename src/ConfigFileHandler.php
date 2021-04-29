@@ -37,7 +37,7 @@ final class ConfigFileHandler
     private IOInterface $io;
     private Filesystem $filesystem;
     private string $rootPath;
-    private string $configsPath;
+    private string $configsDirectory;
     private ?int $updateChoice = null;
     private ?bool $removeChoice = null;
     private bool $confirmedMultipleRemoval = false;
@@ -83,8 +83,8 @@ final class ConfigFileHandler
         $this->io = $io;
         $this->filesystem = new Filesystem();
         $this->rootPath = $rootPath;
-        $this->configsPath = $configsDirectory;
-        $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsPath);
+        $this->configsDirectory = $configsDirectory;
+        $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsDirectory);
     }
 
     /**
@@ -171,7 +171,7 @@ final class ConfigFileHandler
             sprintf(
                 "\nThe local version of the \"%s\" config file differs with the new version"
                 . " of the file from the vendor.\nSelect one of the following actions:",
-                $this->getDestinationWithConfigsPath($configFile->destinationFile()),
+                $this->getDestinationWithConfigsDirectory($configFile->destinationFile()),
             ),
             self::UPDATE_CHOICES,
             false,
@@ -210,7 +210,7 @@ final class ConfigFileHandler
         $destination = $this->getDestinationPath($configFile->destinationFile());
         $this->filesystem->ensureDirectoryExists(dirname($destination));
         $this->filesystem->copy($configFile->sourceFilePath(), $destination);
-        $this->addedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->addedConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function copyDistFile(ConfigFile $configFile): void
@@ -219,12 +219,12 @@ final class ConfigFileHandler
             $configFile->sourceFilePath(),
             $this->getDestinationPath($configFile->destinationFile() . '.dist'),
         );
-        $this->copiedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->copiedConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function ignoreFile(ConfigFile $configFile): void
     {
-        $this->ignoredConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->ignoredConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function updateFile(ConfigFile $configFile): void
@@ -233,7 +233,7 @@ final class ConfigFileHandler
             $configFile->sourceFilePath(),
             $this->getDestinationPath($configFile->destinationFile()),
         );
-        $this->updatedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->updatedConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function removePackage(string $packageName, bool $isRemoveMultiple): void
@@ -257,7 +257,7 @@ final class ConfigFileHandler
         $choice = $this->io->askConfirmation(
             sprintf(
                 "The package was removed from the vendor, remove the \"%s\" configuration? (yes/no)\n > ",
-                $this->getDestinationWithConfigsPath($packageName),
+                $this->getDestinationWithConfigsDirectory($packageName),
             ),
             false,
         );
@@ -276,12 +276,12 @@ final class ConfigFileHandler
     private function removePackageChoice(bool $choice, string $packageName): void
     {
         if ($choice === false) {
-            $this->ignoredRemovedPackages[] = $this->getDestinationWithConfigsPath($packageName);
+            $this->ignoredRemovedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
             return;
         }
 
         $this->filesystem->removeDirectory($this->getDestinationPath($packageName));
-        $this->removedPackages[] = $this->getDestinationWithConfigsPath($packageName);
+        $this->removedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
     }
 
     private function updateMergePlan(array $mergePlan): void
@@ -317,7 +317,7 @@ final class ConfigFileHandler
             'Config files were changed to run the application template',
             sprintf(
                 'You can change any configuration files located in the "%s" for yourself.',
-                $this->configsPath,
+                $this->configsDirectory,
             ),
         );
 
@@ -397,14 +397,14 @@ final class ConfigFileHandler
         }
     }
 
-    private function getDestinationWithConfigsPath(string $destinationFile): string
+    private function getDestinationWithConfigsDirectory(string $destinationFile): string
     {
-        return $this->configsPath . '/' . $destinationFile;
+        return $this->configsDirectory . '/' . $destinationFile;
     }
 
     private function getDestinationPath(string $destinationFile): string
     {
-        return $this->rootPath . '/' . $this->configsPath . '/' . $destinationFile;
+        return $this->rootPath . '/' . $this->configsDirectory . '/' . $destinationFile;
     }
 
     private function destinationConfigFileExist(ConfigFile $configFile): bool
