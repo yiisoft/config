@@ -27,6 +27,7 @@ final class ConfigFileHandler
     private const UPDATE_CHOICE_IGNORE = 1;
     private const UPDATE_CHOICE_REPLACE = 2;
     private const UPDATE_CHOICE_COPY_DIST = 3;
+    private const CHOICE_SHOW_DIFF = 4;
 
     private const UPDATE_CHOICES = [
         self::UPDATE_CHOICE_IGNORE => 'Ignore, do nothing.',
@@ -36,6 +37,7 @@ final class ConfigFileHandler
 
     private IOInterface $io;
     private Filesystem $filesystem;
+    private ConfigFileDiffer $differ;
     private string $rootPath;
     private string $configsDirectory;
     private ?int $updateChoice = null;
@@ -84,6 +86,7 @@ final class ConfigFileHandler
         $this->filesystem = new Filesystem();
         $this->rootPath = $rootPath;
         $this->configsDirectory = $configsDirectory;
+        $this->differ = new ConfigFileDiffer($this->io, $this->rootPath . '/' . $this->configsDirectory);
         $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsDirectory);
     }
 
@@ -155,43 +158,39 @@ final class ConfigFileHandler
             return;
         }
 
-        $this->interactiveUpdate($configFile, $isUpdateMultiple);
+        $this->interactiveUpdate($configFile, $isUpdateMultiple, true);
     }
 
-    private function interactiveUpdate(ConfigFile $configFile, bool $isUpdateMultiple): void
+    private function interactiveUpdate(ConfigFile $configFile, bool $isUpdateMultiple, bool $withChoiceShowDiff): void
     {
         if ($this->updateChoice !== null && isset(self::UPDATE_CHOICES[$this->updateChoice])) {
-            $this->updateChoice($this->updateChoice, $configFile);
+            $this->updateChoice($this->updateChoice, $configFile, $isUpdateMultiple);
             return;
         }
 
         $this->displayOutputTitle();
+        $choice = $this->selectUpdate($withChoiceShowDiff, $configFile);
 
-        $choice = (int) $this->io->select(
-            sprintf(
-                "\nThe local version of the \"%s\" config file differs with the new version"
-                . " of the file from the vendor.\nSelect one of the following actions:",
-                $this->getDestinationWithConfigsDirectory($configFile->destinationFile()),
-            ),
-            self::UPDATE_CHOICES,
-            false,
-            false,
-            'Value "%s" is invalid. Must be a number: 1, 2, or 3.',
-            false,
-        );
-
-        if ($isUpdateMultiple && $this->updateChoice === null) {
+        if ($choice === self::CHOICE_SHOW_DIFF) {
+            $this->updateChoice = self::HIDE_CHOICE_CONFIRMATION;
+            $this->differ->diff($configFile);
+        } elseif ($isUpdateMultiple && $this->updateChoice === null) {
             $this->updateChoice = $this->io->askConfirmation(self::BATH_ACTION_CONFIRMATION_MESSAGE, false)
                 ? $choice
                 : self::HIDE_CHOICE_CONFIRMATION
             ;
         }
 
-        $this->updateChoice($choice, $configFile);
+        $this->updateChoice($choice, $configFile, $isUpdateMultiple);
     }
 
-    private function updateChoice(int $choice, ConfigFile $configFile): void
+    private function updateChoice(int $choice, ConfigFile $configFile, bool $isUpdateMultiple): void
     {
+        if ($choice === self::CHOICE_SHOW_DIFF) {
+            $this->interactiveUpdate($configFile, $isUpdateMultiple, false);
+            return;
+        }
+
         if ($choice === self::UPDATE_CHOICE_REPLACE) {
             $this->updateFile($configFile);
             return;
@@ -203,6 +202,25 @@ final class ConfigFileHandler
         }
 
         $this->ignoreFile($configFile);
+    }
+
+    private function selectUpdate(bool $withChoiceShowDiff, ConfigFile $configFile): int
+    {
+        if ($withChoiceShowDiff) {
+            $question = sprintf(
+                "\nThe local version of the \"%s\" config file differs with the new version"
+                . " of the file from the vendor.\nSelect one of the following actions:",
+                $this->getDestinationWithConfigsDirectory($configFile->destinationFile()),
+            );
+            $choices = self::UPDATE_CHOICES + [self::CHOICE_SHOW_DIFF => 'Show diff in console.'];
+            $errorMessage = 'Value "%s" is invalid. Must be a number: 1, 2, 3 or 4.';
+        } else {
+            $question = 'Select one of the following actions:';
+            $choices = self::UPDATE_CHOICES;
+            $errorMessage = 'Value "%s" is invalid. Must be a number: 1, 2, or 3.';
+        }
+
+        return (int) $this->io->select($question, $choices, false, false, $errorMessage, false);
     }
 
     private function addFile(ConfigFile $configFile): void
@@ -302,7 +320,7 @@ final class ConfigFileHandler
             "\n"
         ;
 
-        if (!$this->equalsIgnoringLineEndings($oldContent, $content)) {
+        if (!$this->differ->isContentEqual($oldContent, $content)) {
             file_put_contents($filePath, $content);
         }
     }
@@ -414,22 +432,9 @@ final class ConfigFileHandler
 
     private function equalsConfigFileContents(ConfigFile $configFile): bool
     {
-        return $this->equalsIgnoringLineEndings(
+        return $this->differ->isContentEqual(
             file_get_contents($configFile->sourceFilePath()),
             file_get_contents($this->getDestinationPath($configFile->destinationFile())),
         );
-    }
-
-    private function equalsIgnoringLineEndings(string $a, string $b): bool
-    {
-        return $this->normalizeLineEndings($a) === $this->normalizeLineEndings($b);
-    }
-
-    private function normalizeLineEndings(string $value): string
-    {
-        return strtr($value, [
-            "\r\n" => "\n",
-            "\r" => "\n",
-        ]);
     }
 }

@@ -9,7 +9,6 @@ use Composer\Util\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Yiisoft\Config\ConfigFile;
 
 use function dirname;
 use function file_get_contents;
@@ -116,15 +115,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function assertOutputMessages(string $expected): void
     {
-        $this->assertSame(
-            "\n= Yii Config =\n$expected",
-            Helper::removeDecoration((new ConsoleOutput())->getFormatter(), $this->output),
-        );
-    }
-
-    protected function createConfigFile(string $file, bool $silentOverride = false): ConfigFile
-    {
-        return new ConfigFile($this->getVendorPath($file), trim($file, '/'), $silentOverride);
+        $this->assertSame($expected, Helper::removeDecoration((new ConsoleOutput())->getFormatter(), $this->output));
     }
 
     /**
@@ -137,7 +128,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ->getMockForAbstractClass()
         ;
 
-        $mock->method('write')->willReturnCallback(fn (string $message) => $this->output .= $message);
+        $mock->method('write')->willReturnCallback(fn (string $message) => $this->output .= "$message\n");
         return $mock;
     }
 }

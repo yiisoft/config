@@ -20,7 +20,8 @@
         "php": "^7.4|^8.0",
         "ext-json": "*",
         "composer-plugin-api": "^1.0|^2.0",
-        "yiisoft/var-dumper": "^1.0"
+        "jfcherng/php-sequence-matcher": "^3.2",
+        "yiisoft/var-dumper": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",

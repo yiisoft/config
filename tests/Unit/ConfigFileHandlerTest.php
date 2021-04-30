@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Unit;
 
 use Composer\IO\IOInterface;
+use Yiisoft\Config\ConfigFile;
 use Yiisoft\Config\ConfigFileHandler;
 use Yiisoft\Config\Options;
 
@@ -56,10 +57,10 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertMergePlan($mergePlan);
 
         $this->assertOutputMessages(
-            "Config files were changed to run the application template:\n"
+            "\nConfig files were changed to run the application template:\n"
             . " - config/packages/first/package/file-2.php\n"
             . " - config/packages/second/package/file-3.php\n"
-            . 'You can change any configuration files located in the "config/packages" for yourself.'
+            . "You can change any configuration files located in the \"config/packages\" for yourself.\n"
         );
     }
 
@@ -138,7 +139,7 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertMergePlan([]);
 
         $this->assertOutputMessages(
-            "Config files has been added:\n"
+            "\nConfig files has been added:\n"
             . " - config/packages/first/package/file-1.php\n"
             . "\nConfig files has been updated:\n"
             . " - config/packages/second/package/file-4.php\n"
@@ -147,7 +148,60 @@ final class ConfigFileHandlerTest extends TestCase
             . "Please review the files above and change them yourself if necessary.\n"
             . "\nThe packages were removed from the vendor, but the configurations remained:\n"
             . " - config/packages/remove/package-1\n"
-            . 'Please review the files above and remove them yourself if necessary.'
+            . "Please review the files above and remove them yourself if necessary.\n"
+        );
+    }
+
+    public function testHandleWithShowDiffAndUpdateChoice(): void
+    {
+        $file1 = 'first/package/file-1.php';
+        $file2 = 'first/package/file-2.php';
+
+        $this->putVendorFileContents([
+            $file1 => 'content-1',
+            $file2 => 'content-2',
+        ]);
+
+        $this->assertFileExists($this->getVendorPath($file1));
+        $this->assertFileExists($this->getVendorPath($file2));
+
+        $this->putPackagesFileContents([
+            $file1 => 'changed-1',
+            $file2 => 'changed-2',
+        ]);
+
+        $this->assertFileExists($this->getPackagesPath($file1));
+        $this->assertNotEqualsFileContents($file1);
+        $this->assertFileExists($this->getPackagesPath($file2));
+        $this->assertNotEqualsFileContents($file2);
+
+        $io = $this->createIoMock();
+        $io->expects($this->exactly(0))->method('askConfirmation');
+        $io->expects($this->exactly(2))->method('isInteractive')->willReturn(true);
+        $io->expects($this->exactly(4))->method('select')->willReturnCallback(static function (string $question): int {
+            return $question === 'Select one of the following actions:' ? 2 : 4;
+        });
+
+        $handler = $this->createConfigFileHandler($io);
+        $handler->handle([$this->createConfigFile($file1), $this->createConfigFile($file2)], [], []);
+
+        $this->assertEqualsFileContents($file1);
+        $this->assertEqualsFileContents($file2);
+
+        $this->assertOutputMessages(
+            "--- {$this->getVendorPath($file1)}\n"
+            . "+++ {$this->getPackagesPath($file1)}\n"
+            . "= Lines: -0,1 +0,1 =\n"
+            . "-content-1\n"
+            . "+changed-1\n"
+            . "--- {$this->getVendorPath($file2)}\n"
+            . "+++ {$this->getPackagesPath($file2)}\n"
+            . "= Lines: -0,1 +0,1 =\n"
+            . "-content-2\n"
+            . "+changed-2\n"
+            . "\nConfig files has been updated:\n"
+            . " - config/packages/first/package/file-1.php\n"
+            . " - config/packages/first/package/file-2.php\n"
         );
     }
 
@@ -195,11 +249,11 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertNotEqualsFileContents($file2);
 
         $this->assertOutputMessages(
-            "Config files has been added:\n"
+            "\nConfig files has been added:\n"
             . " - config/packages/first/package/file-1.php\n"
             . "\nChanges in the config files were ignored:\n"
             . " - config/packages/first/package/file-2.php\n"
-            . 'Please review the files above and change them yourself if necessary.'
+            . "Please review the files above and change them yourself if necessary.\n"
         );
     }
 
@@ -257,10 +311,10 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertEqualsFileContents($file3);
 
         $this->assertOutputMessages(
-            "Config files has been updated:\n"
+            "\nConfig files has been updated:\n"
             . " - config/packages/first/package/file-1.php\n"
             . " - config/packages/first/package/file-2.php\n"
-            . ' - config/packages/first/package/file-3.php'
+            . " - config/packages/first/package/file-3.php\n"
         );
     }
 
@@ -326,28 +380,38 @@ final class ConfigFileHandlerTest extends TestCase
             $this->assertDirectoryDoesNotExist($this->getPackagesPath($removePackage1));
             $this->assertDirectoryDoesNotExist($this->getPackagesPath($removePackage2));
             $this->assertOutputMessages(
-                "Config files has been copied with the \".dist\" postfix:\n"
+                "\nConfig files has been copied with the \".dist\" postfix:\n"
                 . " - config/packages/first/package/file-1.php\n"
                 . " - config/packages/second/package/file-2.php\n"
                 . "Please review files above and change it according with dist files.\n"
                 . "\nConfigurations has been removed:\n"
                 . " - config/packages/remove/package-1\n"
-                . ' - config/packages/remove/package-2'
+                . " - config/packages/remove/package-2\n"
             );
         } else {
             $this->assertDirectoryExists($this->getPackagesPath($removePackage1));
             $this->assertDirectoryExists($this->getPackagesPath($removePackage2));
             $this->assertOutputMessages(
-                "Config files has been copied with the \".dist\" postfix:\n"
+                "\nConfig files has been copied with the \".dist\" postfix:\n"
                 . " - config/packages/first/package/file-1.php\n"
                 . " - config/packages/second/package/file-2.php\n"
                 . "Please review files above and change it according with dist files.\n"
                 . "\nThe packages were removed from the vendor, but the configurations remained:\n"
                 . " - config/packages/remove/package-1\n"
                 . " - config/packages/remove/package-2\n"
-                . 'Please review the files above and remove them yourself if necessary.'
+                . "Please review the files above and remove them yourself if necessary.\n"
             );
         }
+    }
+
+    protected function assertOutputMessages(string $expected): void
+    {
+        parent::assertOutputMessages("\n= Yii Config =\n$expected");
+    }
+
+    private function createConfigFile(string $file, bool $silentOverride = false): ConfigFile
+    {
+        return new ConfigFile($this->getVendorPath($file), $file, $silentOverride);
     }
 
     private function createConfigFileHandler(IOInterface $io): ConfigFileHandler
