@@ -33,7 +33,7 @@ final class ComposerConfigProcess
     private array $configFiles = [];
 
     /**
-     * @var array<string, array<string, string|list<string>>>
+     * @psalm-var array<string, array<string, string|list<string>>>
      */
     private array $mergePlan = [];
 

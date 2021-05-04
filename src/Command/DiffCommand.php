@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Command;
 
 use Composer\Command\BaseCommand;
-use Composer\IO\IOInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,11 +14,17 @@ use Yiisoft\Config\ConfigFileDiffer;
 
 use function array_map;
 use function array_unique;
+use function file_get_contents;
 use function implode;
+use function is_file;
 use function preg_replace;
+use function sort;
 use function sprintf;
 use function strpos;
 
+/**
+ * @internal
+ */
 final class DiffCommand extends BaseCommand
 {
     protected function configure(): void
@@ -41,39 +46,56 @@ final class DiffCommand extends BaseCommand
         $config = new ComposerConfigProcess($this->getComposer(), $packages, empty($packages));
         $differ = new ConfigFileDiffer($io, "{$config->rootPath()}/{$config->configsDirectory()}");
 
-        foreach ($this->groupPackageFiles($packages, $config, $io) as $package => $configFiles) {
-            $differ->diffPackage($package, $configFiles);
+        foreach ($this->groupPackageFiles($packages, $config, $differ) as $package => $configFiles) {
+            $io->write("\n<bg=magenta;fg=white;options=bold>= $package =</>\n");
+
+            foreach ($configFiles as $configFile) {
+                $differ->diff($configFile);
+            }
         }
 
-        $io->write("\n<info>Done.</info>");
+        $io->write("\n<bg=green;fg=black;options=bold>Done.</>");
         return 0;
     }
 
     /**
      * @param string[] $packages
      * @param ComposerConfigProcess $config
-     * @param IOInterface $io
+     * @param ConfigFileDiffer $differ
+     *
      * @return array<string, ConfigFile[]>
      */
-    private function groupPackageFiles(array $packages, ComposerConfigProcess $config, IOInterface $io): array
+    private function groupPackageFiles(array $packages, ComposerConfigProcess $config, ConfigFileDiffer $differ): array
     {
-        $processedPackages = array_unique(array_map(static function (ConfigFile $file): string {
-            return preg_replace('#^([^/]+/[^/]+)/.*$#', '\1', $file->destinationFile());
+        $processedPackages = array_unique(array_map(static function (ConfigFile $configFile): string {
+            return preg_replace('#^([^/]+/[^/]+)/.*$#', '\1', $configFile->destinationFile());
         }, $config->configFiles()));
 
         if (!empty($packages) && !empty($notControlledPackages = array_diff($packages, $processedPackages))) {
-            $io->write(sprintf(
+            $this->getIo()->write(sprintf(
                 '<error>Package(s) "%s" are not controlled by the config plugin.</error>',
                 implode('", "', $notControlledPackages),
             ));
         }
 
+        $destinationDirectoryPath = "{$config->rootPath()}/{$config->configsDirectory()}";
         $groupedPackageFiles = [];
+        sort($processedPackages);
 
         foreach ($processedPackages as $package) {
             foreach ($config->configFiles() as $configFile) {
                 if (strpos($configFile->destinationFile(), $package) !== false) {
-                    $groupedPackageFiles[$package][] = $configFile;
+                    $destinationFile = "{$destinationDirectoryPath}/{$configFile->destinationFile()}";
+                    $sourceFile = $configFile->sourceFilePath();
+
+                    if (!is_file($destinationFile) || !is_file($sourceFile)) {
+                        $groupedPackageFiles[$package][] = $configFile;
+                        continue;
+                    }
+
+                    if (!$differ->isContentEqual(file_get_contents($destinationFile), file_get_contents($sourceFile))) {
+                        $groupedPackageFiles[$package][] = $configFile;
+                    }
                 }
             }
         }

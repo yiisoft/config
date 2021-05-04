@@ -90,21 +90,6 @@ final class ConfigFileDiffer
     }
 
     /**
-     * Displays the difference between the vendor files and the custom configuration files of the specified package.
-     *
-     * @param string $packageName
-     * @param ConfigFile[] $configFiles
-     */
-    public function diffPackage(string $packageName, array $configFiles): void
-    {
-        $this->io->write("\n<bg=magenta;fg=white;options=bold>= $packageName =</>\n");
-
-        foreach ($configFiles as $configFile) {
-            $this->diff($configFile);
-        }
-    }
-
-    /**
      * Checks whether the contents are equal to.
      *
      * @param string $a
