@@ -15,13 +15,13 @@ use function trim;
 final class Options
 {
     public const MERGE_PLAN_FILENAME = 'merge_plan.php';
-    public const DEFAULT_CONFIGS_PATH = 'config/packages';
+    public const DEFAULT_CONFIGS_DIRECTORY = 'config/packages';
     public const CONFIG_PACKAGE_PRETTY_NAME = 'yiisoft/config';
 
     private bool $silentOverride = false;
     private bool $forceCheck = false;
-    private string $sourceDirectory = '/';
-    private string $outputDirectory = '/' . self::DEFAULT_CONFIGS_PATH;
+    private string $sourceDirectory = '';
+    private string $outputDirectory = self::DEFAULT_CONFIGS_DIRECTORY;
 
     public function __construct(array $extra)
     {
@@ -40,11 +40,11 @@ final class Options
         }
 
         if (isset($options['source-directory'])) {
-            $this->sourceDirectory = $this->normalizeRelativePath((string) $options['source-directory']);
+            $this->sourceDirectory = $this->normalizePath((string) $options['source-directory']);
         }
 
         if (isset($options['output-directory'])) {
-            $this->outputDirectory = $this->normalizeRelativePath((string) $options['output-directory']);
+            $this->outputDirectory = $this->normalizePath((string) $options['output-directory']);
         }
     }
 
@@ -83,8 +83,8 @@ final class Options
         return $this->outputDirectory;
     }
 
-    private function normalizeRelativePath(string $value): string
+    private function normalizePath(string $value): string
     {
-        return '/' . trim(str_replace('\\', '/', $value), '/');
+        return trim(str_replace('\\', '/', $value), '/');
     }
 }

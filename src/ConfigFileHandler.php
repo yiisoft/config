@@ -15,9 +15,7 @@ use function file_get_contents;
 use function file_put_contents;
 use function implode;
 use function ksort;
-use function rtrim;
 use function sprintf;
-use function trim;
 
 /**
  * @internal
@@ -29,6 +27,7 @@ final class ConfigFileHandler
     private const UPDATE_CHOICE_IGNORE = 1;
     private const UPDATE_CHOICE_REPLACE = 2;
     private const UPDATE_CHOICE_COPY_DIST = 3;
+    private const CHOICE_SHOW_DIFF = 4;
 
     private const UPDATE_CHOICES = [
         self::UPDATE_CHOICE_IGNORE => 'Ignore, do nothing.',
@@ -38,8 +37,9 @@ final class ConfigFileHandler
 
     private IOInterface $io;
     private Filesystem $filesystem;
+    private ConfigFileDiffer $differ;
     private string $rootPath;
-    private string $configsPath;
+    private string $configsDirectory;
     private ?int $updateChoice = null;
     private ?bool $removeChoice = null;
     private bool $confirmedMultipleRemoval = false;
@@ -77,16 +77,17 @@ final class ConfigFileHandler
 
     /**
      * @param IOInterface $io The IO instance.
-     * @param string $rootPath Path to directory containing composer.json.
-     * @param string $configsPath Path to directory containing configuration files.
+     * @param string $rootPath The full path to directory containing composer.json.
+     * @param string $configsDirectory The name of the directory containing the configuration files.
      */
-    public function __construct(IOInterface $io, string $rootPath, string $configsPath = Options::DEFAULT_CONFIGS_PATH)
+    public function __construct(IOInterface $io, string $rootPath, string $configsDirectory)
     {
         $this->io = $io;
         $this->filesystem = new Filesystem();
-        $this->rootPath = rtrim($rootPath, '/');
-        $this->configsPath = trim($configsPath, '/');
-        $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsPath);
+        $this->rootPath = $rootPath;
+        $this->configsDirectory = $configsDirectory;
+        $this->differ = new ConfigFileDiffer($this->io, $this->rootPath . '/' . $this->configsDirectory);
+        $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsDirectory);
     }
 
     /**
@@ -157,43 +158,39 @@ final class ConfigFileHandler
             return;
         }
 
-        $this->interactiveUpdate($configFile, $isUpdateMultiple);
+        $this->interactiveUpdate($configFile, $isUpdateMultiple, true);
     }
 
-    private function interactiveUpdate(ConfigFile $configFile, bool $isUpdateMultiple): void
+    private function interactiveUpdate(ConfigFile $configFile, bool $isUpdateMultiple, bool $withChoiceShowDiff): void
     {
         if ($this->updateChoice !== null && isset(self::UPDATE_CHOICES[$this->updateChoice])) {
-            $this->updateChoice($this->updateChoice, $configFile);
+            $this->updateChoice($this->updateChoice, $configFile, $isUpdateMultiple);
             return;
         }
 
         $this->displayOutputTitle();
+        $choice = $this->selectUpdate($withChoiceShowDiff, $configFile);
 
-        $choice = (int) $this->io->select(
-            sprintf(
-                "\nThe local version of the \"%s\" config file differs with the new version"
-                . " of the file from the vendor.\nSelect one of the following actions:",
-                $this->getDestinationWithConfigsPath($configFile->destinationFile()),
-            ),
-            self::UPDATE_CHOICES,
-            false,
-            false,
-            'Value "%s" is invalid. Must be a number: 1, 2, or 3.',
-            false,
-        );
-
-        if ($isUpdateMultiple && $this->updateChoice === null) {
+        if ($choice === self::CHOICE_SHOW_DIFF) {
+            $this->updateChoice = self::HIDE_CHOICE_CONFIRMATION;
+            $this->differ->diff($configFile);
+        } elseif ($isUpdateMultiple && $this->updateChoice === null) {
             $this->updateChoice = $this->io->askConfirmation(self::BATH_ACTION_CONFIRMATION_MESSAGE, false)
                 ? $choice
                 : self::HIDE_CHOICE_CONFIRMATION
             ;
         }
 
-        $this->updateChoice($choice, $configFile);
+        $this->updateChoice($choice, $configFile, $isUpdateMultiple);
     }
 
-    private function updateChoice(int $choice, ConfigFile $configFile): void
+    private function updateChoice(int $choice, ConfigFile $configFile, bool $isUpdateMultiple): void
     {
+        if ($choice === self::CHOICE_SHOW_DIFF) {
+            $this->interactiveUpdate($configFile, $isUpdateMultiple, false);
+            return;
+        }
+
         if ($choice === self::UPDATE_CHOICE_REPLACE) {
             $this->updateFile($configFile);
             return;
@@ -207,12 +204,31 @@ final class ConfigFileHandler
         $this->ignoreFile($configFile);
     }
 
+    private function selectUpdate(bool $withChoiceShowDiff, ConfigFile $configFile): int
+    {
+        if ($withChoiceShowDiff) {
+            $question = sprintf(
+                "\nThe local version of the \"%s\" config file differs with the new version"
+                . " of the file from the vendor.\nSelect one of the following actions:",
+                $this->getDestinationWithConfigsDirectory($configFile->destinationFile()),
+            );
+            $choices = self::UPDATE_CHOICES + [self::CHOICE_SHOW_DIFF => 'Show diff in console.'];
+            $errorMessage = 'Value "%s" is invalid. Must be a number: 1, 2, 3 or 4.';
+        } else {
+            $question = 'Select one of the following actions:';
+            $choices = self::UPDATE_CHOICES;
+            $errorMessage = 'Value "%s" is invalid. Must be a number: 1, 2, or 3.';
+        }
+
+        return (int) $this->io->select($question, $choices, false, false, $errorMessage, false);
+    }
+
     private function addFile(ConfigFile $configFile): void
     {
         $destination = $this->getDestinationPath($configFile->destinationFile());
         $this->filesystem->ensureDirectoryExists(dirname($destination));
         $this->filesystem->copy($configFile->sourceFilePath(), $destination);
-        $this->addedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->addedConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function copyDistFile(ConfigFile $configFile): void
@@ -221,12 +237,12 @@ final class ConfigFileHandler
             $configFile->sourceFilePath(),
             $this->getDestinationPath($configFile->destinationFile() . '.dist'),
         );
-        $this->copiedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->copiedConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function ignoreFile(ConfigFile $configFile): void
     {
-        $this->ignoredConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->ignoredConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function updateFile(ConfigFile $configFile): void
@@ -235,7 +251,7 @@ final class ConfigFileHandler
             $configFile->sourceFilePath(),
             $this->getDestinationPath($configFile->destinationFile()),
         );
-        $this->updatedConfigFiles[] = $this->getDestinationWithConfigsPath($configFile->destinationFile());
+        $this->updatedConfigFiles[] = $this->getDestinationWithConfigsDirectory($configFile->destinationFile());
     }
 
     private function removePackage(string $packageName, bool $isRemoveMultiple): void
@@ -259,7 +275,7 @@ final class ConfigFileHandler
         $choice = $this->io->askConfirmation(
             sprintf(
                 "The package was removed from the vendor, remove the \"%s\" configuration? (yes/no)\n > ",
-                $this->getDestinationWithConfigsPath($packageName),
+                $this->getDestinationWithConfigsDirectory($packageName),
             ),
             false,
         );
@@ -278,12 +294,12 @@ final class ConfigFileHandler
     private function removePackageChoice(bool $choice, string $packageName): void
     {
         if ($choice === false) {
-            $this->ignoredRemovedPackages[] = $this->getDestinationWithConfigsPath($packageName);
+            $this->ignoredRemovedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
             return;
         }
 
         $this->filesystem->removeDirectory($this->getDestinationPath($packageName));
-        $this->removedPackages[] = $this->getDestinationWithConfigsPath($packageName);
+        $this->removedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
     }
 
     private function updateMergePlan(array $mergePlan): void
@@ -304,7 +320,7 @@ final class ConfigFileHandler
             "\n"
         ;
 
-        if (!$this->equalsIgnoringLineEndings($oldContent, $content)) {
+        if (!$this->differ->isContentEqual($oldContent, $content)) {
             file_put_contents($filePath, $content);
         }
     }
@@ -319,7 +335,7 @@ final class ConfigFileHandler
             'Config files were changed to run the application template',
             sprintf(
                 'You can change any configuration files located in the "%s" for yourself.',
-                $this->configsPath,
+                $this->configsDirectory,
             ),
         );
 
@@ -399,14 +415,14 @@ final class ConfigFileHandler
         }
     }
 
-    private function getDestinationWithConfigsPath(string $destinationFile): string
+    private function getDestinationWithConfigsDirectory(string $destinationFile): string
     {
-        return $this->configsPath . '/' . $destinationFile;
+        return $this->configsDirectory . '/' . $destinationFile;
     }
 
     private function getDestinationPath(string $destinationFile): string
     {
-        return $this->rootPath . '/' . $this->configsPath . '/' . $destinationFile;
+        return $this->rootPath . '/' . $this->configsDirectory . '/' . $destinationFile;
     }
 
     private function destinationConfigFileExist(ConfigFile $configFile): bool
@@ -416,22 +432,9 @@ final class ConfigFileHandler
 
     private function equalsConfigFileContents(ConfigFile $configFile): bool
     {
-        return $this->equalsIgnoringLineEndings(
+        return $this->differ->isContentEqual(
             file_get_contents($configFile->sourceFilePath()),
             file_get_contents($this->getDestinationPath($configFile->destinationFile())),
         );
-    }
-
-    private function equalsIgnoringLineEndings(string $a, string $b): bool
-    {
-        return $this->normalizeLineEndings($a) === $this->normalizeLineEndings($b);
-    }
-
-    private function normalizeLineEndings(string $value): string
-    {
-        return strtr($value, [
-            "\r\n" => "\n",
-            "\r" => "\n",
-        ]);
     }
 }
