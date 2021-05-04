@@ -38,8 +38,8 @@ final class ConfigFileHandler
     private IOInterface $io;
     private Filesystem $filesystem;
     private ConfigFileDiffer $differ;
-    private string $rootPath;
-    private string $configsDirectory;
+    private ComposerConfigProcess $process;
+
     private ?int $updateChoice = null;
     private ?bool $removeChoice = null;
     private bool $confirmedMultipleRemoval = false;
@@ -77,28 +77,23 @@ final class ConfigFileHandler
 
     /**
      * @param IOInterface $io The IO instance.
-     * @param string $rootPath The full path to directory containing composer.json.
-     * @param string $configsDirectory The name of the directory containing the configuration files.
+     * @param ComposerConfigProcess $process The composer config process instance.
      */
-    public function __construct(IOInterface $io, string $rootPath, string $configsDirectory)
+    public function __construct(IOInterface $io, ComposerConfigProcess $process)
     {
         $this->io = $io;
+        $this->process = $process;
         $this->filesystem = new Filesystem();
-        $this->rootPath = $rootPath;
-        $this->configsDirectory = $configsDirectory;
-        $this->differ = new ConfigFileDiffer($this->io, $this->rootPath . '/' . $this->configsDirectory);
-        $this->filesystem->ensureDirectoryExists($this->rootPath . '/' . $this->configsDirectory);
+        $this->differ = new ConfigFileDiffer($io, "{$this->process->rootPath()}/{$this->process->configsDirectory()}");
+        $this->filesystem->ensureDirectoryExists("{$this->process->rootPath()}/{$this->process->configsDirectory()}");
     }
 
     /**
      * Handles config files after running the `composer create-project` command.
-     *
-     * @param ConfigFile[] $configFiles Configuration files to change.
-     * @param array $mergePlan Data for changing the merge plan.
      */
-    public function handleAfterCreateProject(array $configFiles, array $mergePlan): void
+    public function handleAfterCreateProject(): void
     {
-        foreach ($configFiles as $configFile) {
+        foreach ($this->process->configFiles() as $configFile) {
             if (!$this->destinationConfigFileExist($configFile)) {
                 $this->addFile($configFile);
                 continue;
@@ -109,45 +104,60 @@ final class ConfigFileHandler
             }
         }
 
-        $this->updateMergePlan($mergePlan);
+        $this->updateMergePlan();
         $this->outputMessagesAfterCreateProject();
     }
 
     /**
      * Updates and removes package configurations.
      *
-     * @param ConfigFile[] $configFiles Configuration files to change.
-     * @param string[] $removedPackages Names of removed packages.
-     * @param array $mergePlan Data for changing the merge plan.
+     * @param string[] $removalsPackages Names of packages to remove.
      */
-    public function handle(array $configFiles, array $removedPackages, array $mergePlan): void
+    public function handle(array $removalsPackages = []): void
     {
-        $isUpdateMultiple = count($configFiles) > 1;
-        $isRemoveMultiple = count($removedPackages) > 1;
+        $updateConfigFiles = $this->prepareUpdateConfigFiles();
+        $isUpdateMultiple = count($updateConfigFiles) > 1;
+        $isRemoveMultiple = count($removalsPackages) > 1;
 
-        foreach ($configFiles as $configFile) {
+        foreach ($updateConfigFiles as $configFile) {
             $this->update($configFile, $isUpdateMultiple);
         }
 
-        foreach ($removedPackages as $packageName) {
+        foreach ($removalsPackages as $packageName) {
             $this->removePackage($packageName, $isRemoveMultiple);
         }
 
-        $this->updateMergePlan($mergePlan);
+        $this->updateMergePlan();
         $this->outputMessages();
+    }
+
+    /**
+     * Adds configuration files if they don't exist and filters configuration files for update.
+     *
+     * @return ConfigFile[] Configuration files to update.
+     */
+    private function prepareUpdateConfigFiles(): array
+    {
+        $updateConfigFiles = [];
+
+        foreach ($this->process->configFiles() as $configFile) {
+            if (!$this->destinationConfigFileExist($configFile)) {
+                $this->addFile($configFile);
+                continue;
+            }
+
+            if ($this->equalsConfigFileContents($configFile)) {
+                continue;
+            }
+
+            $updateConfigFiles[] = $configFile;
+        }
+
+        return $updateConfigFiles;
     }
 
     private function update(ConfigFile $configFile, bool $isUpdateMultiple): void
     {
-        if (!$this->destinationConfigFileExist($configFile)) {
-            $this->addFile($configFile);
-            return;
-        }
-
-        if ($this->equalsConfigFileContents($configFile)) {
-            return;
-        }
-
         if ($configFile->silentOverride()) {
             $this->updateFile($configFile);
             return;
@@ -302,8 +312,9 @@ final class ConfigFileHandler
         $this->removedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
     }
 
-    private function updateMergePlan(array $mergePlan): void
+    private function updateMergePlan(): void
     {
+        $mergePlan = $this->process->mergePlan();
         // Sort groups by alphabetical
         ksort($mergePlan);
 
@@ -335,7 +346,7 @@ final class ConfigFileHandler
             'Config files were changed to run the application template',
             sprintf(
                 'You can change any configuration files located in the "%s" for yourself.',
-                $this->configsDirectory,
+                $this->process->configsDirectory(),
             ),
         );
 
@@ -417,12 +428,12 @@ final class ConfigFileHandler
 
     private function getDestinationWithConfigsDirectory(string $destinationFile): string
     {
-        return $this->configsDirectory . '/' . $destinationFile;
+        return "{$this->process->configsDirectory()}/$destinationFile";
     }
 
     private function getDestinationPath(string $destinationFile): string
     {
-        return $this->rootPath . '/' . $this->configsDirectory . '/' . $destinationFile;
+        return "{$this->process->rootPath()}/{$this->process->configsDirectory()}/$destinationFile";
     }
 
     private function destinationConfigFileExist(ConfigFile $configFile): bool
