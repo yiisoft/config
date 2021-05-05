@@ -111,19 +111,19 @@ final class ConfigFileHandler
     /**
      * Updates and removes package configurations.
      *
-     * @param string[] $removalsPackages Names of packages to remove.
+     * @param string[] $packageRemovals Names of packages to remove.
      */
-    public function handle(array $removalsPackages = []): void
+    public function handle(array $packageRemovals = []): void
     {
         $updateConfigFiles = $this->prepareUpdateConfigFiles();
         $isUpdateMultiple = count($updateConfigFiles) > 1;
-        $isRemoveMultiple = count($removalsPackages) > 1;
+        $isRemoveMultiple = count($packageRemovals) > 1;
 
         foreach ($updateConfigFiles as $configFile) {
             $this->update($configFile, $isUpdateMultiple);
         }
 
-        foreach ($removalsPackages as $packageName) {
+        foreach ($packageRemovals as $packageName) {
             $this->removePackage($packageName, $isRemoveMultiple);
         }
 
