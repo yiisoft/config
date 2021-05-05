@@ -43,10 +43,10 @@ final class DiffCommand extends BaseCommand
         /** @var string[] $packages */
         $packages = $input->getArgument('packages');
         /** @psalm-suppress  PossiblyNullArgument */
-        $config = new ComposerConfigProcess($this->getComposer(), $packages, empty($packages));
-        $differ = new ConfigFileDiffer($io, "{$config->rootPath()}/{$config->configsDirectory()}");
+        $process = new ComposerConfigProcess($this->getComposer(), $packages, empty($packages));
+        $differ = new ConfigFileDiffer($io, "{$process->rootPath()}/{$process->configsDirectory()}");
 
-        foreach ($this->groupPackageFiles($packages, $config, $differ) as $package => $configFiles) {
+        foreach ($this->groupPackageFiles($packages, $process, $differ) as $package => $configFiles) {
             $io->write("\n<bg=magenta;fg=white;options=bold>= $package =</>\n");
 
             foreach ($configFiles as $configFile) {
@@ -60,16 +60,16 @@ final class DiffCommand extends BaseCommand
 
     /**
      * @param string[] $packages
-     * @param ComposerConfigProcess $config
+     * @param ComposerConfigProcess $process
      * @param ConfigFileDiffer $differ
      *
      * @return array<string, ConfigFile[]>
      */
-    private function groupPackageFiles(array $packages, ComposerConfigProcess $config, ConfigFileDiffer $differ): array
+    private function groupPackageFiles(array $packages, ComposerConfigProcess $process, ConfigFileDiffer $differ): array
     {
         $processedPackages = array_unique(array_map(static function (ConfigFile $configFile): string {
             return preg_replace('#^([^/]+/[^/]+)/.*$#', '\1', $configFile->destinationFile());
-        }, $config->configFiles()));
+        }, $process->configFiles()));
 
         if (!empty($packages) && !empty($notControlledPackages = array_diff($packages, $processedPackages))) {
             $this->getIo()->write(sprintf(
@@ -78,12 +78,12 @@ final class DiffCommand extends BaseCommand
             ));
         }
 
-        $destinationDirectoryPath = "{$config->rootPath()}/{$config->configsDirectory()}";
+        $destinationDirectoryPath = "{$process->rootPath()}/{$process->configsDirectory()}";
         $groupedPackageFiles = [];
         sort($processedPackages);
 
         foreach ($processedPackages as $package) {
-            foreach ($config->configFiles() as $configFile) {
+            foreach ($process->configFiles() as $configFile) {
                 if (strpos($configFile->destinationFile(), $package) !== false) {
                     $destinationFile = "{$destinationDirectoryPath}/{$configFile->destinationFile()}";
                     $sourceFile = $configFile->sourceFilePath();

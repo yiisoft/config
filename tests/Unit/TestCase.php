@@ -4,12 +4,23 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Unit;
 
+use Composer\Composer;
+use Composer\Config;
+use Composer\EventDispatcher\EventDispatcher;
+use Composer\Installer\InstallationManager;
 use Composer\IO\IOInterface;
+use Composer\Package\CompletePackage;
+use Composer\Package\Link;
+use Composer\Package\RootPackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
+use Composer\Repository\RepositoryManager;
+use Composer\Semver\Constraint\Constraint;
 use Composer\Util\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
+use function array_merge;
 use function dirname;
 use function file_get_contents;
 use function file_put_contents;
@@ -130,5 +141,106 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         $mock->method('write')->willReturnCallback(fn (string $message) => $this->output .= "$message\n");
         return $mock;
+    }
+
+    /**
+     * @param array|null $extra
+     * @param string|null $customPackageName
+     *
+     * @return Composer|MockObject
+     */
+    protected function createComposerMock(array $extra = null, string $customPackageName = null)
+    {
+        $sourcePath = dirname(__DIR__, 2) . '/tests/Packages';
+        $targetPath = dirname(__DIR__, 2) . '/tests/configs';
+
+        $customPackageName ??= 'test/custom-source';
+        $extra ??= [
+            'config-plugin' => [
+                'common' => 'custom-dir/subdir/*.php',
+                'params' => [
+                    'custom-dir/params.php',
+                    '?custom-dir/params-local.php'
+                ],
+                'web' => [
+                    '$common',
+                    'custom-dir/web.php'
+                ],
+            ],
+        ];
+
+        $config = $this->createMock(Config::class);
+        $config->method('get')->willReturn(dirname(__DIR__, 2) . '/vendor');
+
+        $rootPackage = $this->getMockBuilder(RootPackageInterface::class)
+            ->onlyMethods(['getRequires', 'getDevRequires'])
+            ->getMockForAbstractClass()
+        ;
+        $rootPackage->method('getRequires')->willReturn([
+            'test/a' => new Link("$sourcePath/test/a", "$targetPath/test/a", new Constraint('>=', '1.0.0')),
+            'test/ba' => new Link("$sourcePath/test/ba", "$targetPath/test/ba", new Constraint('>=', '1.0.0')),
+            'test/c' => new Link("$sourcePath/test/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
+            $customPackageName => new Link("$sourcePath/$customPackageName", "$targetPath/$customPackageName", new Constraint('>=', '1.0.0')),
+        ]);
+        $rootPackage->method('getDevRequires')->willReturn([
+            'test/d-dev-c' => new Link("$sourcePath/test/d-dev-c", "$targetPath/test/d-dev-c", new Constraint('>=', '1.0.0')),
+        ]);
+        $rootPackage->method('getExtra')->willReturn($extra);
+
+        $repository = $this->getMockBuilder(InstalledRepositoryInterface::class)
+            ->onlyMethods(['getPackages'])
+            ->getMockForAbstractClass()
+        ;
+
+        $customPackage = new CompletePackage($customPackageName, '1.0.0', '1.0.0');
+        $customPackage->setExtra(array_merge($customPackage->getExtra(), $extra));
+
+        $repository->method('getPackages')->willReturn([
+            new CompletePackage('test/a', '1.0.0', '1.0.0'),
+            new CompletePackage('test/ba', '1.0.0', '1.0.0'),
+            new CompletePackage('test/c', '1.0.0', '1.0.0'),
+            $customPackage,
+            new CompletePackage('test/d-dev-c', '1.0.0', '1.0.0'),
+        ]);
+
+        $repositoryManager = $this->getMockBuilder(RepositoryManager::class)
+            ->onlyMethods(['getLocalRepository'])
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $repositoryManager->method('getLocalRepository')->willReturn($repository);
+
+        $installationManager = $this->getMockBuilder(InstallationManager::class)
+            ->onlyMethods(['getInstallPath'])
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $installationManager->method('getInstallPath')->willReturn("$sourcePath/custom-source");
+
+        $eventDispatcher = $this->getMockBuilder(EventDispatcher::class)
+            ->onlyMethods(['dispatch'])
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $eventDispatcher->method('dispatch')->willReturn(0);
+
+        $composer = $this->getMockBuilder(Composer::class)
+            ->onlyMethods([
+                'getConfig',
+                'getPackage',
+                'getRepositoryManager',
+                'getInstallationManager',
+                'getEventDispatcher',
+            ])
+            ->getMock()
+        ;
+
+        $composer->method('getConfig')->willReturn($config);
+        $composer->method('getPackage')->willReturn($rootPackage);
+        $composer->method('getRepositoryManager')->willReturn($repositoryManager);
+        $composer->method('getInstallationManager')->willReturn($installationManager);
+        $composer->method('getEventDispatcher')->willReturn($eventDispatcher);
+
+        return $composer;
     }
 }

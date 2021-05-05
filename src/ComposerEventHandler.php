@@ -113,15 +113,15 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
 
     private function processConfigs(Composer $composer, IOInterface $io): void
     {
-        $config = new ComposerConfigProcess($composer, $this->updatedPackagesPrettyNames);
-        $configFileHandler = new ConfigFileHandler($io, $config->rootPath(), $config->configsDirectory());
+        $process = new ComposerConfigProcess($composer, $this->updatedPackagesPrettyNames);
+        $configFileHandler = new ConfigFileHandler($io, $process);
 
         if ($this->runOnCreateProject()) {
-            $configFileHandler->handleAfterCreateProject($config->configFiles(), $config->mergePlan());
+            $configFileHandler->handleAfterCreateProject();
             return;
         }
 
-        $configFileHandler->handle($config->configFiles(), $this->removedPackages, $config->mergePlan());
+        $configFileHandler->handle($this->removedPackages);
     }
 
     private function runOnAutoloadDump(): bool

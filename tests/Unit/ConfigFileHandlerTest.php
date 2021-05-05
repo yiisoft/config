@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Unit;
 
 use Composer\IO\IOInterface;
+use ReflectionClass;
+use ReflectionException;
+use Yiisoft\Config\ComposerConfigProcess;
 use Yiisoft\Config\ConfigFile;
 use Yiisoft\Config\ConfigFileHandler;
 use Yiisoft\Config\Options;
@@ -39,14 +42,11 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertNotEqualsFileContents($file2);
         $this->assertNotEqualsFileContents($file3);
 
-        $this->createConfigFileHandler($this->createIoMock())->handleAfterCreateProject(
-            [
-                $this->createConfigFile($file1),
-                $this->createConfigFile($file2),
-                $this->createConfigFile($file3),
-            ],
-            $mergePlan = ['package' => ['options']],
-        );
+        $this->createConfigFileHandler($this->createIoMock(), [
+            $this->createConfigFile($file1),
+            $this->createConfigFile($file2),
+            $this->createConfigFile($file3),
+        ], $mergePlan = ['package' => ['options']])->handleAfterCreateProject();
 
         $this->assertFileExists($this->getPackagesPath($file1));
         $this->assertEqualsFileContents($file1);
@@ -118,19 +118,12 @@ final class ConfigFileHandlerTest extends TestCase
         $io->expects($this->exactly(0))->method('select');
         $io->expects($this->exactly(0))->method('askConfirmation');
 
-        $this->createConfigFileHandler($io)->handle(
-            [
-                $this->createConfigFile($file1),
-                $this->createConfigFile($file2),
-                $this->createConfigFile($file3),
-                $this->createConfigFile($file4, true),
-            ],
-            [
-                $packageRemove1,
-                $packageRemove2,
-            ],
-            [],
-        );
+        $this->createConfigFileHandler($io, [
+            $this->createConfigFile($file1),
+            $this->createConfigFile($file2),
+            $this->createConfigFile($file3),
+            $this->createConfigFile($file4, true),
+        ])->handle([$packageRemove1, $packageRemove2]);
 
         $this->assertFileExists($this->getPackagesPath($file1));
         $this->assertEqualsFileContents($file1);
@@ -182,8 +175,10 @@ final class ConfigFileHandlerTest extends TestCase
             return $question === 'Select one of the following actions:' ? 2 : 4;
         });
 
-        $handler = $this->createConfigFileHandler($io);
-        $handler->handle([$this->createConfigFile($file1), $this->createConfigFile($file2)], [], []);
+        $this->createConfigFileHandler($io, [
+            $this->createConfigFile($file1),
+            $this->createConfigFile($file2),
+        ])->handle();
 
         $this->assertEqualsFileContents($file1);
         $this->assertEqualsFileContents($file2);
@@ -205,17 +200,7 @@ final class ConfigFileHandlerTest extends TestCase
         );
     }
 
-    public function askConfirmationDataProvider(): array
-    {
-        return [[true], [false]];
-    }
-
-    /**
-     * @dataProvider askConfirmationDataProvider
-     *
-     * @param bool $confirm
-     */
-    public function testHandleWithAddFileAndIgnoreChoice(bool $confirm): void
+    public function testHandleWithAddFileAndIgnoreChoice(): void
     {
         $file1 = 'first/package/file-1.php';
         $file2 = 'first/package/file-2.php';
@@ -239,10 +224,12 @@ final class ConfigFileHandlerTest extends TestCase
         $io = $this->createIoMock();
         $io->expects($this->once())->method('isInteractive')->willReturn(true);
         $io->expects($this->once())->method('select')->willReturn(1);
-        $io->expects($this->once())->method('askConfirmation')->willReturn($confirm);
+        $io->expects($this->exactly(0))->method('askConfirmation');
 
-        $handler = $this->createConfigFileHandler($io);
-        $handler->handle([$this->createConfigFile($file1), $this->createConfigFile($file2)], [], []);
+        $this->createConfigFileHandler($io, [
+            $this->createConfigFile($file1),
+            $this->createConfigFile($file2),
+        ])->handle();
 
         $this->assertFileExists($this->getPackagesPath($file1));
         $this->assertEqualsFileContents($file1);
@@ -256,6 +243,12 @@ final class ConfigFileHandlerTest extends TestCase
             . "Please review the files above and change them yourself if necessary.\n"
         );
     }
+
+    public function askConfirmationDataProvider(): array
+    {
+        return [[true], [false]];
+    }
+
 
     /**
      * @dataProvider askConfirmationDataProvider
@@ -296,15 +289,11 @@ final class ConfigFileHandlerTest extends TestCase
         $io->expects($this->exactly($confirm ? 1 : 3))->method('select')->willReturn(2);
         $io->expects($this->once())->method('askConfirmation')->willReturn($confirm);
 
-        $this->createConfigFileHandler($io)->handle(
-            [
-                $this->createConfigFile($file1),
-                $this->createConfigFile($file2),
-                $this->createConfigFile($file3),
-            ],
-            [],
-            [],
-        );
+        $this->createConfigFileHandler($io, [
+            $this->createConfigFile($file1),
+            $this->createConfigFile($file2),
+            $this->createConfigFile($file3),
+        ])->handle();
 
         $this->assertEqualsFileContents($file1);
         $this->assertEqualsFileContents($file2);
@@ -361,17 +350,10 @@ final class ConfigFileHandlerTest extends TestCase
         $io->expects($this->exactly($confirm ? 1 : 2))->method('select')->willReturn(3);
         $io->expects($this->exactly($confirm ? 3 : 4))->method('askConfirmation')->willReturn($confirm);
 
-        $this->createConfigFileHandler($io)->handle(
-            [
-                $this->createConfigFile($file1),
-                $this->createConfigFile($file2),
-            ],
-            [
-                $removePackage1,
-                $removePackage2,
-            ],
-            [],
-        );
+        $this->createConfigFileHandler($io, [
+            $this->createConfigFile($file1),
+            $this->createConfigFile($file2),
+        ])->handle([$removePackage1, $removePackage2]);
 
         $this->assertFileExists($this->getPackagesPath("$file1.dist"));
         $this->assertFileExists($this->getPackagesPath("$file2.dist"));
@@ -414,8 +396,33 @@ final class ConfigFileHandlerTest extends TestCase
         return new ConfigFile($this->getVendorPath($file), $file, $silentOverride);
     }
 
-    private function createConfigFileHandler(IOInterface $io): ConfigFileHandler
+    /**
+     * @param IOInterface $io
+     * @param ConfigFile[] $files
+     * @param array $mergePlan
+     *
+     * @throws ReflectionException
+     *
+     * @return ConfigFileHandler
+     */
+    private function createConfigFileHandler(IOInterface $io, array $files, array $mergePlan = []): ConfigFileHandler
     {
-        return new ConfigFileHandler($io, $this->getWorkingDirectory(), Options::DEFAULT_CONFIGS_DIRECTORY);
+        /** @var ComposerConfigProcess $process */
+        $process = (new ReflectionClass(ComposerConfigProcess::class))->newInstanceWithoutConstructor();
+
+        $this->setInaccessibleProperty($process, 'configsDirectory', Options::DEFAULT_CONFIGS_DIRECTORY);
+        $this->setInaccessibleProperty($process, 'rootPath', $this->getWorkingDirectory());
+        $this->setInaccessibleProperty($process, 'mergePlan', $mergePlan);
+        $this->setInaccessibleProperty($process, 'configFiles', $files);
+
+        return new ConfigFileHandler($io, $process);
+    }
+
+    protected function setInaccessibleProperty(object $object, string $propertyName, $value): void
+    {
+        $property = (new ReflectionClass($object))->getProperty($propertyName);
+        $property->setAccessible(true);
+        $property->setValue($object, $value);
+        $property->setAccessible(false);
     }
 }
