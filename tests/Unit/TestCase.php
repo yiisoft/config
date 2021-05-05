@@ -151,8 +151,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function createComposerMock(array $extra = null, string $customPackageName = null)
     {
-        $sourcePath = dirname(__DIR__) . '/Packages';
-        $targetPath = dirname(__DIR__) . '/configs';
+        $sourcePath = dirname(__DIR__, 2) . '/tests/Packages';
+        $targetPath = dirname(__DIR__, 2) . '/tests/configs';
 
         $customPackageName ??= 'test/custom-source';
         $extra ??= [
