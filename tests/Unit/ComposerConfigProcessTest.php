@@ -78,7 +78,7 @@ final class ComposerConfigProcessTest extends TestCase
     private function assertProcessData(ComposerConfigProcess $process, ?bool $withAssertConfigFiles): void
     {
         if ($withAssertConfigFiles === true) {
-            $expectedSourceFilePath = dirname(__DIR__) . '/Packages/custom-source/custom-dir';
+            $expectedSourceFilePath = dirname(__DIR__, 2) . '/tests/Packages/custom-source/custom-dir';
             $expectedDestinationFile = 'test/custom-source/custom-dir';
 
             $this->assertCount(3, $process->configFiles());
