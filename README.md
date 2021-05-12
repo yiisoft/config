@@ -34,8 +34,8 @@ Composer plugin:
 - Scans installed packages for `config-plugin` extra option in their `composer.json`.
 - Copies missing config files into the project `configs`.
 - Writes a merge plan into `config/packages/merge_plan.php`. It includes configuration from each package `composer.json`.
-- Tracks a changes to configuration files from the vendor by storing metadata in the `config/packages/dist.lock` file.
-- Offers an actions with modified files in the interactive console mode, after updating packages in the vendor.
+- Tracks change to configuration files from the vendor by storing metadata in the `config/packages/dist.lock` file.
+- In the interactive console mode it asks what to do with modified configs after updating packages in the vendor.
   
 In the application entry point, usually `index.php`, we create an instance of config loader and require a configuration
 we need:
@@ -173,9 +173,8 @@ is read for all packages. The value is a path relative to where package `compose
 
 ## Commands
 
-The plugin adds the following extra commands to composer:
-
-- `config-diff` - displays the difference between the vendor and application configuration files in the console.
+The plugin adds extra `config-diff`command to composer. It displays the difference between the vendor and application
+configuration files in the console.
 
 ```shell
 # For all config files
