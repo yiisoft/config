@@ -90,7 +90,7 @@ final class ConfigFileDiffer
     }
 
     /**
-     * Checks whether the config files content are equal to.
+     * Checks whether vendor/application config file contents are equal.
      *
      * @param ConfigFile $configFile
      *
