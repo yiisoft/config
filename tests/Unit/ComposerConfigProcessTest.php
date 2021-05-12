@@ -8,7 +8,6 @@ use Yiisoft\Config\ComposerConfigProcess;
 use Yiisoft\Config\Options;
 
 use function dirname;
-use function strtr;
 
 final class ComposerConfigProcessTest extends TestCase
 {
@@ -100,7 +99,6 @@ final class ComposerConfigProcessTest extends TestCase
         }
 
         $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $process->configsDirectory());
-        $this->assertSame(strtr($this->getWorkingDirectory(), '\\', '/'),  strtr($process->rootPath(), '\\', '/'));
         $this->assertSame($process->mergePlan(), [
             'common' => [
                 '/' => [
