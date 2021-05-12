@@ -90,6 +90,21 @@ final class ConfigFileDiffer
     }
 
     /**
+     * Checks whether the config files content are equal to.
+     *
+     * @param ConfigFile $configFile
+     *
+     * @return bool
+     */
+    public function isConfigFileContentsEqual(ConfigFile $configFile): bool
+    {
+        return $this->isContentEqual(
+            file_get_contents($configFile->sourceFilePath()),
+            file_get_contents("$this->configsPath/{$configFile->destinationFile()}"),
+        );
+    }
+
+    /**
      * Checks whether the contents are equal to.
      *
      * @param string $a

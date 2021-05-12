@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Unit;
 
 use Composer\IO\IOInterface;
+use Composer\Package\Package;
 use ReflectionClass;
 use ReflectionException;
 use Yiisoft\Config\ComposerConfigProcess;
@@ -12,58 +13,12 @@ use Yiisoft\Config\ConfigFile;
 use Yiisoft\Config\ConfigFileHandler;
 use Yiisoft\Config\Options;
 
+use function array_pop;
+use function explode;
+use function implode;
+
 final class ConfigFileHandlerTest extends TestCase
 {
-    public function testHandleAfterCreateProject(): void
-    {
-        $file1 = 'first/package/file-1.php';
-        $file2 = 'first/package/file-2.php';
-        $file3 = 'second/package/file-3.php';
-
-        $this->putVendorFileContents([
-            $file1 => 'content-1',
-            $file2 => 'content-2',
-            $file3 => 'content-3',
-        ]);
-
-        $this->assertFileExists($this->getVendorPath($file1));
-        $this->assertFileExists($this->getVendorPath($file2));
-        $this->assertFileExists($this->getVendorPath($file3));
-
-        $this->putPackagesFileContents([
-            $file2 => 'changed-2',
-            $file3 => 'changed-3',
-        ]);
-
-        $this->assertFileDoesNotExist($this->getPackagesPath($file1));
-        $this->assertFileExists($this->getPackagesPath($file2));
-        $this->assertFileExists($this->getPackagesPath($file3));
-
-        $this->assertNotEqualsFileContents($file2);
-        $this->assertNotEqualsFileContents($file3);
-
-        $this->createConfigFileHandler($this->createIoMock(), [
-            $this->createConfigFile($file1),
-            $this->createConfigFile($file2),
-            $this->createConfigFile($file3),
-        ], $mergePlan = ['package' => ['options']])->handleAfterCreateProject();
-
-        $this->assertFileExists($this->getPackagesPath($file1));
-        $this->assertEqualsFileContents($file1);
-
-        $this->assertNotEqualsFileContents($file2);
-        $this->assertNotEqualsFileContents($file3);
-
-        $this->assertMergePlan($mergePlan);
-
-        $this->assertOutputMessages(
-            "\nConfig files were changed to run the application template:\n"
-            . " - config/packages/first/package/file-2.php\n"
-            . " - config/packages/second/package/file-3.php\n"
-            . "You can change any configuration files located in the \"config/packages\" for yourself.\n"
-        );
-    }
-
     public function testHandleWithSilentOverrideAndWithoutInteractiveMode(): void
     {
         $file1 = 'first/package/file-1.php';
@@ -90,12 +45,10 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertDirectoryExists($this->getVendorPath($packageRemove1));
         $this->assertDirectoryExists($this->getVendorPath($packageRemove2));
 
-
         $this->putPackagesFileContents([
             $file2 => 'changed-2',
             $file3 => 'content-3',
             $file4 => 'changed-3',
-            'merge_plan.php' => '',
         ]);
 
         $this->ensurePackagesDirectoryExists($packageRemove1);
@@ -111,7 +64,6 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertFileExists($this->getPackagesPath($file4));
         $this->assertDirectoryExists($this->getPackagesPath($packageRemove1));
         $this->assertDirectoryDoesNotExist($this->getPackagesPath($packageRemove2));
-        $this->assertFileExists($this->getPackagesPath('merge_plan.php'));
 
         $io = $this->createIoMock();
         $io->expects($this->exactly(2))->method('isInteractive')->willReturn(false);
@@ -129,7 +81,6 @@ final class ConfigFileHandlerTest extends TestCase
         $this->assertEqualsFileContents($file1);
         $this->assertNotEqualsFileContents($file2);
         $this->assertDirectoryExists($this->getPackagesPath($packageRemove1));
-        $this->assertMergePlan([]);
 
         $this->assertOutputMessages(
             "\nConfig files has been added:\n"
@@ -393,7 +344,15 @@ final class ConfigFileHandlerTest extends TestCase
 
     private function createConfigFile(string $file, bool $silentOverride = false): ConfigFile
     {
-        return new ConfigFile($this->getVendorPath($file), $file, $silentOverride);
+        $fileParts = explode('/', $file);
+        $filename = array_pop($fileParts);
+
+        return new ConfigFile(
+            new Package(implode('/', $fileParts), '1.0.0', '1.0.0'),
+            $filename,
+            $this->getVendorPath($file),
+            $silentOverride,
+        );
     }
 
     /**
@@ -414,6 +373,7 @@ final class ConfigFileHandlerTest extends TestCase
         $this->setInaccessibleProperty($process, 'rootPath', $this->getWorkingDirectory());
         $this->setInaccessibleProperty($process, 'mergePlan', $mergePlan);
         $this->setInaccessibleProperty($process, 'configFiles', $files);
+        $this->putPackagesFileContents([Options::DIST_LOCK_FILENAME => '{}']);
 
         return new ConfigFileHandler($io, $process);
     }

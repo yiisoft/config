@@ -17,10 +17,8 @@ use function array_unique;
 use function file_get_contents;
 use function implode;
 use function is_file;
-use function preg_replace;
 use function sort;
 use function sprintf;
-use function strpos;
 
 /**
  * @internal
@@ -68,7 +66,7 @@ final class DiffCommand extends BaseCommand
     private function groupPackageFiles(array $packages, ComposerConfigProcess $process, ConfigFileDiffer $differ): array
     {
         $processedPackages = array_unique(array_map(static function (ConfigFile $configFile): string {
-            return preg_replace('#^([^/]+/[^/]+)/.*$#', '\1', $configFile->destinationFile());
+            return $configFile->package()->getPrettyName();
         }, $process->configFiles()));
 
         if (!empty($packages) && !empty($notControlledPackages = array_diff($packages, $processedPackages))) {
@@ -84,7 +82,7 @@ final class DiffCommand extends BaseCommand
 
         foreach ($processedPackages as $package) {
             foreach ($process->configFiles() as $configFile) {
-                if (strpos($configFile->destinationFile(), $package) !== false) {
+                if ($configFile->package()->getPrettyName() === $package) {
                     $destinationFile = "{$destinationDirectoryPath}/{$configFile->destinationFile()}";
                     $sourceFile = $configFile->sourceFilePath();
 

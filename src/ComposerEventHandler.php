@@ -15,9 +15,10 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\Capable;
 use Composer\Plugin\PluginInterface;
+use Composer\Plugin\CommandEvent;
+use Composer\Plugin\PluginEvents;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use Symfony\Component\Console\Input\ArgvInput;
 use Yiisoft\Config\Command\ConfigCommandProvider;
 
 /**
@@ -26,8 +27,6 @@ use Yiisoft\Config\Command\ConfigCommandProvider;
  */
 final class ComposerEventHandler implements PluginInterface, EventSubscriberInterface, Capable
 {
-    private ArgvInput $input;
-
     /**
      * @var string[] Pretty names of updated packages.
      */
@@ -38,10 +37,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
      */
     private array $removedPackages = [];
 
-    public function __construct()
-    {
-        $this->input = new ArgvInput();
-    }
+    private bool $runOnAutoloadDump = false;
 
     public static function getSubscribedEvents(): array
     {
@@ -49,6 +45,7 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
             PackageEvents::POST_PACKAGE_INSTALL => 'onPostInstall',
             PackageEvents::POST_PACKAGE_UPDATE => 'onPostUpdate',
             PackageEvents::POST_PACKAGE_UNINSTALL => 'onPostUninstall',
+            PluginEvents::COMMAND => 'onCommand',
             ScriptEvents::POST_AUTOLOAD_DUMP => 'onPostAutoloadDump',
             ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
             ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
@@ -79,9 +76,16 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
         }
     }
 
+    public function onCommand(CommandEvent $event): void
+    {
+        if ($event->getCommandName() === 'dump-autoload') {
+            $this->runOnAutoloadDump = true;
+        }
+    }
+
     public function onPostAutoloadDump(Event $event): void
     {
-        if ($this->runOnAutoloadDump()) {
+        if ($this->runOnAutoloadDump) {
             $this->processConfigs($event->getComposer(), $event->getIO());
         }
     }
@@ -115,22 +119,6 @@ final class ComposerEventHandler implements PluginInterface, EventSubscriberInte
     {
         $process = new ComposerConfigProcess($composer, $this->updatedPackagesPrettyNames);
         $configFileHandler = new ConfigFileHandler($io, $process);
-
-        if ($this->runOnCreateProject()) {
-            $configFileHandler->handleAfterCreateProject();
-            return;
-        }
-
         $configFileHandler->handle($this->removedPackages);
-    }
-
-    private function runOnAutoloadDump(): bool
-    {
-        return $this->input->getFirstArgument() === 'dump-autoload';
-    }
-
-    private function runOnCreateProject(): bool
-    {
-        return $this->input->getFirstArgument() === 'create-project';
     }
 }
