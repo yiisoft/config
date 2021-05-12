@@ -52,7 +52,6 @@ final class DiffCommand extends BaseCommand
             }
         }
 
-        $io->write("\n<bg=green;fg=black;options=bold>Done.</>");
         return 0;
     }
 

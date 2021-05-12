@@ -82,11 +82,6 @@ final class DiffCommandTest extends TestCase
         );
     }
 
-    protected function assertOutputMessages(string $expected): void
-    {
-        parent::assertOutputMessages("$expected\nDone.\n");
-    }
-
     private function getRootPath(): string
     {
         return dirname(__DIR__, 3);
