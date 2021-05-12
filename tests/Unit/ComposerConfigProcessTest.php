@@ -77,7 +77,9 @@ final class ComposerConfigProcessTest extends TestCase
 
     private function assertProcessData(ComposerConfigProcess $process, ?bool $withAssertConfigFiles): void
     {
-        if ($withAssertConfigFiles === true) {
+        if ($withAssertConfigFiles === false) {
+            $this->assertSame([], $process->configFiles());
+        } else {
             $expectedSourceFilePath = dirname(__DIR__, 2) . '/tests/Packages/custom-source/custom-dir';
             $expectedDestinationFile = 'test/custom-source/custom-dir';
 
@@ -94,12 +96,9 @@ final class ComposerConfigProcessTest extends TestCase
             $this->assertSame("$expectedSourceFilePath/web.php", $process->configFiles()[2]->sourceFilePath());
             $this->assertSame("$expectedDestinationFile/web.php", $process->configFiles()[2]->destinationFile());
             $this->assertFalse($process->configFiles()[2]->silentOverride());
-        } else {
-            $this->assertSame([], $process->configFiles());
         }
 
         $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $process->configsDirectory());
-        $this->assertSame(dirname(__DIR__, 2), $process->rootPath());
         $this->assertSame($process->mergePlan(), [
             'common' => [
                 '/' => [

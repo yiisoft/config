@@ -9,9 +9,16 @@ use Yiisoft\Config\Command\DiffCommand;
 use Yiisoft\Config\Tests\Unit\TestCase;
 
 use function dirname;
+use function putenv;
 
 final class DiffCommandTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        putenv("COMPOSER={$this->getRootPath()}/composer.json");
+    }
+
     public function testExecuteWithNotControlledPackage(): void
     {
         $this->executeCommand(['test/a']);
@@ -35,7 +42,7 @@ final class DiffCommandTest extends TestCase
 
     public function testExecuteWithChangedFile(): void
     {
-        $this->executeCommand([], [
+        $this->executeCommand(['diff-files'], [
             'config-plugin-options' => [
                 'output-directory' => 'tests/configs',
             ],
@@ -45,7 +52,7 @@ final class DiffCommandTest extends TestCase
         ], 'diff-files');
 
         $this->assertOutputMessages(
-            "\n= diff-files/custom-dir =\n\n"
+            "\n= diff-files =\n\n"
             . "--- {$this->getRootPath()}/tests/Packages/custom-source/custom-dir/params.php\n"
             . "+++ {$this->getRootPath()}/tests/configs/diff-files/custom-dir/params.php\n"
             . "= Lines: -4,5 +4,7 =\n"
@@ -73,11 +80,6 @@ final class DiffCommandTest extends TestCase
             . "The file \"{$this->getRootPath()}/config/packages/test/custom-source/custom-dir/params.php\""
             . " does not exist or is not a file.\n"
         );
-    }
-
-    protected function assertOutputMessages(string $expected): void
-    {
-        parent::assertOutputMessages("$expected\nDone.\n");
     }
 
     private function getRootPath(): string

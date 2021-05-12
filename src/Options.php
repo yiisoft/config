@@ -14,6 +14,7 @@ use function trim;
  */
 final class Options
 {
+    public const DIST_LOCK_FILENAME = 'dist.lock';
     public const MERGE_PLAN_FILENAME = 'merge_plan.php';
     public const DEFAULT_CONFIGS_DIRECTORY = 'config/packages';
     public const CONFIG_PACKAGE_PRETTY_NAME = 'yiisoft/config';

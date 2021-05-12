@@ -7,6 +7,7 @@ namespace Yiisoft\Config\Tests\Integration;
 use Composer\Util\Filesystem;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Yiisoft\Config\Options;
 
 use function dirname;
 use function in_array;
@@ -44,6 +45,7 @@ abstract class ComposerTest extends TestCase
     protected function setUp(): void
     {
         $this->ensureDirectoryExists($this->workingDirectory);
+        putenv("COMPOSER=$this->workingDirectory/composer.json");
         parent::setUp();
     }
 
@@ -53,9 +55,15 @@ abstract class ComposerTest extends TestCase
         $this->removeDirectory($this->workingDirectory);
     }
 
+    protected function putDistLockContent(array $data = []): void
+    {
+        $this->ensureDirectoryExists($directory = "$this->workingDirectory/" . Options::DEFAULT_CONFIGS_DIRECTORY);
+        file_put_contents("$directory/" . Options::DIST_LOCK_FILENAME, json_encode($data));
+    }
+
     protected function assertMergePlan(array $expected): void
     {
-        $this->assertSame($expected, require $this->workingDirectory . '/config/packages/merge_plan.php');
+        $this->assertSame($expected, require "$this->workingDirectory/" . Options::DEFAULT_CONFIGS_DIRECTORY . '/merge_plan.php');
     }
 
     protected function assertEnvironmentDirectoryExists(string $directory): void

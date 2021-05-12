@@ -9,8 +9,25 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 final class MessagesTest extends ComposerTest
 {
-    public function testAddConfigsOnInstall(): void
+    public function testAddConfigsOnInstallWithoutDistLock(): void
     {
+        $this->initComposer([
+            'require' => [
+                'yiisoft/config' => '*',
+                'test/a' => '*',
+            ],
+        ]);
+
+        $this->assertMessage(
+            "\n= Yii Config =\n" .
+            "The config/packages/dist.lock file was generated.\n"
+        );
+    }
+
+    public function testAddConfigsOnInstallWithDistLock(): void
+    {
+        $this->putDistLockContent([]);
+
         $this->initComposer([
             'require' => [
                 'yiisoft/config' => '*',

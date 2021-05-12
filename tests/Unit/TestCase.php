@@ -19,11 +19,14 @@ use Composer\Util\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Yiisoft\Config\Options;
 
 use function array_merge;
 use function dirname;
 use function file_get_contents;
 use function file_put_contents;
+use function json_decode;
+use function putenv;
 use function strtr;
 use function sys_get_temp_dir;
 use function trim;
@@ -31,7 +34,6 @@ use function trim;
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     private const REPLACE_LINE_BREAKS = ["\r\n" => "\n", "\r" => "\n"];
-    private const MERGE_PLAN_FILE = '/merge_plan.php';
     private const PACKAGES_DIR = '/config/packages';
     private const VENDOR_DIR = '/vendor';
 
@@ -50,6 +52,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         $this->filesystem->ensureDirectoryExists($this->workingDirectory);
+        putenv("COMPOSER=$this->workingDirectory/composer.json");
         parent::setUp();
     }
 
@@ -119,9 +122,17 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $contentFromPackages === $contentFromVendor;
     }
 
+    protected function assertDistLock(array $expected): void
+    {
+        $this->assertSame(
+            $expected,
+            json_decode(file_get_contents($this->getPackagesPath(Options::DIST_LOCK_FILENAME)), true),
+        );
+    }
+
     protected function assertMergePlan(array $expected): void
     {
-        $this->assertSame($expected, require $this->getPackagesPath(self::MERGE_PLAN_FILE));
+        $this->assertSame($expected, require $this->getPackagesPath(Options::MERGE_PLAN_FILENAME));
     }
 
     protected function assertOutputMessages(string $expected): void

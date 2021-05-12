@@ -31,10 +31,11 @@ The package consist of two parts: Composer plugin and config loader.
 After composer updates its autoload file, and that happens after `dump-autoload`, `require`, `update` or `remove`,
 Composer plugin:
 
-- Scans installed packages for `config-plugin` extra option in their
-  `composer.json`.
+- Scans installed packages for `config-plugin` extra option in their `composer.json`.
 - Copies missing config files into the project `configs`.
-- Writes a merge plan into `/config/packages/merge_plan.php`. It includes configuration from each package `composer.json`.
+- Writes a merge plan into `config/packages/merge_plan.php`. It includes configuration from each package `composer.json`.
+- Tracks change to configuration files from the vendor by storing metadata in the `config/packages/dist.lock` file.
+- In the interactive console mode it asks what to do with modified configs after updating packages in the vendor.
   
 In the application entry point, usually `index.php`, we create an instance of config loader and require a configuration
 we need:
@@ -168,7 +169,20 @@ $webConfig = $config->get('web');
 `config-plugin-source-dir` points to where to read configs from for the package the option is specified for. The option
 is read for all packages. The value is a path relative to where package `composer.json` is. Default value is `/config`.
 
-> Warning: `config-plugin-source-dir` is not implemented yet. 
+> Warning: `config-plugin-source-dir` is not implemented yet.
+
+## Commands
+
+The plugin adds extra `config-diff`command to composer. It displays the difference between the vendor and application
+configuration files in the console.
+
+```shell
+# For all config files
+composer config-diff
+
+# For the config files of the specified packages
+composer config-diff yiisoft/aliases yiisoft/view
+```
 
 ## License
 

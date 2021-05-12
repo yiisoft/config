@@ -11,9 +11,9 @@ use Composer\Package\RootPackageInterface;
 
 use function array_map;
 use function dirname;
-use function file_exists;
 use function glob;
 use function in_array;
+use function is_file;
 use function realpath;
 use function str_replace;
 use function substr;
@@ -49,14 +49,16 @@ final class ComposerConfigProcess
 
         $rootPackage = $composer->getPackage();
         $rootOptions = new Options($rootPackage->getExtra());
-        $forceCheck ??= $rootOptions->forceCheck()
-            || in_array(Options::CONFIG_PACKAGE_PRETTY_NAME, $packagesForCheck, true)
-        ;
 
         /** @psalm-suppress MixedArgument */
         $this->rootPath = realpath(dirname(Factory::getComposerFile()));
         $this->configsDirectory = $rootOptions->outputDirectory();
         $this->composer = $composer;
+
+        $forceCheck ??= $rootOptions->forceCheck()
+            || in_array(Options::CONFIG_PACKAGE_PRETTY_NAME, $packagesForCheck, true)
+            || !is_file("$this->rootPath/$this->configsDirectory/" . Options::DIST_LOCK_FILENAME)
+        ;
 
         $this->process($rootOptions, $packagesForCheck, $forceCheck);
         $this->appendRootPackageConfigToMergePlan($rootPackage, $rootOptions);
@@ -137,7 +139,7 @@ final class ComposerConfigProcess
                         if ($checkFileOnUpdate) {
                             foreach ($matches as $match) {
                                 $relativePath = str_replace($this->getPackageSourcePath($package, $options) . '/', '', $match);
-                                $this->configFiles[] = new ConfigFile($match, $package->getPrettyName() . '/' . $relativePath);
+                                $this->configFiles[] = new ConfigFile($package, $relativePath, $match);
                             }
                         }
 
@@ -145,15 +147,16 @@ final class ComposerConfigProcess
                         continue;
                     }
 
-                    if ($isOptional && !file_exists($sourceFilePath)) {
+                    if ($isOptional && !is_file($sourceFilePath)) {
                         // Skip it in both copying and final config.
                         continue;
                     }
 
                     if ($checkFileOnUpdate) {
                         $this->configFiles[] = new ConfigFile(
+                            $package,
+                            $file,
                             $sourceFilePath,
-                            $package->getPrettyName() . '/' . $file,
                             $rootOptions->silentOverride(),
                         );
                     }

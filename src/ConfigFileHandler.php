@@ -6,15 +6,11 @@ namespace Yiisoft\Config;
 
 use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
-use Yiisoft\VarDumper\VarDumper;
 
 use function count;
 use function dirname;
 use function file_exists;
-use function file_get_contents;
-use function file_put_contents;
 use function implode;
-use function ksort;
 use function sprintf;
 
 /**
@@ -39,6 +35,7 @@ final class ConfigFileHandler
     private Filesystem $filesystem;
     private ConfigFileDiffer $differ;
     private ComposerConfigProcess $process;
+    private ConfigFileUpdater $updater;
 
     private ?int $updateChoice = null;
     private ?bool $removeChoice = null;
@@ -85,27 +82,8 @@ final class ConfigFileHandler
         $this->process = $process;
         $this->filesystem = new Filesystem();
         $this->differ = new ConfigFileDiffer($io, "{$this->process->rootPath()}/{$this->process->configsDirectory()}");
+        $this->updater = new ConfigFileUpdater($this->process, $this->differ);
         $this->filesystem->ensureDirectoryExists("{$this->process->rootPath()}/{$this->process->configsDirectory()}");
-    }
-
-    /**
-     * Handles config files after running the `composer create-project` command.
-     */
-    public function handleAfterCreateProject(): void
-    {
-        foreach ($this->process->configFiles() as $configFile) {
-            if (!$this->destinationConfigFileExist($configFile)) {
-                $this->addFile($configFile);
-                continue;
-            }
-
-            if (!$this->equalsConfigFileContents($configFile)) {
-                $this->ignoreFile($configFile);
-            }
-        }
-
-        $this->updateMergePlan();
-        $this->outputMessagesAfterCreateProject();
     }
 
     /**
@@ -127,7 +105,8 @@ final class ConfigFileHandler
             $this->removePackage($packageName, $isRemoveMultiple);
         }
 
-        $this->updateMergePlan();
+        $this->updater->updateLockFile();
+        $this->updater->updateMergePlan();
         $this->outputMessages();
     }
 
@@ -141,12 +120,12 @@ final class ConfigFileHandler
         $updateConfigFiles = [];
 
         foreach ($this->process->configFiles() as $configFile) {
-            if (!$this->destinationConfigFileExist($configFile)) {
+            if (!file_exists($this->getDestinationPath($configFile->destinationFile()))) {
                 $this->addFile($configFile);
                 continue;
             }
 
-            if ($this->equalsConfigFileContents($configFile)) {
+            if (!$this->updater->needUpdate($configFile) || $this->differ->isConfigFileContentsEqual($configFile)) {
                 continue;
             }
 
@@ -163,7 +142,7 @@ final class ConfigFileHandler
             return;
         }
 
-        if (!$this->io->isInteractive()) {
+        if (!$this->io->isInteractive() || !$this->updater->lockFileExisted()) {
             $this->ignoreFile($configFile);
             return;
         }
@@ -270,7 +249,7 @@ final class ConfigFileHandler
             return;
         }
 
-        if (!$this->io->isInteractive()) {
+        if (!$this->io->isInteractive() || !$this->updater->lockFileExisted()) {
             $this->removePackageChoice(false, $packageName);
             return;
         }
@@ -312,49 +291,14 @@ final class ConfigFileHandler
         $this->removedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
     }
 
-    private function updateMergePlan(): void
-    {
-        $mergePlan = $this->process->mergePlan();
-        // Sort groups by alphabetical
-        ksort($mergePlan);
-
-        $filePath = $this->getDestinationPath(Options::MERGE_PLAN_FILENAME);
-        $oldContent = file_exists($filePath) ? file_get_contents($filePath) : '';
-
-        $content = '<?php' .
-            "\n\n" .
-            'declare(strict_types=1);' .
-            "\n\n" .
-            '// Do not edit. Content will be replaced.' .
-            "\n" .
-            'return ' . VarDumper::create($mergePlan)->export(true) . ';' .
-            "\n"
-        ;
-
-        if (!$this->differ->isContentEqual($oldContent, $content)) {
-            file_put_contents($filePath, $content);
-        }
-    }
-
-    private function outputMessagesAfterCreateProject(): void
-    {
-        $messages = [];
-
-        $this->addMessage(
-            $messages,
-            $this->ignoredConfigFiles,
-            'Config files were changed to run the application template',
-            sprintf(
-                'You can change any configuration files located in the "%s" for yourself.',
-                $this->process->configsDirectory(),
-            ),
-        );
-
-        $this->displayOutputMessages($messages);
-    }
-
     private function outputMessages(): void
     {
+        if (!$this->updater->lockFileExisted()) {
+            $filename = $this->getDestinationWithConfigsDirectory(Options::DIST_LOCK_FILENAME);
+            $this->displayOutputMessages(["The $filename file was generated."]);
+            return;
+        }
+
         $messages = [];
 
         $this->addMessage($messages, $this->addedConfigFiles, 'Config files has been added');
@@ -434,18 +378,5 @@ final class ConfigFileHandler
     private function getDestinationPath(string $destinationFile): string
     {
         return "{$this->process->rootPath()}/{$this->process->configsDirectory()}/$destinationFile";
-    }
-
-    private function destinationConfigFileExist(ConfigFile $configFile): bool
-    {
-        return file_exists($this->getDestinationPath($configFile->destinationFile()));
-    }
-
-    private function equalsConfigFileContents(ConfigFile $configFile): bool
-    {
-        return $this->differ->isContentEqual(
-            file_get_contents($configFile->sourceFilePath()),
-            file_get_contents($this->getDestinationPath($configFile->destinationFile())),
-        );
     }
 }
