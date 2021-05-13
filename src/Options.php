@@ -17,10 +17,8 @@ final class Options
     public const DIST_LOCK_FILENAME = 'dist.lock';
     public const MERGE_PLAN_FILENAME = 'merge_plan.php';
     public const DEFAULT_CONFIGS_DIRECTORY = 'config/packages';
-    public const CONFIG_PACKAGE_PRETTY_NAME = 'yiisoft/config';
 
     private bool $silentOverride = false;
-    private bool $forceCheck = false;
     private string $sourceDirectory = '';
     private string $outputDirectory = self::DEFAULT_CONFIGS_DIRECTORY;
 
@@ -34,10 +32,6 @@ final class Options
 
         if (isset($options['silent-override'])) {
             $this->silentOverride = (bool) $options['silent-override'];
-        }
-
-        if (isset($options['force-check'])) {
-            $this->forceCheck = (bool) $options['force-check'];
         }
 
         if (isset($options['source-directory'])) {
@@ -67,11 +61,6 @@ final class Options
     public function silentOverride(): bool
     {
         return $this->silentOverride;
-    }
-
-    public function forceCheck(): bool
-    {
-        return $this->forceCheck;
     }
 
     public function sourceDirectory(): string

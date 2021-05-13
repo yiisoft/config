@@ -16,11 +16,6 @@ final class GeneralTest extends ComposerTest
                 'yiisoft/config' => '*',
                 'test/a' => '*',
             ],
-            'extra' => [
-                'config-plugin-options' => [
-                    'force-check' => true,
-                ],
-            ],
         ]);
 
         $params = $this->changeLineEndingsToR($paramsFile);
