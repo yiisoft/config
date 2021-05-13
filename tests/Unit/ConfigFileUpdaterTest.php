@@ -63,6 +63,29 @@ final class ConfigFileUpdaterTest extends TestCase
         $this->assertDistLock($this->getDistLockContent());
     }
 
+    public function testUpdateLockFileWithFileExistsAndWithoutVersionAndChangeHash(): void
+    {
+        $this->putPackagesFileContents([
+            Options::DIST_LOCK_FILENAME => json_encode([
+                'test/custom-source' => [
+                    'subdir/a.php' => $this->getFileContent('custom-source/custom-dir/subdir/a.php'),
+                    'params.php' => $this->getFileContent('custom-source/custom-dir/params.php'),
+                    'web.php' => 'changed-hash',
+                ],
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+        ]);
+        $this->createConfigFileUpdater()->updateLockFile();
+
+        $this->assertDistLock([
+            'test/custom-source' => [
+                'subdir/a.php' => $this->getFileContent('custom-source/custom-dir/subdir/a.php'),
+                'params.php' => $this->getFileContent('custom-source/custom-dir/params.php'),
+                'web.php' => $this->getFileContent('custom-source/custom-dir/web.php'),
+                'version' => '1.0.0',
+            ],
+        ]);
+    }
+
     public function testUpdateMergePlanWithFileNotExists(): void
     {
         $process = $this->createComposerConfigProcess();
@@ -90,7 +113,13 @@ final class ConfigFileUpdaterTest extends TestCase
 
     private function createComposerConfigProcess(): ComposerConfigProcess
     {
-        return new ComposerConfigProcess($this->createComposerMock(), [], true);
+        return new ComposerConfigProcess(
+            $this->createComposerMock(
+                json_decode(file_get_contents(dirname(__DIR__) . '/Packages/custom-source/composer.json'), true)
+            ),
+            [],
+            true,
+        );
     }
 
     private function getDistLockContent(): array
@@ -98,9 +127,9 @@ final class ConfigFileUpdaterTest extends TestCase
         return [
             'test/custom-source' => [
                 'version' => '1.0.0',
-                'custom-dir/subdir/a.php' => $this->getFileContent('custom-source/custom-dir/subdir/a.php'),
-                'custom-dir/params.php' => $this->getFileContent('custom-source/custom-dir/params.php'),
-                'custom-dir/web.php' => $this->getFileContent('custom-source/custom-dir/web.php'),
+                'subdir/a.php' => $this->getFileContent('custom-source/custom-dir/subdir/a.php'),
+                'params.php' => $this->getFileContent('custom-source/custom-dir/params.php'),
+                'web.php' => $this->getFileContent('custom-source/custom-dir/web.php'),
             ],
         ];
     }

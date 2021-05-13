@@ -19,6 +19,31 @@ use function implode;
 
 final class ConfigFileHandlerTest extends TestCase
 {
+    public function testHandleWithInteractiveModeAndWithDistLockFileNotExists(): void
+    {
+        $file = 'first/package/file.php';
+        $this->putVendorFileContents([$file => 'content']);
+
+        $this->assertFileExists($this->getVendorPath($file));
+
+        $this->putPackagesFileContents([$file => 'changed']);
+
+        $this->assertFileExists($this->getPackagesPath($file));
+        $this->assertNotEqualsFileContents($file);
+
+        $io = $this->createIoMock();
+        $io->expects($this->exactly(1))->method('isInteractive')->willReturn(true);
+        $io->expects($this->exactly(0))->method('select');
+        $io->expects($this->exactly(0))->method('askConfirmation');
+
+        $this->createConfigFileHandler($io, [$this->createConfigFile($file)], false)->handle();
+
+        $this->assertNotEqualsFileContents($file);
+        $this->assertFileExists($this->getPackagesPath(Options::DIST_LOCK_FILENAME));
+        $this->assertFileExists($this->getPackagesPath(Options::MERGE_PLAN_FILENAME));
+        $this->assertOutputMessages("The config/packages/dist.lock file was generated.\n");
+    }
+
     public function testHandleWithSilentOverrideAndWithoutInteractiveMode(): void
     {
         $file1 = 'first/package/file-1.php';
@@ -358,31 +383,26 @@ final class ConfigFileHandlerTest extends TestCase
     /**
      * @param IOInterface $io
      * @param ConfigFile[] $files
-     * @param array $mergePlan
+     * @param bool $withDistLock
      *
      * @throws ReflectionException
      *
      * @return ConfigFileHandler
      */
-    private function createConfigFileHandler(IOInterface $io, array $files, array $mergePlan = []): ConfigFileHandler
+    private function createConfigFileHandler(IOInterface $io, array $files, bool $withDistLock = true): ConfigFileHandler
     {
         /** @var ComposerConfigProcess $process */
         $process = (new ReflectionClass(ComposerConfigProcess::class))->newInstanceWithoutConstructor();
 
         $this->setInaccessibleProperty($process, 'configsDirectory', Options::DEFAULT_CONFIGS_DIRECTORY);
         $this->setInaccessibleProperty($process, 'rootPath', $this->getWorkingDirectory());
-        $this->setInaccessibleProperty($process, 'mergePlan', $mergePlan);
+        $this->setInaccessibleProperty($process, 'mergePlan', []);
         $this->setInaccessibleProperty($process, 'configFiles', $files);
-        $this->putPackagesFileContents([Options::DIST_LOCK_FILENAME => '{}']);
+
+        if ($withDistLock) {
+            $this->putPackagesFileContents([Options::DIST_LOCK_FILENAME => '{}']);
+        }
 
         return new ConfigFileHandler($io, $process);
-    }
-
-    protected function setInaccessibleProperty(object $object, string $propertyName, $value): void
-    {
-        $property = (new ReflectionClass($object))->getProperty($propertyName);
-        $property->setAccessible(true);
-        $property->setValue($object, $value);
-        $property->setAccessible(false);
     }
 }

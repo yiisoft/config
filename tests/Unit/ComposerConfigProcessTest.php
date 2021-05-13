@@ -81,7 +81,7 @@ final class ComposerConfigProcessTest extends TestCase
             $this->assertSame([], $process->configFiles());
         } else {
             $expectedSourceFilePath = dirname(__DIR__, 2) . '/tests/Packages/custom-source/custom-dir';
-            $expectedDestinationFile = 'test/custom-source/custom-dir';
+            $expectedDestinationFile = 'test/custom-source';
 
             $this->assertCount(3, $process->configFiles());
 
@@ -105,26 +105,31 @@ final class ComposerConfigProcessTest extends TestCase
                     'custom-dir/subdir/*.php',
                 ],
                 'test/custom-source' => [
-                    'custom-dir/subdir/*.php',
+                    'subdir/*.php',
                 ],
             ],
             'params' => [
                 '/' => [
                     'custom-dir/params.php',
-                    '?custom-dir/params-local.php'
+                    '?custom-dir/params-local.php',
                 ],
                 'test/custom-source' => [
-                    'custom-dir/params.php',
+                    'params.php',
                 ],
             ],
             'web' => [
                 '/' => [
                     '$common',
-                    'custom-dir/web.php'
+                    'custom-dir/web.php',
                 ],
                 'test/custom-source' => [
                     '$common',
-                    'custom-dir/web.php'
+                    'web.php',
+                ],
+            ],
+            'not-exists' => [
+                '/' => [
+                    '?custom-dir/not-exists/*.php',
                 ],
             ],
         ]);
