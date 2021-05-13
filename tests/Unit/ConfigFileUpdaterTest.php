@@ -68,9 +68,9 @@ final class ConfigFileUpdaterTest extends TestCase
         $this->putPackagesFileContents([
             Options::DIST_LOCK_FILENAME => json_encode([
                 'test/custom-source' => [
-                    'subdir/a.php' => 'changed-hash',
+                    'subdir/a.php' => $this->getFileContent('custom-source/custom-dir/subdir/a.php'),
                     'params.php' => $this->getFileContent('custom-source/custom-dir/params.php'),
-                    'web.php' => $this->getFileContent('custom-source/custom-dir/web.php'),
+                    'web.php' => 'changed-hash',
                 ],
             ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
         ]);
