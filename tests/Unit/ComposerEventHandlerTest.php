@@ -128,6 +128,17 @@ final class ComposerEventHandlerTest extends TestCase
         $this->assertOutputMessages("\n= Yii Config =\nThe config/packages/dist.lock file was generated.\n");
     }
 
+    public function testUnusedMethods(): void
+    {
+        $handler = new ComposerEventHandler();
+        $handler->activate($this->createComposerMock(), $this->createIoMock());
+        $handler->activate($this->createComposerMock(), $this->createIoMock());
+        $handler->deactivate($this->createComposerMock(), $this->createIoMock());
+        $handler->uninstall($this->createComposerMock(), $this->createIoMock());
+
+        $this->assertOutputMessages('');
+    }
+
     private function createPackageEvent(string $name, OperationInterface $operation): PackageEvent
     {
         return new PackageEvent(
