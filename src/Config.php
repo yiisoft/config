@@ -9,6 +9,7 @@ use ErrorException;
 use function array_key_exists;
 use function is_array;
 use function is_int;
+use function trim;
 
 /**
  * Config takes merge plan prepared by {@see ComposerEventHandler} and executes actual merge for the config group
@@ -40,7 +41,7 @@ final class Config
     public function __construct(string $rootPath, string $configsPath = null)
     {
         $this->rootPath = $rootPath;
-        $this->relativeConfigsPath = ltrim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
+        $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */

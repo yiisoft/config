@@ -11,12 +11,14 @@ use Composer\Installer\InstallationManager;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
 use Composer\Package\Link;
+use Composer\Package\Package;
 use Composer\Package\RootPackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Repository\RepositoryManager;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Util\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionClass;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Yiisoft\Config\Options;
@@ -140,6 +142,24 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->assertSame($expected, Helper::removeDecoration((new ConsoleOutput())->getFormatter(), $this->output));
     }
 
+    protected function getInaccessibleProperty(object $object, string $propertyName)
+    {
+        $class = new ReflectionClass($object);
+        $property = $class->getProperty($propertyName);
+        $property->setAccessible(true);
+        $result = $property->getValue($object);
+        $property->setAccessible(false);
+        return $result;
+    }
+
+    protected function setInaccessibleProperty(object $object, string $propertyName, $value): void
+    {
+        $property = (new ReflectionClass($object))->getProperty($propertyName);
+        $property->setAccessible(true);
+        $property->setValue($object, $value);
+        $property->setAccessible(false);
+    }
+
     /**
      * @return IOInterface|MockObject
      */
@@ -166,16 +186,25 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $targetPath = dirname(__DIR__, 2) . '/tests/configs';
 
         $customPackageName ??= 'test/custom-source';
+        $customLink = new Link(
+            "$sourcePath/$customPackageName",
+            "$targetPath/$customPackageName",
+            new Constraint('>=', '1.0.0'),
+        );
         $extra ??= [
+            'config-plugin-options' => [
+                'source-directory' => 'custom-dir',
+            ],
             'config-plugin' => [
-                'common' => 'custom-dir/subdir/*.php',
+                'common' => 'subdir/*.php',
+                'not-exists' => '?not-exists/*.php',
                 'params' => [
-                    'custom-dir/params.php',
-                    '?custom-dir/params-local.php'
+                    'params.php',
+                    '?params-local.php',
                 ],
                 'web' => [
                     '$common',
-                    'custom-dir/web.php'
+                    'web.php',
                 ],
             ],
         ];
@@ -191,7 +220,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'test/a' => new Link("$sourcePath/test/a", "$targetPath/test/a", new Constraint('>=', '1.0.0')),
             'test/ba' => new Link("$sourcePath/test/ba", "$targetPath/test/ba", new Constraint('>=', '1.0.0')),
             'test/c' => new Link("$sourcePath/test/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
-            $customPackageName => new Link("$sourcePath/$customPackageName", "$targetPath/$customPackageName", new Constraint('>=', '1.0.0')),
+            $customPackageName => $customLink,
         ]);
         $rootPackage->method('getDevRequires')->willReturn([
             'test/d-dev-c' => new Link("$sourcePath/test/d-dev-c", "$targetPath/test/d-dev-c", new Constraint('>=', '1.0.0')),
@@ -205,6 +234,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         $customPackage = new CompletePackage($customPackageName, '1.0.0', '1.0.0');
         $customPackage->setExtra(array_merge($customPackage->getExtra(), $extra));
+        $customPackage->setRequires(array_merge($customPackage->getRequires(), [$customPackageName => $customLink]));
 
         $repository->method('getPackages')->willReturn([
             new CompletePackage('test/a', '1.0.0', '1.0.0'),
@@ -212,6 +242,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             new CompletePackage('test/c', '1.0.0', '1.0.0'),
             $customPackage,
             new CompletePackage('test/d-dev-c', '1.0.0', '1.0.0'),
+            new Package('test/k', '1.0.0', '1.0.0'),
         ]);
 
         $repositoryManager = $this->getMockBuilder(RepositoryManager::class)
