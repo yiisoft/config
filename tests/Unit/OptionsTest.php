@@ -29,26 +29,6 @@ final class OptionsTest extends TestCase
         $this->assertFalse($options->silentOverride());
     }
 
-    public function testForceCheck(): void
-    {
-        $options = new Options([]);
-        $this->assertFalse($options->forceCheck());
-
-        $options = new Options([
-            'config-plugin-options' => [
-                'force-check' => true,
-            ],
-        ]);
-        $this->assertTrue($options->forceCheck());
-
-        $options = new Options([
-            'config-plugin-options' => [
-                'force-check' => false,
-            ],
-        ]);
-        $this->assertFalse($options->forceCheck());
-    }
-
     public function testDefaultOutputDirectory(): void
     {
         $options = new Options([]);
@@ -108,7 +88,6 @@ final class OptionsTest extends TestCase
             'config-plugin-options' => true,
         ]);
         $this->assertFalse($options->silentOverride());
-        $this->assertFalse($options->forceCheck());
         $this->assertSame('', $options->sourceDirectory());
         $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $options->outputDirectory());
     }

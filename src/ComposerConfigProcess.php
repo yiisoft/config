@@ -55,10 +55,7 @@ final class ComposerConfigProcess
         $this->configsDirectory = $rootOptions->outputDirectory();
         $this->composer = $composer;
 
-        $forceCheck ??= $rootOptions->forceCheck()
-            || in_array(Options::CONFIG_PACKAGE_PRETTY_NAME, $packagesForCheck, true)
-            || !is_file("$this->rootPath/$this->configsDirectory/" . Options::DIST_LOCK_FILENAME)
-        ;
+        $forceCheck ??= !is_file("$this->rootPath/$this->configsDirectory/" . Options::DIST_LOCK_FILENAME);
 
         $this->process($rootOptions, $packagesForCheck, $forceCheck);
         $this->appendRootPackageConfigToMergePlan($rootPackage, $rootOptions);
