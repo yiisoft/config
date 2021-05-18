@@ -17,6 +17,7 @@ final class Options
     public const DIST_LOCK_FILENAME = 'dist.lock';
     public const MERGE_PLAN_FILENAME = 'merge_plan.php';
     public const DEFAULT_CONFIGS_DIRECTORY = 'config/packages';
+    public const DEFAULT_BUILD = '/';
 
     private bool $silentOverride = false;
     private string $sourceDirectory = '';

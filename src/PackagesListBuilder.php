@@ -41,6 +41,7 @@ final class PackagesListBuilder
             }
         }
 
+        ksort($result);
         return $result;
     }
 
