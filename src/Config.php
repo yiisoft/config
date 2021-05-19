@@ -8,6 +8,7 @@ use ErrorException;
 
 use function array_key_exists;
 use function is_array;
+use function is_file;
 use function is_int;
 use function trim;
 
@@ -25,12 +26,12 @@ final class Config
     private string $relativeConfigsPath;
 
     /**
-     * @psalm-var array<string, array<string, list<string>>>
+     * @psalm-var array<string, array<string, array<string, list<string>>>>
      */
     private array $mergePlan;
 
     /**
-     * @psalm-var array<string, array>
+     * @psalm-var array<string, array<string, array>>
      */
     private array $build = [];
 
@@ -48,27 +49,76 @@ final class Config
         $this->mergePlan = require $this->configsPath . '/' . Options::MERGE_PLAN_FILENAME;
     }
 
-    public function get(string $name): array
+    /**
+     * Builds and returns the configuration of the build group.
+     *
+     * @param string $group The group name.
+     * @param string $build The build name.
+     *
+     * @throws ErrorException If the build or group does not exist or or an error occurred during the build.
+     *
+     * @return array The configuration of the build group.
+     */
+    public function get(string $group, string $build = Options::DEFAULT_BUILD): array
     {
-        $this->buildGroup('params');
-        $this->buildGroup($name);
-        return $this->build[$name];
+        if (isset($this->build[$build][$group])) {
+            return $this->build[$build][$group];
+        }
+
+        $this->buildGroup('params', Options::DEFAULT_BUILD);
+        $build = $this->checkBuildGroup($group, $build);
+        $rootBuildGroupConfig = [];
+
+        if ($build !== Options::DEFAULT_BUILD && isset($this->mergePlan[$build]['params'])) {
+            $this->buildGroup('params', $build, $this->build[Options::DEFAULT_BUILD]['params']);
+        }
+
+        if ($build !== Options::DEFAULT_BUILD && isset($this->mergePlan[Options::DEFAULT_BUILD][$group])) {
+            $this->buildGroup($group, Options::DEFAULT_BUILD);
+            $rootBuildGroupConfig = $this->build[Options::DEFAULT_BUILD][$group];
+        }
+
+        $this->buildGroup($group, $build, $rootBuildGroupConfig);
+        return $this->build[$build][$group];
     }
 
-    private function buildGroup(string $group): void
+    /**
+     * Builds the configuration of the build group.
+     *
+     * @param string $group The group name.
+     * @param string $build The build name.
+     * @param array $rootBuildGroupConfig The configuration of the root group of the build,
+     * when building a non-root {@see Options::DEFAULT_BUILD} build.
+     *
+     * @throws ErrorException If an error occurred during the build.
+     */
+    private function buildGroup(string $group, string $build, array $rootBuildGroupConfig = []): void
     {
-        if (array_key_exists($group, $this->build)) {
+        if (isset($this->build[$build][$group])) {
             return;
         }
 
-        $this->build[$group] = [];
+        $build = $this->checkBuildGroup($group, $build);
+        $this->build[$build][$group] = [];
 
-        foreach ($this->mergePlan[$group] as $packageName => $files) {
+        foreach ($this->mergePlan[$build][$group] as $packageName => $files) {
             foreach ($files as $file) {
                 if (Options::isVariable($file)) {
-                    $variableName = substr($file, 1);
-                    $this->buildGroup($variableName);
-                    $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $this->build[$variableName]);
+                    $variable = $this->checkVariable($file, $group, $build);
+
+                    if ($build !== Options::DEFAULT_BUILD && isset($this->mergePlan[Options::DEFAULT_BUILD][$variable])) {
+                        $this->buildGroup($variable, Options::DEFAULT_BUILD);
+                        $rootVariableBuildConfig = $this->build[Options::DEFAULT_BUILD][$variable];
+                    }
+
+                    $this->buildGroup($variable, $build, $rootVariableBuildConfig ?? []);
+                    $this->build[$build][$group] = $this->merge(
+                        [$file, $group, $build, $packageName],
+                        '',
+                        $this->build[$build][$group],
+                        $this->build[$build][$variable] ?? $this->build[Options::DEFAULT_BUILD][$variable],
+                        $rootBuildGroupConfig,
+                    );
                     continue;
                 }
 
@@ -83,26 +133,44 @@ final class Config
                     $matches = glob($path);
 
                     foreach ($matches as $match) {
-                        $buildConfig = $this->buildFile($group, $match);
-                        $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $buildConfig);
+                        $this->build[$build][$group] = $this->merge(
+                            [$file, $group, $build, $packageName],
+                            '',
+                            $this->build[$build][$group],
+                            $this->buildFile($group, $build, $match),
+                            $rootBuildGroupConfig,
+                        );
                     }
                     continue;
                 }
 
-                if ($isOptional && !file_exists($path)) {
+                if ($isOptional && !is_file($path)) {
                     continue;
                 }
 
-                $buildConfig = $this->buildFile($group, $path);
-                $this->build[$group] = $this->merge([$file, $group, $packageName], '', $this->build[$group], $buildConfig);
+                $this->build[$build][$group] = $this->merge(
+                    [$file, $group, $build, $packageName],
+                    '',
+                    $this->build[$build][$group],
+                    $this->buildFile($group, $build, $path),
+                    $rootBuildGroupConfig,
+                );
             }
         }
     }
 
     /**
-     * @psalm-param array{string, string, string} $context $context
+     * Builds the configuration from the file.
+     *
+     * @param string $group The group name.
+     * @param string $build The build name.
+     * @param string $filePath The file path.
+     *
+     * @return array The configuration from the file.
+     *
+     * @throws ErrorException If an error occurred during the build.
      */
-    private function buildFile(string $group, string $filePath): array
+    private function buildFile(string $group, string $build, string $filePath): array
     {
         $scopeRequire = static function (Config $config): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
@@ -123,7 +191,7 @@ final class Config
 
         $scope = [];
         if ($group !== 'params') {
-            $scope['params'] = $this->build['params'];
+            $scope['params'] = $this->build[$build]['params'] ?? $this->build[Options::DEFAULT_BUILD]['params'];
         }
 
         /** @psalm-suppress TooManyArguments */
@@ -131,7 +199,17 @@ final class Config
     }
 
     /**
-     * @psalm-param array{string, string, string} $context
+     * Merges two or more arrays into one recursively.
+     *
+     * @param array $context Context containing the name of the file, group, assembly, and package.
+     * @param string $path The file path.
+     * @param array ...$args Two or more arrays to merge.
+     *
+     * @throws ErrorException If an error occurred during the merge.
+     *
+     * @return array The merged array.
+     *
+     * @psalm-param array{string, string, string, string} $context
      */
     private function merge(array $context, string $path = '', array ...$args): array
     {
@@ -151,7 +229,7 @@ final class Config
                     $result[$k] = $this->merge($context, $path ? $path . ' => ' . $k : $k, $result[$k], $v);
                 } else {
                     if (array_key_exists($k, $result)) {
-                        throw new ErrorException($this->getErrorMessage($k, $path, $context), 0, E_USER_ERROR);
+                        $this->throwException($this->getDuplicateErrorMessage($k, $path, $context));
                     }
 
                     /** @var mixed */
@@ -164,13 +242,20 @@ final class Config
     }
 
     /**
-     * @psalm-param array{string, string, string} $context
+     * Returns a duplicate key error message.
+     *
+     * @param string $key The duplicate key.
+     * @param string $path The file path.
+     *
+     * @return string The duplicate key error message.
+     *
+     * @psalm-param array{string, string, string, string} $context
      */
-    private function getErrorMessage(string $key, string $path, array $context): string
+    private function getDuplicateErrorMessage(string $key, string $path, array $context): string
     {
-        [$file, $group, $packageName] = $context;
+        [$file, $group, $build, $packageName] = $context;
 
-        $config = $this->mergePlan[$group];
+        $config = $this->mergePlan[$build][$group];
         unset($config[$packageName]);
 
         $configPaths = [$this->getRelativeConfigPath($packageName, $file)];
@@ -186,7 +271,7 @@ final class Config
 
                 $fullConfigPath = $this->getConfigsPath($package) . '/' . $packageConfig;
 
-                if (file_exists($fullConfigPath)) {
+                if (is_file($fullConfigPath)) {
                     $configContents = file_get_contents($fullConfigPath);
                     if (strpos($configContents, $key) !== false) {
                         $configPaths[] = $this->getRelativeConfigPath($package, $packageConfig);
@@ -214,35 +299,94 @@ final class Config
     }
 
     /**
+     * Checks the build group name and returns actual build name.
+     *
+     * @param string $group The group name.
+     * @param string $build The build name.
+     *
+     * @throws ErrorException If the build or group does not exist.
+     *
+     * @return string The actual build name.
+     */
+    private function checkBuildGroup(string $group, string $build): string
+    {
+        if (!isset($this->mergePlan[$build])) {
+            $this->throwException(sprintf('The "%s" configuration build does not exist.', $build));
+        }
+
+        if (!isset($this->mergePlan[$build][$group])) {
+            if ($build === Options::DEFAULT_BUILD || !isset($this->mergePlan[Options::DEFAULT_BUILD][$group])) {
+                $this->throwException(sprintf('The "%s" configuration group does not exist.', $group));
+            }
+
+            return Options::DEFAULT_BUILD;
+        }
+
+        return $build;
+    }
+
+    /**
+     * Checks the configuration variable and returns its name
+     *
+     * @param string $variable The variable.
+     * @param string $group The group name.
+     * @param string $build The build name.
+     *
+     * @throws ErrorException If the variable name is not valid.
+     *
+     * @return string The variable name.
+     */
+    private function checkVariable(string $variable, string $group, string $build): string
+    {
+        $name = substr($variable, 1);
+
+        if ($name === $group) {
+            $this->throwException(sprintf(
+                'The variable "%s" must not be located inside the "%s" config group.',
+                "$variable",
+                "$name",
+            ));
+        }
+
+        if (!isset($this->mergePlan[$build][$name]) && !isset($this->mergePlan[Options::DEFAULT_BUILD][$name])) {
+            $this->throwException(sprintf('The "%s" configuration group does not exist.', $name));
+        }
+
+        return $name;
+    }
+
+    /**
+     * @param string $message
+     *
+     * @throws ErrorException
+     */
+    private function throwException(string $message): void
+    {
+        throw new ErrorException($message, 0, E_USER_ERROR);
+    }
+
+    /**
      * Get path to package configs.
      *
-     * @param string $packageName Name of the package. "/" stands for application package.
+     * @param string $packageName Name of the package. {@see Options::DEFAULT_BUILD} stands for the root package.
      *
      * @return string Path to package configs.
      */
     private function getConfigsPath(string $packageName): string
     {
-        if ($packageName === '/') {
-            return $this->rootPath;
-        }
-
-        return "$this->configsPath/$packageName";
+        return $packageName === Options::DEFAULT_BUILD ? $this->rootPath : "$this->configsPath/$packageName";
     }
 
     /**
      * Get relative path to package config.
      *
-     * @param string $packageName Name of the package. "/" stands for application package.
+     * @param string $packageName Name of the package. {@see Options::DEFAULT_BUILD} stands for the root package.
      * @param string $file Config file.
      *
      * @return string Relative path to package configs.
      */
     private function getRelativeConfigPath(string $packageName, string $file): string
     {
-        $dir = $packageName === '/'
-            ? ''
-            : "$this->relativeConfigsPath/$packageName/";
-
-        return $dir . $file;
+        return $packageName === Options::DEFAULT_BUILD ? $file : "$this->relativeConfigsPath/$packageName/$file";
     }
 }
