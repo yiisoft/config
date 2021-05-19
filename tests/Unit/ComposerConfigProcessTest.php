@@ -75,8 +75,112 @@ final class ComposerConfigProcessTest extends TestCase
         $this->assertProcessData($process, true);
     }
 
-    private function assertProcessData(ComposerConfigProcess $process, ?bool $withAssertConfigFiles): void
+    /**
+     * @dataProvider forceCheckDataProvider
+     *
+     * @param bool|null $forceCheck
+     */
+    public function testProcessWithoutPackagesForCheckAndWitAlternativeBuild(?bool $forceCheck): void
     {
+        $composer = $this->createComposerMock([
+            'config-plugin-options' => [
+                'source-directory' => 'custom-dir',
+            ],
+            'config-plugin' => [
+                'common' => 'subdir/*.php',
+                'not-exists' => '?not-exists/*.php',
+                'params' => [
+                    'params.php',
+                    '?params-local.php',
+                ],
+                'web' => [
+                    '$common',
+                    'web.php',
+                ],
+            ],
+            'config-plugin-alternatives' => [
+                'alfa' => [
+                    'params' => 'alfa/params.php',
+                    'web' => 'alfa/web.php',
+                    'main' => [
+                        '$web',
+                        'alfa/main.php'
+                    ],
+                ],
+                Options::DEFAULT_BUILD => [
+                    'params' => 'alfa/params.php',
+                    'web' => 'alfa/web.php',
+                    'main' => [
+                        '$web',
+                        'alfa/main.php'
+                    ],
+                ],
+            ],
+        ]);
+
+        $process = new ComposerConfigProcess($composer, [], $forceCheck);
+
+        $this->assertProcessData($process, $forceCheck, [
+            Options::DEFAULT_BUILD => [
+                'common' => [
+                    '/' => [
+                        'custom-dir/subdir/*.php',
+                    ],
+                    'test/custom-source' => [
+                        'subdir/*.php',
+                    ],
+                ],
+                'not-exists' => [
+                    '/' => [
+                        '?custom-dir/not-exists/*.php',
+                    ],
+                ],
+                'params' => [
+                    '/' => [
+                        'custom-dir/params.php',
+                        '?custom-dir/params-local.php',
+                    ],
+                    'test/custom-source' => [
+                        'params.php',
+                    ],
+                ],
+                'web' => [
+                    '/' => [
+                        '$common',
+                        'custom-dir/web.php',
+                    ],
+                    'test/custom-source' => [
+                        '$common',
+                        'web.php',
+                    ],
+                ],
+            ],
+            'alfa' => [
+                'main' => [
+                    Options::DEFAULT_BUILD => [
+                        '$web',
+                        'alfa/main.php',
+                    ],
+                ],
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'alfa/params.php',
+                    ],
+                ],
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'alfa/web.php',
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    private function assertProcessData(
+        ComposerConfigProcess $process,
+        ?bool $withAssertConfigFiles,
+        array $expectedMergePlan = null
+    ): void {
         if ($withAssertConfigFiles === false) {
             $this->assertSame([], $process->configFiles());
         } else {
@@ -99,37 +203,39 @@ final class ComposerConfigProcessTest extends TestCase
         }
 
         $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $process->configsDirectory());
-        $this->assertSame($process->mergePlan(), [
-            'common' => [
-                '/' => [
-                    'custom-dir/subdir/*.php',
+        $this->assertSame($process->mergePlan(), $expectedMergePlan ?? [
+            Options::DEFAULT_BUILD => [
+                'common' => [
+                    '/' => [
+                        'custom-dir/subdir/*.php',
+                    ],
+                    'test/custom-source' => [
+                        'subdir/*.php',
+                    ],
                 ],
-                'test/custom-source' => [
-                    'subdir/*.php',
+                'not-exists' => [
+                    '/' => [
+                        '?custom-dir/not-exists/*.php',
+                    ],
                 ],
-            ],
-            'params' => [
-                '/' => [
-                    'custom-dir/params.php',
-                    '?custom-dir/params-local.php',
+                'params' => [
+                    '/' => [
+                        'custom-dir/params.php',
+                        '?custom-dir/params-local.php',
+                    ],
+                    'test/custom-source' => [
+                        'params.php',
+                    ],
                 ],
-                'test/custom-source' => [
-                    'params.php',
-                ],
-            ],
-            'web' => [
-                '/' => [
-                    '$common',
-                    'custom-dir/web.php',
-                ],
-                'test/custom-source' => [
-                    '$common',
-                    'web.php',
-                ],
-            ],
-            'not-exists' => [
-                '/' => [
-                    '?custom-dir/not-exists/*.php',
+                'web' => [
+                    '/' => [
+                        '$common',
+                        'custom-dir/web.php',
+                    ],
+                    'test/custom-source' => [
+                        '$common',
+                        'web.php',
+                    ],
                 ],
             ],
         ]);

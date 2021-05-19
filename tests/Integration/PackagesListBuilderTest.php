@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration;
 
+use Yiisoft\Config\Options;
+
 final class PackagesListBuilderTest extends ComposerTest
 {
     public function testBase(): void
@@ -24,131 +26,141 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            'params' => [
-                '/' => [
-                    'config/params.php',
-                    '?config/params-local.php',
+            Options::DEFAULT_BUILD => [
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/params.php',
+                        '?config/params-local.php',
+                    ],
                 ],
-            ],
-            'web' => [
-                '/' => [
-                    'config/web.php',
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/web.php',
+                    ],
                 ],
             ],
         ]);
 
         $this->execComposer('require test/a');
         $this->assertMergePlan([
-            'params' => [
-                '/' => [
-                    'config/params.php',
-                    '?config/params-local.php',
+            Options::DEFAULT_BUILD => [
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/params.php',
+                        '?config/params-local.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
+                    ],
                 ],
-                'test/a' => [
-                    'config/params.php',
-                ],
-            ],
-            'web' => [
-                '/' => [
-                    'config/web.php',
-                ],
-                'test/a' => [
-                    'config/web.php',
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
                 ],
             ],
         ]);
 
         $this->execComposer('require test/ba');
         $this->assertMergePlan([
-            'params' => [
-                '/' => [
-                    'config/params.php',
-                    '?config/params-local.php',
+            Options::DEFAULT_BUILD => [
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/params.php',
+                        '?config/params-local.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
+                    ],
                 ],
-                'test/a' => [
-                    'config/params.php',
-                ],
-            ],
-            'web' => [
-                '/' => [
-                    'config/web.php',
-                ],
-                'test/ba' => [
-                    'config/web.php',
-                ],
-                'test/a' => [
-                    'config/web.php',
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
+                    'test/ba' => [
+                        'config/web.php',
+                    ],
                 ],
             ],
         ]);
 
         $this->execComposer('require test/c');
         $this->assertMergePlan([
-            'params' => [
-                '/' => [
-                    'config/params.php',
-                    '?config/params-local.php',
+            Options::DEFAULT_BUILD => [
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/params.php',
+                        '?config/params-local.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
+                    ],
+                    'test/c' => [
+                        'config/params.php',
+                    ],
                 ],
-                'test/c' => [
-                    'config/params.php',
-                ],
-                'test/a' => [
-                    'config/params.php',
-                ],
-            ],
-            'web' => [
-                '/' => [
-                    'config/web.php',
-                ],
-                'test/ba' => [
-                    'config/web.php',
-                ],
-                'test/c' => [
-                    'config/web.php',
-                ],
-                'test/a' => [
-                    'config/web.php',
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
+                    'test/ba' => [
+                        'config/web.php',
+                    ],
+                    'test/c' => [
+                        'config/web.php',
+                    ],
                 ],
             ],
         ]);
 
         $this->execComposer('require test/custom-source');
         $this->assertMergePlan([
-            'params' => [
-                '/' => [
-                    'config/params.php',
-                    '?config/params-local.php',
+            Options::DEFAULT_BUILD => [
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/params.php',
+                        '?config/params-local.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
+                    ],
+                    'test/c' => [
+                        'config/params.php',
+                    ],
+                    'test/custom-source' => [
+                        'params.php',
+                    ],
                 ],
-                'test/c' => [
-                    'config/params.php',
+                'subdir' => [
+                    'test/custom-source' => [
+                        'subdir/*.php'
+                    ],
                 ],
-                'test/custom-source' => [
-                    'params.php',
-                ],
-                'test/a' => [
-                    'config/params.php',
-                ],
-            ],
-            'subdir' => [
-                'test/custom-source' => [
-                    'subdir/*.php'
-                ],
-            ],
-            'web' => [
-                '/' => [
-                    'config/web.php',
-                ],
-                'test/ba' => [
-                    'config/web.php',
-                ],
-                'test/c' => [
-                    'config/web.php',
-                ],
-                'test/custom-source' => [
-                    'web.php',
-                ],
-                'test/a' => [
-                    'config/web.php',
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'config/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
+                    'test/ba' => [
+                        'config/web.php',
+                    ],
+                    'test/c' => [
+                        'config/web.php',
+                    ],
+                    'test/custom-source' => [
+                        'web.php',
+                    ],
                 ],
             ],
         ]);
@@ -167,17 +179,19 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            'params' => [
-                'test/a' => [
-                    'config/params.php',
+            Options::DEFAULT_BUILD => [
+                'params' => [
+                    'test/a' => [
+                        'config/params.php',
+                    ],
                 ],
-            ],
-            'web' => [
-                'test/d-dev-c' => [
-                    'config/web.php',
-                ],
-                'test/a' => [
-                    'config/web.php',
+                'web' => [
+                    'test/a' => [
+                        'config/web.php',
+                    ],
+                    'test/d-dev-c' => [
+                        'config/web.php',
+                    ],
                 ],
             ],
         ]);
@@ -205,21 +219,23 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            'params' => [
-                '/' => [
-                    'app-configs/params.php',
-                    '?app-configs/params-local.php',
+            Options::DEFAULT_BUILD => [
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'app-configs/params.php',
+                        '?app-configs/params-local.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
+                    ],
                 ],
-                'test/a' => [
-                    'config/params.php',
-                ],
-            ],
-            'web' => [
-                '/' => [
-                    'app-configs/web.php',
-                ],
-                'test/a' => [
-                    'config/web.php',
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'app-configs/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
                 ],
             ],
         ]);
@@ -251,27 +267,111 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            'common' => [
-                '/' => [
-                    'app-configs/common.php',
+            Options::DEFAULT_BUILD => [
+                'common' => [
+                    Options::DEFAULT_BUILD => [
+                        'app-configs/common.php',
+                    ],
+                ],
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'app-configs/params.php',
+                        '?app-configs/params-local.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
+                    ],
+                ],
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        '$common',
+                        'app-configs/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
                 ],
             ],
-            'params' => [
-                '/' => [
-                    'app-configs/params.php',
-                    '?app-configs/params-local.php',
+        ]);
+    }
+
+    public function testAlternativeBuilds(): void
+    {
+        $this->initComposer([
+            'require' => [
+                'yiisoft/config' => '*',
+                'test/a' => '*',
+            ],
+            'extra' => [
+                'config-plugin-options' => [
+                    'source-directory' => 'app-configs',
                 ],
-                'test/a' => [
-                    'config/params.php',
+                'config-plugin' => [
+                    'params' => [
+                        'params.php',
+                        '?params-local.php',
+                    ],
+                    'common' => 'common.php',
+                    'web' => [
+                        '$common',
+                        'web.php',
+                    ],
+                ],
+                'config-plugin-alternatives' => [
+                    'alfa' => [
+                        'params' => 'alfa/params.php',
+                        'web' => 'alfa/web.php',
+                        'main' => [
+                            '$web',
+                            'alfa/main.php'
+                        ],
+                    ],
                 ],
             ],
-            'web' => [
-                '/' => [
-                    '$common',
-                    'app-configs/web.php',
+        ]);
+
+        $this->assertMergePlan([
+            Options::DEFAULT_BUILD => [
+                'common' => [
+                    Options::DEFAULT_BUILD => [
+                        'app-configs/common.php',
+                    ],
                 ],
-                'test/a' => [
-                    'config/web.php',
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'app-configs/params.php',
+                        '?app-configs/params-local.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
+                    ],
+                ],
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        '$common',
+                        'app-configs/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
+                ],
+            ],
+            'alfa' => [
+                'main' => [
+                    Options::DEFAULT_BUILD => [
+                        '$web',
+                        'alfa/main.php',
+                    ],
+                ],
+                'params' => [
+                    Options::DEFAULT_BUILD => [
+                        'alfa/params.php',
+                    ],
+                ],
+                'web' => [
+                    Options::DEFAULT_BUILD => [
+                        'alfa/web.php',
+                    ],
                 ],
             ],
         ]);

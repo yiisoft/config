@@ -4,39 +4,79 @@ declare(strict_types=1);
 
 // Do not edit. Content will be replaced.
 return [
-    'common' => [
-        '/' => [
-            'config/common/*.php',
+    '/' => [
+        'failVariableGroupEqual' => [
+            '/' => [
+                '$failVariableGroupEqual',
+            ],
         ],
-        'test/a' => [
-            'common.php',
+        'failVariableGroupNotExist' => [
+            '/' => [
+                '$failVariableNotExist',
+            ],
         ],
-        'test/b' => [
-            'common.php',
+        'common' => [
+            '/' => [
+                'config/common/*.php',
+            ],
+            'test/a' => [
+                'common.php',
+            ],
+            'test/b' => [
+                'common.php',
+            ],
+        ],
+        'params' => [
+            '/' => [
+                'config/params.php',
+                '?config/params-local.php',
+            ],
+            'test/a' => [
+                'params.php',
+            ],
+            'test/b' => [
+                'params.php',
+            ],
+        ],
+        'web' => [
+            '/' => [
+                '$common',
+                'config/web.php',
+            ],
+            'test/a' => [
+                'web.php',
+            ],
+            'test/b' => [
+                'web.php',
+            ],
         ],
     ],
-    'params' => [
-        '/' => [
-            'config/params.php',
-            '?config/params-local.php',
+    'alternative' => [
+        'failVariableGroupEqual' => [
+            '/' => [
+                '$failVariableGroupEqual',
+            ],
         ],
-        'test/a' => [
-            'params.php',
+        'failVariableGroupNotExist' => [
+            '/' => [
+                '$failVariableNotExist',
+            ],
         ],
-        'test/b' => [
-            'params.php',
+        'main' => [
+            '/' => [
+                '$web',
+                'config/alternative/main.php',
+            ],
         ],
-    ],
-    'web' => [
-        '/' => [
-            '$common',
-            'config/web.php',
+        'params' => [
+            '/' => [
+                'config/alternative/params.php',
+            ],
         ],
-        'test/a' => [
-            'web.php',
-        ],
-        'test/b' => [
-            'web.php',
+        'web' => [
+            '/' => [
+                'config/alternative/web.php',
+            ],
         ],
     ],
 ];

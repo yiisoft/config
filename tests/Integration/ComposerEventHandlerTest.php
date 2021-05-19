@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration;
 
+use Yiisoft\Config\Options;
+
 final class ComposerEventHandlerTest extends ComposerTest
 {
     protected function setUp(): void
@@ -85,17 +87,19 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEnvironmentFileExist($fileConfig);
         $this->assertEquals($configContentBefore, $packageContentBefore);
         $this->assertMergePlan([
-            'constants' => [
-                'first-vendor/first-package' => [
-                    'config/constants.php',
+            Options::DEFAULT_BUILD => [
+                'constants' => [
+                    'first-vendor/first-package' => [
+                        'config/constants.php',
+                    ],
                 ],
-            ],
-            'params' => [
-                'first-vendor/first-package' => [
-                    'config/params.php',
-                ],
-                'second-vendor/second-package' => [
-                    'config/params.php',
+                'params' => [
+                    'first-vendor/first-package' => [
+                        'config/params.php',
+                    ],
+                    'second-vendor/second-package' => [
+                        'config/params.php',
+                    ],
                 ],
             ],
         ]);
@@ -116,17 +120,19 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertNotEquals($packageContentAfter, $configContentAfter);
 
         $this->assertMergePlan([
-            'constants' => [
-                'first-vendor/first-package' => [
-                    'config/constants.php',
+            Options::DEFAULT_BUILD => [
+                'constants' => [
+                    'first-vendor/first-package' => [
+                        'config/constants.php',
+                    ],
                 ],
-            ],
-            'params' => [
-                'first-vendor/first-package' => [
-                    'config/params.php',
-                ],
-                'second-vendor/second-package' => [
-                    'config/params.php',
+                'params' => [
+                    'first-vendor/first-package' => [
+                        'config/params.php',
+                    ],
+                    'second-vendor/second-package' => [
+                        'config/params.php',
+                    ],
                 ],
             ],
         ]);

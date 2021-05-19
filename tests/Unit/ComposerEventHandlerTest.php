@@ -8,13 +8,16 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\DependencyResolver\PolicyInterface;
+use Composer\DependencyResolver\Pool;
+use Composer\DependencyResolver\Request;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\Package\Package;
 use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
-use Composer\Repository\RepositoryInterface;
+use Composer\Repository\CompositeRepository;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Yiisoft\Config\Command\ConfigCommandProvider;
@@ -146,9 +149,12 @@ final class ComposerEventHandlerTest extends TestCase
             $this->createComposerMock(),
             $this->createIoMock(),
             true,
-            $this->createMock(RepositoryInterface::class),
+            $this->createMock(PolicyInterface::class),
+            $this->createMock(Pool::class),
+            $this->createMock(CompositeRepository::class),
+            $this->createMock(Request::class),
             [],
-            $operation
+            $operation,
         );
     }
 }
