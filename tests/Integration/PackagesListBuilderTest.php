@@ -80,10 +80,10 @@ final class PackagesListBuilderTest extends ComposerTest
                     Options::DEFAULT_BUILD => [
                         'config/web.php',
                     ],
-                    'test/a' => [
+                    'test/ba' => [
                         'config/web.php',
                     ],
-                    'test/ba' => [
+                    'test/a' => [
                         'config/web.php',
                     ],
                 ],
@@ -98,10 +98,10 @@ final class PackagesListBuilderTest extends ComposerTest
                         'config/params.php',
                         '?config/params-local.php',
                     ],
-                    'test/a' => [
+                    'test/c' => [
                         'config/params.php',
                     ],
-                    'test/c' => [
+                    'test/a' => [
                         'config/params.php',
                     ],
                 ],
@@ -109,13 +109,13 @@ final class PackagesListBuilderTest extends ComposerTest
                     Options::DEFAULT_BUILD => [
                         'config/web.php',
                     ],
-                    'test/a' => [
-                        'config/web.php',
-                    ],
                     'test/ba' => [
                         'config/web.php',
                     ],
                     'test/c' => [
+                        'config/web.php',
+                    ],
+                    'test/a' => [
                         'config/web.php',
                     ],
                 ],
@@ -130,14 +130,14 @@ final class PackagesListBuilderTest extends ComposerTest
                         'config/params.php',
                         '?config/params-local.php',
                     ],
-                    'test/a' => [
-                        'config/params.php',
-                    ],
                     'test/c' => [
                         'config/params.php',
                     ],
                     'test/custom-source' => [
                         'params.php',
+                    ],
+                    'test/a' => [
+                        'config/params.php',
                     ],
                 ],
                 'subdir' => [
@@ -149,9 +149,6 @@ final class PackagesListBuilderTest extends ComposerTest
                     Options::DEFAULT_BUILD => [
                         'config/web.php',
                     ],
-                    'test/a' => [
-                        'config/web.php',
-                    ],
                     'test/ba' => [
                         'config/web.php',
                     ],
@@ -160,6 +157,9 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                     'test/custom-source' => [
                         'web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
                     ],
                 ],
             ],
@@ -180,17 +180,17 @@ final class PackagesListBuilderTest extends ComposerTest
 
         $this->assertMergePlan([
             Options::DEFAULT_BUILD => [
+                'web' => [
+                    'test/d-dev-c' => [
+                        'config/web.php',
+                    ],
+                    'test/a' => [
+                        'config/web.php',
+                    ],
+                ],
                 'params' => [
                     'test/a' => [
                         'config/params.php',
-                    ],
-                ],
-                'web' => [
-                    'test/a' => [
-                        'config/web.php',
-                    ],
-                    'test/d-dev-c' => [
-                        'config/web.php',
                     ],
                 ],
             ],
