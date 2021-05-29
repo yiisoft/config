@@ -40,6 +40,8 @@ final class Config
      * @param string $rootPath The path to the project root where composer.json is located.
      * @param string|null $configsPath The path to where configs are stored.
      * @param string|null $environment The environment name.
+     *
+     * @throws ErrorException If the environment does not exist.
      */
     public function __construct(string $rootPath, string $configsPath = null, string $environment = null)
     {
@@ -50,6 +52,10 @@ final class Config
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
         $this->mergePlan = require $this->configsPath . '/' . Options::MERGE_PLAN_FILENAME;
+
+        if (!isset($this->mergePlan[$this->environment])) {
+            $this->throwException(sprintf('The "%s" configuration environment does not exist.', $this->environment));
+        }
     }
 
     /**
@@ -57,7 +63,7 @@ final class Config
      *
      * @param string $group The group name.
      *
-     * @throws ErrorException If the environment or group does not exist or or an error occurred during the build.
+     * @throws ErrorException If the group does not exist or an error occurred during the build.
      *
      * @return array The configuration of the group.
      */
@@ -73,7 +79,7 @@ final class Config
             $this->buildGroup('params', $this->environment, $this->build[Options::DEFAULT_ENVIRONMENT]['params']);
         }
 
-        $environment = $this->checkEnvironmentGroup($group, $this->environment);
+        $environment = $this->prepareEnvironmentGroup($group, $this->environment);
         $rootGroupConfig = [];
 
         if ($environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group])) {
@@ -101,13 +107,13 @@ final class Config
             return;
         }
 
-        $environment = $this->checkEnvironmentGroup($group, $environment);
+        $environment = $this->prepareEnvironmentGroup($group, $environment);
         $this->build[$environment][$group] = [];
 
         foreach ($this->mergePlan[$environment][$group] as $packageName => $files) {
             foreach ($files as $file) {
                 if (Options::isVariable($file)) {
-                    $variable = $this->checkVariable($file, $group, $environment);
+                    $variable = $this->prepareVariable($file, $group, $environment);
 
                     if ($environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$variable])) {
                         $this->buildGroup($variable, Options::DEFAULT_ENVIRONMENT);
@@ -301,21 +307,17 @@ final class Config
     }
 
     /**
-     * Checks the environment and group name and returns actual environment name.
+     * Checks the group name and returns actual environment name.
      *
      * @param string $group The group name.
      * @param string $environment The environment name.
      *
-     * @throws ErrorException If the environment or group does not exist.
+     * @throws ErrorException If the group does not exist.
      *
      * @return string The actual environment name.
      */
-    private function checkEnvironmentGroup(string $group, string $environment): string
+    private function prepareEnvironmentGroup(string $group, string $environment): string
     {
-        if (!isset($this->mergePlan[$environment])) {
-            $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));
-        }
-
         if (!isset($this->mergePlan[$environment][$group])) {
             if ($environment === Options::DEFAULT_ENVIRONMENT || !isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group])) {
                 $this->throwException(sprintf('The "%s" configuration group does not exist.', $group));
@@ -328,7 +330,7 @@ final class Config
     }
 
     /**
-     * Checks the configuration variable and returns its name
+     * Checks the configuration variable and returns its name.
      *
      * @param string $variable The variable.
      * @param string $group The group name.
@@ -338,7 +340,7 @@ final class Config
      *
      * @return string The variable name.
      */
-    private function checkVariable(string $variable, string $group, string $environment): string
+    private function prepareVariable(string $variable, string $group, string $environment): string
     {
         $name = substr($variable, 1);
 
