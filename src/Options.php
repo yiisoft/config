@@ -18,6 +18,7 @@ final class Options
     public const MERGE_PLAN_FILENAME = 'merge_plan.php';
     public const DEFAULT_CONFIGS_DIRECTORY = 'config/packages';
     public const DEFAULT_ENVIRONMENT = '/';
+    public const ROOT_PACKAGE_NAME = '/';
 
     private bool $silentOverride = false;
     private string $sourceDirectory = '';

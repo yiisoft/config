@@ -107,7 +107,7 @@ final class ComposerConfigProcessTest extends TestCase
                         'alfa/main.php'
                     ],
                 ],
-                Options::DEFAULT_ENVIRONMENT => [
+                Options::ROOT_PACKAGE_NAME => [
                     'params' => 'alfa/params.php',
                     'web' => 'alfa/web.php',
                     'main' => [
@@ -157,18 +157,18 @@ final class ComposerConfigProcessTest extends TestCase
             ],
             'alfa' => [
                 'main' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         '$web',
                         'alfa/main.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'alfa/params.php',
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'alfa/web.php',
                     ],
                 ],

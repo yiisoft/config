@@ -190,7 +190,7 @@ final class ComposerConfigProcess
 
             $packageGroups = $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] ?? [];
             /** @psalm-suppress PropertyTypeCoercion */
-            $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] = [Options::DEFAULT_ENVIRONMENT => $files] + $packageGroups;
+            $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] = [Options::ROOT_PACKAGE_NAME => $files] + $packageGroups;
             ksort($this->mergePlan[Options::DEFAULT_ENVIRONMENT]);
         }
     }
@@ -207,7 +207,7 @@ final class ComposerConfigProcess
 
             foreach ((array) $groups as $group => $files) {
                 /** @psalm-suppress InvalidPropertyAssignmentValue */
-                $this->mergePlan[$environment][$group][Options::DEFAULT_ENVIRONMENT] = (array) $files;
+                $this->mergePlan[$environment][$group][Options::ROOT_PACKAGE_NAME] = (array) $files;
             }
 
             if (isset($this->mergePlan[$environment])) {

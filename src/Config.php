@@ -376,7 +376,7 @@ final class Config
      */
     private function getConfigsPath(string $packageName): string
     {
-        return $packageName === Options::DEFAULT_ENVIRONMENT ? $this->rootPath : "$this->configsPath/$packageName";
+        return $packageName === Options::ROOT_PACKAGE_NAME ? $this->rootPath : "$this->configsPath/$packageName";
     }
 
     /**
@@ -389,6 +389,6 @@ final class Config
      */
     private function getRelativeConfigPath(string $packageName, string $file): string
     {
-        return $packageName === Options::DEFAULT_ENVIRONMENT ? $file : "$this->relativeConfigsPath/$packageName/$file";
+        return $packageName === Options::ROOT_PACKAGE_NAME ? $file : "$this->relativeConfigsPath/$packageName/$file";
     }
 }

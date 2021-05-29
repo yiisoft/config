@@ -28,13 +28,13 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/web.php',
                     ],
                 ],
@@ -45,7 +45,7 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -54,7 +54,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/web.php',
                     ],
                     'test/a' => [
@@ -68,7 +68,7 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -77,7 +77,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/web.php',
                     ],
                     'test/ba' => [
@@ -94,7 +94,7 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -106,7 +106,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/web.php',
                     ],
                     'test/ba' => [
@@ -126,7 +126,7 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -146,7 +146,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'config/web.php',
                     ],
                     'test/ba' => [
@@ -221,7 +221,7 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'app-configs/params.php',
                         '?app-configs/params-local.php',
                     ],
@@ -230,7 +230,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'app-configs/web.php',
                     ],
                     'test/a' => [
@@ -269,12 +269,12 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'common' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'app-configs/common.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'app-configs/params.php',
                         '?app-configs/params-local.php',
                     ],
@@ -283,7 +283,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         '$common',
                         'app-configs/web.php',
                     ],
@@ -333,12 +333,12 @@ final class PackagesListBuilderTest extends ComposerTest
         $this->assertMergePlan([
             Options::DEFAULT_ENVIRONMENT => [
                 'common' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'app-configs/common.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'app-configs/params.php',
                         '?app-configs/params-local.php',
                     ],
@@ -347,7 +347,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         '$common',
                         'app-configs/web.php',
                     ],
@@ -358,18 +358,18 @@ final class PackagesListBuilderTest extends ComposerTest
             ],
             'alfa' => [
                 'main' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         '$web',
                         'alfa/main.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'alfa/params.php',
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_ENVIRONMENT => [
+                    Options::ROOT_PACKAGE_NAME => [
                         'alfa/web.php',
                     ],
                 ],
