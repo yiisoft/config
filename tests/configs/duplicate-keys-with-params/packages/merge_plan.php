@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 // Do not edit. Content will be replaced.
 return [
-    'params' => [
-        '/' => [
-            'params.php',
-        ],
-        'test/a' => [
-            'params.php',
-        ],
-        'test/b' => [
-            'params.php',
+    '/' => [
+        'params' => [
+            '/' => [
+                'params.php',
+            ],
+            'test/a' => [
+                'params.php',
+            ],
+            'test/b' => [
+                'params.php',
+            ],
         ],
     ],
 ];

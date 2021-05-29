@@ -14,7 +14,6 @@ use Composer\Package\Package;
 use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
-use Composer\Repository\RepositoryInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Yiisoft\Config\Command\ConfigCommandProvider;
@@ -141,14 +140,15 @@ final class ComposerEventHandlerTest extends TestCase
 
     private function createPackageEvent(string $name, OperationInterface $operation): PackageEvent
     {
-        return new PackageEvent(
-            $name,
-            $this->createComposerMock(),
-            $this->createIoMock(),
-            true,
-            $this->createMock(RepositoryInterface::class),
-            [],
-            $operation
-        );
+        $packageEvent = $this->getMockBuilder(PackageEvent::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $packageEvent->method('getName')->willReturn($name);
+        $packageEvent->method('getComposer')->willReturn($this->createComposerMock());
+        $packageEvent->method('getIO')->willReturn($this->createIoMock());
+        $packageEvent->method('getOperation')->willReturn($operation);
+
+        return $packageEvent;
     }
 }

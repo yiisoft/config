@@ -14,6 +14,7 @@ use function dirname;
 use function glob;
 use function in_array;
 use function is_file;
+use function ksort;
 use function realpath;
 use function str_replace;
 use function substr;
@@ -33,7 +34,7 @@ final class ComposerConfigProcess
     private array $configFiles = [];
 
     /**
-     * @psalm-var array<string, array<string, string|list<string>>>
+     * @psalm-var array<string, array<string, array<string, list<string>>>>
      */
     private array $mergePlan = [];
 
@@ -59,6 +60,7 @@ final class ComposerConfigProcess
 
         $this->process($rootOptions, $packagesForCheck, $forceCheck);
         $this->appendRootPackageConfigToMergePlan($rootPackage, $rootOptions);
+        $this->appendEnvironmentsToMergePlan($rootPackage);
     }
 
     /**
@@ -74,7 +76,7 @@ final class ComposerConfigProcess
     /**
      * Returns data for changing the merge plan.
      *
-     * @return array Data for changing the merge plan.
+     * @return array<string, array<string, array<string, list<string>>>> Data for changing the merge plan.
      */
     public function mergePlan(): array
     {
@@ -119,7 +121,7 @@ final class ComposerConfigProcess
 
                     // Do not copy variables.
                     if (Options::isVariable($file)) {
-                        $this->mergePlan[$group][$package->getPrettyName()][] = $file;
+                        $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group][$package->getPrettyName()][] = $file;
                         continue;
                     }
 
@@ -140,7 +142,7 @@ final class ComposerConfigProcess
                             }
                         }
 
-                        $this->mergePlan[$group][$package->getPrettyName()][] = $file;
+                        $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group][$package->getPrettyName()][] = $file;
                         continue;
                     }
 
@@ -158,7 +160,7 @@ final class ComposerConfigProcess
                         );
                     }
 
-                    $this->mergePlan[$group][$package->getPrettyName()][] = $file;
+                    $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group][$package->getPrettyName()][] = $file;
                 }
             }
         }
@@ -186,8 +188,31 @@ final class ComposerConfigProcess
                 return $result . $file;
             }, (array) $files);
 
+            $packageGroups = $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] ?? [];
             /** @psalm-suppress PropertyTypeCoercion */
-            $this->mergePlan[$group] = ['/' => $files] + ($this->mergePlan[$group] ?? []);
+            $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] = [Options::ROOT_PACKAGE_NAME => $files] + $packageGroups;
+            ksort($this->mergePlan[Options::DEFAULT_ENVIRONMENT]);
+        }
+    }
+
+    private function appendEnvironmentsToMergePlan(RootPackageInterface $package): void
+    {
+        /** @psalm-var array<string, string|array<string, string|list<string>>> $environments */
+        $environments = (array) ($package->getExtra()['config-plugin-environments'] ?? []);
+
+        foreach ($environments as $environment => $groups) {
+            if ($environment === Options::DEFAULT_ENVIRONMENT) {
+                continue;
+            }
+
+            foreach ((array) $groups as $group => $files) {
+                /** @psalm-suppress InvalidPropertyAssignmentValue */
+                $this->mergePlan[$environment][$group][Options::ROOT_PACKAGE_NAME] = (array) $files;
+            }
+
+            if (isset($this->mergePlan[$environment])) {
+                ksort($this->mergePlan[$environment]);
+            }
         }
     }
 
