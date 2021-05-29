@@ -12,31 +12,25 @@ use function dirname;
 
 final class ConfigTest extends TestCase
 {
-    private Config $config;
-
-    protected function setUp(): void
-    {
-        $this->config = new Config(dirname(__DIR__) . '/configs/dummy', 'config/packages');
-        parent::setUp();
-    }
-
     public function testGet(): void
     {
-        $this->assertSame($this->config->get('common'), [
+        $config = $this->createConfig();
+
+        $this->assertSame($config->get('common'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
         ]);
 
-        $this->assertSame($this->config->get('params'), [
+        $this->assertSame($config->get('params'), [
             'root-params-key' => 'root-params-value',
             'root-params-local-key' => 'root-params-local-value',
             'a-params-key' => 'a-params-value',
             'b-params-key' => 'b-params-value',
         ]);
 
-        $this->assertSame($this->config->get('web'), [
+        $this->assertSame($config->get('web'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
@@ -49,14 +43,16 @@ final class ConfigTest extends TestCase
 
     public function testGetWithEnvironment(): void
     {
-        $this->assertSame($this->config->get('common', 'environment'), [
+        $config = $this->createConfig('environment');
+
+        $this->assertSame($config->get('common'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
         ]);
 
-        $this->assertSame($this->config->get('main', 'environment'), [
+        $this->assertSame($config->get('main'), [
             'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
@@ -68,7 +64,7 @@ final class ConfigTest extends TestCase
             'environment-main-key' => 'environment-main-value',
         ]);
 
-        $this->assertSame($this->config->get('params', 'environment'), [
+        $this->assertSame($config->get('params'), [
             'environment-params-key' => 'environment-params-value',
             'root-params-key' => 'root-params-value',
             'root-params-local-key' => 'root-params-local-value',
@@ -76,7 +72,7 @@ final class ConfigTest extends TestCase
             'b-params-key' => 'b-params-value',
         ]);
 
-        $this->assertSame($this->config->get('web', 'environment'), [
+        $this->assertSame($config->get('web'), [
             'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
@@ -88,98 +84,53 @@ final class ConfigTest extends TestCase
         ]);
     }
 
-    public function testGetWithGettingGroupAgain(): void
-    {
-        $this->assertSame($this->config->get('web'), [
-            'root-common-key-1' => 'root-common-value-1',
-            'root-common-key-2' => 'root-common-value-2',
-            'a-common-key' => 'a-common-value',
-            'b-common-key' => 'b-common-value',
-            'root-web-key' => 'root-web-value',
-            'a-web-key' => 'a-web-value',
-            'b-web-key' => 'b-web-value',
-        ]);
-
-        $this->assertSame($this->config->get('web'), [
-            'root-common-key-1' => 'root-common-value-1',
-            'root-common-key-2' => 'root-common-value-2',
-            'a-common-key' => 'a-common-value',
-            'b-common-key' => 'b-common-value',
-            'root-web-key' => 'root-web-value',
-            'a-web-key' => 'a-web-value',
-            'b-web-key' => 'b-web-value',
-        ]);
-
-        $this->assertSame($this->config->get('web', 'environment'), [
-            'environment-web-key' => 'environment-web-value',
-            'root-common-key-1' => 'root-common-value-1',
-            'root-common-key-2' => 'root-common-value-2',
-            'a-common-key' => 'a-common-value',
-            'b-common-key' => 'b-common-value',
-            'root-web-key' => 'root-web-value',
-            'a-web-key' => 'a-web-value',
-            'b-web-key' => 'b-web-value',
-        ]);
-
-        $this->assertSame($this->config->get('web', 'environment'), [
-            'environment-web-key' => 'environment-web-value',
-            'root-common-key-1' => 'root-common-value-1',
-            'root-common-key-2' => 'root-common-value-2',
-            'a-common-key' => 'a-common-value',
-            'b-common-key' => 'b-common-value',
-            'root-web-key' => 'root-web-value',
-            'a-web-key' => 'a-web-value',
-            'b-web-key' => 'b-web-value',
-        ]);
-    }
-
-    public function testGetThrowExceptionForBuildNotExist(): void
+    public function testGetThrowExceptionForEnvironmentNotExist(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The "not-exist" configuration build does not exist.');
-        $this->config->get('web', 'not-exist');
+        $this->expectErrorMessage('The "not-exist" configuration environment does not exist.');
+        $this->createConfig('not-exist')->get('web');
     }
 
     public function testGetThrowExceptionForGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "not-exist" configuration group does not exist.');
-        $this->config->get('not-exist');
+        $this->createConfig()->get('not-exist');
     }
 
     public function testGetEnvironmentThrowExceptionForGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "not-exist" configuration group does not exist.');
-        $this->config->get('not-exist', 'environment');
+        $this->createConfig('environment')->get('not-exist');
     }
 
     public function testGetThrowExceptionForVariableGroupEqual(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
-        $this->config->get('failVariableGroupEqual');
+        $this->createConfig()->get('failVariableGroupEqual');
     }
 
     public function testGetEnvironmentThrowExceptionForVariableGroupEqual(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
-        $this->config->get('failVariableGroupEqual', 'environment');
+        $this->createConfig('environment')->get('failVariableGroupEqual');
     }
 
     public function testGetThrowExceptionForVariableGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
-        $this->config->get('failVariableNotExist');
+        $this->createConfig()->get('failVariableNotExist');
     }
 
     public function testGetEnvironmentThrowExceptionForVariableGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
-        $this->config->get('failVariableNotExist', 'environment');
+        $this->createConfig('environment')->get('failVariableNotExist');
     }
 
     public function testDuplicateKeysErrorMessage(): void
@@ -205,5 +156,10 @@ final class ConfigTest extends TestCase
         $this->expectException(ErrorException::class);
         $this->expectErrorMessageMatches('~^Duplicate key "name => first-name" in~');
         $config->get('params');
+    }
+
+    private function createConfig(string $environment = null): Config
+    {
+        return new Config(dirname(__DIR__) . '/configs/dummy', 'config/packages', $environment);
     }
 }

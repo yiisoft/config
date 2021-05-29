@@ -23,8 +23,8 @@ final class Config
      */
     private string $rootPath;
     private string $configsPath;
+    private string $environment;
     private string $relativeConfigsPath;
-    private string $currentEnvironment = Options::DEFAULT_ENVIRONMENT;
 
     /**
      * @psalm-var array<string, array<string, array<string, list<string>>>>
@@ -37,71 +37,71 @@ final class Config
     private array $build = [];
 
     /**
-     * @param string $rootPath Path to the project root where composer.json is located.
-     * @param string|null $configsPath Path to where configs are stored.
+     * @param string $rootPath The path to the project root where composer.json is located.
+     * @param string|null $configsPath The path to where configs are stored.
+     * @param string|null $environment The environment name.
      */
-    public function __construct(string $rootPath, string $configsPath = null)
+    public function __construct(string $rootPath, string $configsPath = null, string $environment = null)
     {
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
+        $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
         $this->mergePlan = require $this->configsPath . '/' . Options::MERGE_PLAN_FILENAME;
     }
 
     /**
-     * Builds and returns the configuration of the build group.
+     * Builds and returns the configuration of the group.
      *
      * @param string $group The group name.
-     * @param string $environment The environment name.
      *
-     * @throws ErrorException If the build or group does not exist or or an error occurred during the build.
+     * @throws ErrorException If the environment or group does not exist or or an error occurred during the build.
      *
-     * @return array The configuration of the build group.
+     * @return array The configuration of the group.
      */
-    public function get(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): array
+    public function get(string $group): array
     {
-        if (isset($this->build[$environment][$group])) {
-            return $this->build[$environment][$group];
+        if (isset($this->build[$this->environment][$group])) {
+            return $this->build[$this->environment][$group];
         }
 
-        $this->currentEnvironment = $environment;
         $this->buildGroup('params', Options::DEFAULT_ENVIRONMENT);
 
-        if ($environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[$environment]['params'])) {
-            $this->buildGroup('params', $environment, $this->build[Options::DEFAULT_ENVIRONMENT]['params']);
+        if ($this->environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[$this->environment]['params'])) {
+            $this->buildGroup('params', $this->environment, $this->build[Options::DEFAULT_ENVIRONMENT]['params']);
         }
 
-        $environment = $this->checkBuildGroup($group, $environment);
-        $rootBuildGroupConfig = [];
+        $environment = $this->checkEnvironmentGroup($group, $this->environment);
+        $rootGroupConfig = [];
 
         if ($environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group])) {
             $this->buildGroup($group, Options::DEFAULT_ENVIRONMENT);
-            $rootBuildGroupConfig = $this->build[Options::DEFAULT_ENVIRONMENT][$group];
+            $rootGroupConfig = $this->build[Options::DEFAULT_ENVIRONMENT][$group];
         }
 
-        $this->buildGroup($group, $environment, $rootBuildGroupConfig);
+        $this->buildGroup($group, $environment, $rootGroupConfig);
         return $this->build[$environment][$group];
     }
 
     /**
-     * Builds the configuration of the build group.
+     * Builds the configuration of the group.
      *
      * @param string $group The group name.
      * @param string $environment The environment name.
-     * @param array $rootBuildGroupConfig The configuration of the root group of the build,
-     * when building a non-root {@see Options::DEFAULT_ENVIRONMENT} build.
+     * @param array $rootGroupConfig The configuration of the root group of the environment,
+     * when building a non-root {@see Options::DEFAULT_ENVIRONMENT} environment.
      *
      * @throws ErrorException If an error occurred during the build.
      */
-    private function buildGroup(string $group, string $environment, array $rootBuildGroupConfig = []): void
+    private function buildGroup(string $group, string $environment, array $rootGroupConfig = []): void
     {
         if (isset($this->build[$environment][$group])) {
             return;
         }
 
-        $environment = $this->checkBuildGroup($group, $environment);
+        $environment = $this->checkEnvironmentGroup($group, $environment);
         $this->build[$environment][$group] = [];
 
         foreach ($this->mergePlan[$environment][$group] as $packageName => $files) {
@@ -111,16 +111,16 @@ final class Config
 
                     if ($environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$variable])) {
                         $this->buildGroup($variable, Options::DEFAULT_ENVIRONMENT);
-                        $rootVariableBuildConfig = $this->build[Options::DEFAULT_ENVIRONMENT][$variable];
+                        $rootVariableConfig = $this->build[Options::DEFAULT_ENVIRONMENT][$variable];
                     }
 
-                    $this->buildGroup($variable, $environment, $rootVariableBuildConfig ?? []);
+                    $this->buildGroup($variable, $environment, $rootVariableConfig ?? []);
                     $this->build[$environment][$group] = $this->merge(
                         [$file, $group, $environment, $packageName],
                         '',
                         $this->build[$environment][$group],
                         $this->build[$environment][$variable] ?? $this->build[Options::DEFAULT_ENVIRONMENT][$variable],
-                        $rootBuildGroupConfig,
+                        $rootGroupConfig,
                     );
                     continue;
                 }
@@ -141,7 +141,7 @@ final class Config
                             '',
                             $this->build[$environment][$group],
                             $this->buildFile($group, $match),
-                            $rootBuildGroupConfig,
+                            $rootGroupConfig,
                         );
                     }
                     continue;
@@ -156,7 +156,7 @@ final class Config
                     '',
                     $this->build[$environment][$group],
                     $this->buildFile($group, $path),
-                    $rootBuildGroupConfig,
+                    $rootGroupConfig,
                 );
             }
         }
@@ -193,9 +193,7 @@ final class Config
 
         $scope = [];
         if ($group !== 'params') {
-            $scope['params'] = (
-                $this->build[$this->currentEnvironment]['params'] ?? $this->build[Options::DEFAULT_ENVIRONMENT]['params']
-            );
+            $scope['params'] = $this->build[$this->environment]['params'] ?? $this->build[Options::DEFAULT_ENVIRONMENT]['params'];
         }
 
         /** @psalm-suppress TooManyArguments */
@@ -303,19 +301,19 @@ final class Config
     }
 
     /**
-     * Checks the build group name and returns actual build name.
+     * Checks the environment and group name and returns actual environment name.
      *
      * @param string $group The group name.
      * @param string $environment The environment name.
      *
-     * @throws ErrorException If the build or group does not exist.
+     * @throws ErrorException If the environment or group does not exist.
      *
-     * @return string The actual build name.
+     * @return string The actual environment name.
      */
-    private function checkBuildGroup(string $group, string $environment): string
+    private function checkEnvironmentGroup(string $group, string $environment): string
     {
         if (!isset($this->mergePlan[$environment])) {
-            $this->throwException(sprintf('The "%s" configuration build does not exist.', $environment));
+            $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));
         }
 
         if (!isset($this->mergePlan[$environment][$group])) {
