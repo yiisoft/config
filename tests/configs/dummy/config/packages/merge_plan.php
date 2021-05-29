@@ -51,7 +51,7 @@ return [
             ],
         ],
     ],
-    'alternative' => [
+    'environment' => [
         'failVariableGroupEqual' => [
             '/' => [
                 '$failVariableGroupEqual',
@@ -65,17 +65,17 @@ return [
         'main' => [
             '/' => [
                 '$web',
-                'config/alternative/main.php',
+                'config/environment/main.php',
             ],
         ],
         'params' => [
             '/' => [
-                'config/alternative/params.php',
+                'config/environment/params.php',
             ],
         ],
         'web' => [
             '/' => [
-                'config/alternative/web.php',
+                'config/environment/web.php',
             ],
         ],
     ],

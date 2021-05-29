@@ -47,17 +47,17 @@ final class ConfigTest extends TestCase
         ]);
     }
 
-    public function testGetWithAlternativeBuild(): void
+    public function testGetWithEnvironment(): void
     {
-        $this->assertSame($this->config->get('common', 'alternative'), [
+        $this->assertSame($this->config->get('common', 'environment'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
         ]);
 
-        $this->assertSame($this->config->get('main', 'alternative'), [
-            'alternative-web-key' => 'alternative-web-value',
+        $this->assertSame($this->config->get('main', 'environment'), [
+            'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
@@ -65,19 +65,19 @@ final class ConfigTest extends TestCase
             'root-web-key' => 'root-web-value',
             'a-web-key' => 'a-web-value',
             'b-web-key' => 'b-web-value',
-            'alternative-main-key' => 'alternative-main-value',
+            'environment-main-key' => 'environment-main-value',
         ]);
 
-        $this->assertSame($this->config->get('params', 'alternative'), [
-            'alternative-params-key' => 'alternative-params-value',
+        $this->assertSame($this->config->get('params', 'environment'), [
+            'environment-params-key' => 'environment-params-value',
             'root-params-key' => 'root-params-value',
             'root-params-local-key' => 'root-params-local-value',
             'a-params-key' => 'a-params-value',
             'b-params-key' => 'b-params-value',
         ]);
 
-        $this->assertSame($this->config->get('web', 'alternative'), [
-            'alternative-web-key' => 'alternative-web-value',
+        $this->assertSame($this->config->get('web', 'environment'), [
+            'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
@@ -110,8 +110,8 @@ final class ConfigTest extends TestCase
             'b-web-key' => 'b-web-value',
         ]);
 
-        $this->assertSame($this->config->get('web', 'alternative'), [
-            'alternative-web-key' => 'alternative-web-value',
+        $this->assertSame($this->config->get('web', 'environment'), [
+            'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
@@ -121,8 +121,8 @@ final class ConfigTest extends TestCase
             'b-web-key' => 'b-web-value',
         ]);
 
-        $this->assertSame($this->config->get('web', 'alternative'), [
-            'alternative-web-key' => 'alternative-web-value',
+        $this->assertSame($this->config->get('web', 'environment'), [
+            'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
@@ -147,11 +147,11 @@ final class ConfigTest extends TestCase
         $this->config->get('not-exist');
     }
 
-    public function testGetAlternativeThrowExceptionForGroupNotExist(): void
+    public function testGetEnvironmentThrowExceptionForGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "not-exist" configuration group does not exist.');
-        $this->config->get('not-exist', 'alternative');
+        $this->config->get('not-exist', 'environment');
     }
 
     public function testGetThrowExceptionForVariableGroupEqual(): void
@@ -161,11 +161,11 @@ final class ConfigTest extends TestCase
         $this->config->get('failVariableGroupEqual');
     }
 
-    public function testGetAlternativeThrowExceptionForVariableGroupEqual(): void
+    public function testGetEnvironmentThrowExceptionForVariableGroupEqual(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
-        $this->config->get('failVariableGroupEqual', 'alternative');
+        $this->config->get('failVariableGroupEqual', 'environment');
     }
 
     public function testGetThrowExceptionForVariableGroupNotExist(): void
@@ -175,11 +175,11 @@ final class ConfigTest extends TestCase
         $this->config->get('failVariableNotExist');
     }
 
-    public function testGetAlternativeThrowExceptionForVariableGroupNotExist(): void
+    public function testGetEnvironmentThrowExceptionForVariableGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
-        $this->config->get('failVariableNotExist', 'alternative');
+        $this->config->get('failVariableNotExist', 'environment');
     }
 
     public function testDuplicateKeysErrorMessage(): void

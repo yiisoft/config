@@ -80,7 +80,7 @@ final class ComposerConfigProcessTest extends TestCase
      *
      * @param bool|null $forceCheck
      */
-    public function testProcessWithoutPackagesForCheckAndWitAlternativeBuild(?bool $forceCheck): void
+    public function testProcessWithoutPackagesForCheckAndWithEnvironment(?bool $forceCheck): void
     {
         $composer = $this->createComposerMock([
             'config-plugin-options' => [
@@ -98,7 +98,7 @@ final class ComposerConfigProcessTest extends TestCase
                     'web.php',
                 ],
             ],
-            'config-plugin-alternatives' => [
+            'config-plugin-environments' => [
                 'alfa' => [
                     'params' => 'alfa/params.php',
                     'web' => 'alfa/web.php',
@@ -107,7 +107,7 @@ final class ComposerConfigProcessTest extends TestCase
                         'alfa/main.php'
                     ],
                 ],
-                Options::DEFAULT_BUILD => [
+                Options::DEFAULT_ENVIRONMENT => [
                     'params' => 'alfa/params.php',
                     'web' => 'alfa/web.php',
                     'main' => [
@@ -121,7 +121,7 @@ final class ComposerConfigProcessTest extends TestCase
         $process = new ComposerConfigProcess($composer, [], $forceCheck);
 
         $this->assertProcessData($process, $forceCheck, [
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'common' => [
                     '/' => [
                         'custom-dir/subdir/*.php',
@@ -157,18 +157,18 @@ final class ComposerConfigProcessTest extends TestCase
             ],
             'alfa' => [
                 'main' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         '$web',
                         'alfa/main.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'alfa/params.php',
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'alfa/web.php',
                     ],
                 ],
@@ -204,7 +204,7 @@ final class ComposerConfigProcessTest extends TestCase
 
         $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $process->configsDirectory());
         $this->assertSame($process->mergePlan(), $expectedMergePlan ?? [
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'common' => [
                     '/' => [
                         'custom-dir/subdir/*.php',

@@ -26,15 +26,15 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/web.php',
                     ],
                 ],
@@ -43,9 +43,9 @@ final class PackagesListBuilderTest extends ComposerTest
 
         $this->execComposer('require test/a');
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -54,7 +54,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/web.php',
                     ],
                     'test/a' => [
@@ -66,9 +66,9 @@ final class PackagesListBuilderTest extends ComposerTest
 
         $this->execComposer('require test/ba');
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -77,7 +77,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/web.php',
                     ],
                     'test/ba' => [
@@ -92,9 +92,9 @@ final class PackagesListBuilderTest extends ComposerTest
 
         $this->execComposer('require test/c');
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -106,7 +106,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/web.php',
                     ],
                     'test/ba' => [
@@ -124,9 +124,9 @@ final class PackagesListBuilderTest extends ComposerTest
 
         $this->execComposer('require test/custom-source');
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/params.php',
                         '?config/params-local.php',
                     ],
@@ -146,7 +146,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'config/web.php',
                     ],
                     'test/ba' => [
@@ -179,7 +179,7 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'web' => [
                     'test/d-dev-c' => [
                         'config/web.php',
@@ -219,9 +219,9 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'app-configs/params.php',
                         '?app-configs/params-local.php',
                     ],
@@ -230,7 +230,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'app-configs/web.php',
                     ],
                     'test/a' => [
@@ -267,14 +267,14 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'common' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'app-configs/common.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'app-configs/params.php',
                         '?app-configs/params-local.php',
                     ],
@@ -283,7 +283,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         '$common',
                         'app-configs/web.php',
                     ],
@@ -295,7 +295,7 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
     }
 
-    public function testAlternativeBuilds(): void
+    public function testEnvironments(): void
     {
         $this->initComposer([
             'require' => [
@@ -317,7 +317,7 @@ final class PackagesListBuilderTest extends ComposerTest
                         'web.php',
                     ],
                 ],
-                'config-plugin-alternatives' => [
+                'config-plugin-environments' => [
                     'alfa' => [
                         'params' => 'alfa/params.php',
                         'web' => 'alfa/web.php',
@@ -331,14 +331,14 @@ final class PackagesListBuilderTest extends ComposerTest
         ]);
 
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'common' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'app-configs/common.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'app-configs/params.php',
                         '?app-configs/params-local.php',
                     ],
@@ -347,7 +347,7 @@ final class PackagesListBuilderTest extends ComposerTest
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         '$common',
                         'app-configs/web.php',
                     ],
@@ -358,18 +358,18 @@ final class PackagesListBuilderTest extends ComposerTest
             ],
             'alfa' => [
                 'main' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         '$web',
                         'alfa/main.php',
                     ],
                 ],
                 'params' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'alfa/params.php',
                     ],
                 ],
                 'web' => [
-                    Options::DEFAULT_BUILD => [
+                    Options::DEFAULT_ENVIRONMENT => [
                         'alfa/web.php',
                     ],
                 ],

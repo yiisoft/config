@@ -87,7 +87,7 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertEnvironmentFileExist($fileConfig);
         $this->assertEquals($configContentBefore, $packageContentBefore);
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'constants' => [
                     'first-vendor/first-package' => [
                         'config/constants.php',
@@ -120,7 +120,7 @@ final class ComposerEventHandlerTest extends ComposerTest
         $this->assertNotEquals($packageContentAfter, $configContentAfter);
 
         $this->assertMergePlan([
-            Options::DEFAULT_BUILD => [
+            Options::DEFAULT_ENVIRONMENT => [
                 'constants' => [
                     'first-vendor/first-package' => [
                         'config/constants.php',

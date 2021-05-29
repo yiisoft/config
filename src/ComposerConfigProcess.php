@@ -60,7 +60,7 @@ final class ComposerConfigProcess
 
         $this->process($rootOptions, $packagesForCheck, $forceCheck);
         $this->appendRootPackageConfigToMergePlan($rootPackage, $rootOptions);
-        $this->appendAlternativeBuildsToMergePlan($rootPackage);
+        $this->appendEnvironmentsToMergePlan($rootPackage);
     }
 
     /**
@@ -121,7 +121,7 @@ final class ComposerConfigProcess
 
                     // Do not copy variables.
                     if (Options::isVariable($file)) {
-                        $this->mergePlan[Options::DEFAULT_BUILD][$group][$package->getPrettyName()][] = $file;
+                        $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group][$package->getPrettyName()][] = $file;
                         continue;
                     }
 
@@ -142,7 +142,7 @@ final class ComposerConfigProcess
                             }
                         }
 
-                        $this->mergePlan[Options::DEFAULT_BUILD][$group][$package->getPrettyName()][] = $file;
+                        $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group][$package->getPrettyName()][] = $file;
                         continue;
                     }
 
@@ -160,7 +160,7 @@ final class ComposerConfigProcess
                         );
                     }
 
-                    $this->mergePlan[Options::DEFAULT_BUILD][$group][$package->getPrettyName()][] = $file;
+                    $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group][$package->getPrettyName()][] = $file;
                 }
             }
         }
@@ -188,30 +188,30 @@ final class ComposerConfigProcess
                 return $result . $file;
             }, (array) $files);
 
-            $packageGroups = $this->mergePlan[Options::DEFAULT_BUILD][$group] ?? [];
+            $packageGroups = $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] ?? [];
             /** @psalm-suppress PropertyTypeCoercion */
-            $this->mergePlan[Options::DEFAULT_BUILD][$group] = [Options::DEFAULT_BUILD => $files] + $packageGroups;
-            ksort($this->mergePlan[Options::DEFAULT_BUILD]);
+            $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] = [Options::DEFAULT_ENVIRONMENT => $files] + $packageGroups;
+            ksort($this->mergePlan[Options::DEFAULT_ENVIRONMENT]);
         }
     }
 
-    private function appendAlternativeBuildsToMergePlan(RootPackageInterface $package): void
+    private function appendEnvironmentsToMergePlan(RootPackageInterface $package): void
     {
-        /** @psalm-var array<string, string|array<string, string|list<string>>> $alternativeBuilds */
-        $alternativeBuilds = (array) ($package->getExtra()['config-plugin-alternatives'] ?? []);
+        /** @psalm-var array<string, string|array<string, string|list<string>>> $environments */
+        $environments = (array) ($package->getExtra()['config-plugin-environments'] ?? []);
 
-        foreach ($alternativeBuilds as $build => $groups) {
-            if ($build === Options::DEFAULT_BUILD) {
+        foreach ($environments as $environment => $groups) {
+            if ($environment === Options::DEFAULT_ENVIRONMENT) {
                 continue;
             }
 
             foreach ((array) $groups as $group => $files) {
                 /** @psalm-suppress InvalidPropertyAssignmentValue */
-                $this->mergePlan[$build][$group][Options::DEFAULT_BUILD] = (array) $files;
+                $this->mergePlan[$environment][$group][Options::DEFAULT_ENVIRONMENT] = (array) $files;
             }
 
-            if (isset($this->mergePlan[$build])) {
-                ksort($this->mergePlan[$build]);
+            if (isset($this->mergePlan[$environment])) {
+                ksort($this->mergePlan[$environment]);
             }
         }
     }
