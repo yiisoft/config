@@ -24,6 +24,7 @@ final class Config
     private string $rootPath;
     private string $configsPath;
     private string $relativeConfigsPath;
+    private string $currentBuildName = Options::DEFAULT_BUILD;
 
     /**
      * @psalm-var array<string, array<string, array<string, list<string>>>>
@@ -65,13 +66,15 @@ final class Config
             return $this->build[$build][$group];
         }
 
+        $this->currentBuildName = $build;
         $this->buildGroup('params', Options::DEFAULT_BUILD);
-        $build = $this->checkBuildGroup($group, $build);
-        $rootBuildGroupConfig = [];
 
         if ($build !== Options::DEFAULT_BUILD && isset($this->mergePlan[$build]['params'])) {
             $this->buildGroup('params', $build, $this->build[Options::DEFAULT_BUILD]['params']);
         }
+
+        $build = $this->checkBuildGroup($group, $build);
+        $rootBuildGroupConfig = [];
 
         if ($build !== Options::DEFAULT_BUILD && isset($this->mergePlan[Options::DEFAULT_BUILD][$group])) {
             $this->buildGroup($group, Options::DEFAULT_BUILD);
@@ -137,7 +140,7 @@ final class Config
                             [$file, $group, $build, $packageName],
                             '',
                             $this->build[$build][$group],
-                            $this->buildFile($group, $build, $match),
+                            $this->buildFile($group, $match),
                             $rootBuildGroupConfig,
                         );
                     }
@@ -152,7 +155,7 @@ final class Config
                     [$file, $group, $build, $packageName],
                     '',
                     $this->build[$build][$group],
-                    $this->buildFile($group, $build, $path),
+                    $this->buildFile($group, $path),
                     $rootBuildGroupConfig,
                 );
             }
@@ -163,14 +166,13 @@ final class Config
      * Builds the configuration from the file.
      *
      * @param string $group The group name.
-     * @param string $build The build name.
      * @param string $filePath The file path.
      *
      * @return array The configuration from the file.
      *
      * @throws ErrorException If an error occurred during the build.
      */
-    private function buildFile(string $group, string $build, string $filePath): array
+    private function buildFile(string $group, string $filePath): array
     {
         $scopeRequire = static function (Config $config): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
@@ -191,7 +193,9 @@ final class Config
 
         $scope = [];
         if ($group !== 'params') {
-            $scope['params'] = $this->build[$build]['params'] ?? $this->build[Options::DEFAULT_BUILD]['params'];
+            $scope['params'] = (
+                $this->build[$this->currentBuildName]['params'] ?? $this->build[Options::DEFAULT_BUILD]['params']
+            );
         }
 
         /** @psalm-suppress TooManyArguments */
