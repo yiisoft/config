@@ -372,7 +372,7 @@ final class Config
     /**
      * Get path to package configs.
      *
-     * @param string $packageName Name of the package. {@see Options::DEFAULT_ENVIRONMENT} stands for the root package.
+     * @param string $packageName Name of the package. {@see Options::ROOT_PACKAGE_NAME} stands for the root package.
      *
      * @return string Path to package configs.
      */
@@ -384,7 +384,7 @@ final class Config
     /**
      * Get relative path to package config.
      *
-     * @param string $packageName Name of the package. {@see Options::DEFAULT_ENVIRONMENT} stands for the root package.
+     * @param string $packageName Name of the package. {@see Options::ROOT_PACKAGE_NAME} stands for the root package.
      * @param string $file Config file.
      *
      * @return string Relative path to package configs.
