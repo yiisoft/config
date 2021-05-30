@@ -142,8 +142,10 @@ A number of options is available both for Composer plugin and a config loader. C
 
 ```json
 "extra": {
-    "config-plugin-output-dir": "/config/packages",
-    "config-plugin-source-dir": "/config",
+    "config-plugin-options": {
+      "output-directory": "/config/packages",
+      "source-directory": "/config",
+    },
     "config-plugin": {
         // ...
     },
@@ -151,7 +153,7 @@ A number of options is available both for Composer plugin and a config loader. C
 },
 ```
 
-In the above `config-plugin-output-dir` points to where configs will be copied to. The path is relative to where
+In the above `output-directory` points to where configs will be copied to. The path is relative to where
 `composer.json` is. The option is read for the root package, which is typically an application.
 Default is "/config/packages".
 
@@ -166,10 +168,8 @@ $config = new \Yiisoft\Config\Config(
 $webConfig = $config->get('web');
 ```
 
-`config-plugin-source-dir` points to where to read configs from for the package the option is specified for. The option
+`source-directory` points to where to read configs from for the package the option is specified for. The option
 is read for all packages. The value is a path relative to where package `composer.json` is. Default value is `/config`.
-
-> Warning: `config-plugin-source-dir` is not implemented yet.
 
 ## Commands
 
