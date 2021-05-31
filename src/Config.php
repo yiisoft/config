@@ -73,21 +73,10 @@ final class Config
             return $this->build[$this->environment][$group];
         }
 
-        $this->buildGroup('params', Options::DEFAULT_ENVIRONMENT);
-
-        if ($this->environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[$this->environment]['params'])) {
-            $this->buildGroup('params', $this->environment, $this->build[Options::DEFAULT_ENVIRONMENT]['params']);
-        }
-
+        $this->buildGroup('params', $this->environment);
         $environment = $this->prepareEnvironmentGroup($group, $this->environment);
-        $rootGroupConfig = [];
 
-        if ($environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group])) {
-            $this->buildGroup($group, Options::DEFAULT_ENVIRONMENT);
-            $rootGroupConfig = $this->build[Options::DEFAULT_ENVIRONMENT][$group];
-        }
-
-        $this->buildGroup($group, $environment, $rootGroupConfig);
+        $this->buildGroup($group, $environment);
         return $this->build[$environment][$group];
     }
 
@@ -96,37 +85,30 @@ final class Config
      *
      * @param string $group The group name.
      * @param string $environment The environment name.
-     * @param array $rootGroupConfig The configuration of the root group of the environment,
-     * when building a non-root {@see Options::DEFAULT_ENVIRONMENT} environment.
      *
      * @throws ErrorException If an error occurred during the build.
      */
-    private function buildGroup(string $group, string $environment, array $rootGroupConfig = []): void
+    private function buildGroup(string $group, string $environment): void
     {
+        $environment = $this->prepareEnvironmentGroup($group, $environment);
+
         if (isset($this->build[$environment][$group])) {
             return;
         }
 
-        $environment = $this->prepareEnvironmentGroup($group, $environment);
         $this->build[$environment][$group] = [];
 
         foreach ($this->mergePlan[$environment][$group] as $packageName => $files) {
             foreach ($files as $file) {
                 if (Options::isVariable($file)) {
                     $variable = $this->prepareVariable($file, $group, $environment);
+                    $this->buildGroup($variable, $environment);
 
-                    if ($environment !== Options::DEFAULT_ENVIRONMENT && isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$variable])) {
-                        $this->buildGroup($variable, Options::DEFAULT_ENVIRONMENT);
-                        $rootVariableConfig = $this->build[Options::DEFAULT_ENVIRONMENT][$variable];
-                    }
-
-                    $this->buildGroup($variable, $environment, $rootVariableConfig ?? []);
                     $this->build[$environment][$group] = $this->merge(
                         [$file, $group, $environment, $packageName],
                         '',
                         $this->build[$environment][$group],
-                        $this->build[$environment][$variable] ?? $this->build[Options::DEFAULT_ENVIRONMENT][$variable],
-                        $rootGroupConfig,
+                        $this->build[$environment][$variable] ?? $this->buildRootGroup($variable, $environment),
                     );
                     continue;
                 }
@@ -146,8 +128,8 @@ final class Config
                             [$file, $group, $environment, $packageName],
                             '',
                             $this->build[$environment][$group],
+                            $this->buildRootGroup($group, $environment),
                             $this->buildFile($group, $match),
-                            $rootGroupConfig,
                         );
                     }
                     continue;
@@ -161,11 +143,31 @@ final class Config
                     [$file, $group, $environment, $packageName],
                     '',
                     $this->build[$environment][$group],
+                    $this->buildRootGroup($group, $environment),
                     $this->buildFile($group, $path),
-                    $rootGroupConfig,
                 );
             }
         }
+    }
+
+    /**
+     * Builds the configuration of the root group if it exists.
+     *
+     * @param string $group The group name.
+     * @param string $environment The environment name.
+     *
+     * @throws ErrorException If an error occurred during the build.
+     *
+     * @return array The configuration of the root group or the empty array.
+     */
+    private function buildRootGroup(string $group, string $environment): array
+    {
+        if ($environment === Options::DEFAULT_ENVIRONMENT || !isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group])) {
+            return [];
+        }
+
+        $this->buildGroup($group, Options::DEFAULT_ENVIRONMENT);
+        return $this->build[Options::DEFAULT_ENVIRONMENT][$group];
     }
 
     /**
@@ -174,9 +176,9 @@ final class Config
      * @param string $group The group name.
      * @param string $filePath The file path.
      *
-     * @return array The configuration from the file.
-     *
      * @throws ErrorException If an error occurred during the build.
+     *
+     * @return array The configuration from the file.
      */
     private function buildFile(string $group, string $filePath): array
     {
