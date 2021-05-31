@@ -43,7 +43,7 @@ final class ConfigTest extends TestCase
 
     public function testGetWithEnvironment(): void
     {
-        $config = $this->createConfig('environment');
+        $config = $this->createConfig('alfa');
 
         $this->assertSame($config->get('common'), [
             'root-common-key-1' => 'root-common-value-1',
@@ -53,7 +53,6 @@ final class ConfigTest extends TestCase
         ]);
 
         $this->assertSame($config->get('main'), [
-            'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
@@ -61,19 +60,19 @@ final class ConfigTest extends TestCase
             'root-web-key' => 'root-web-value',
             'a-web-key' => 'a-web-value',
             'b-web-key' => 'b-web-value',
-            'environment-main-key' => 'environment-main-value',
+            'alfa-web-key' => 'alfa-web-value',
+            'alfa-main-key' => 'alfa-main-value',
         ]);
 
         $this->assertSame($config->get('params'), [
-            'environment-params-key' => 'environment-params-value',
             'root-params-key' => 'root-params-value',
             'root-params-local-key' => 'root-params-local-value',
             'a-params-key' => 'a-params-value',
             'b-params-key' => 'b-params-value',
+            'alfa-params-key' => 'alfa-params-value',
         ]);
 
         $this->assertSame($config->get('web'), [
-            'environment-web-key' => 'environment-web-value',
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
             'a-common-key' => 'a-common-value',
@@ -81,6 +80,7 @@ final class ConfigTest extends TestCase
             'root-web-key' => 'root-web-value',
             'a-web-key' => 'a-web-value',
             'b-web-key' => 'b-web-value',
+            'alfa-web-key' => 'alfa-web-value',
         ]);
     }
 
@@ -102,7 +102,7 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "not-exist" configuration group does not exist.');
-        $this->createConfig('environment')->get('not-exist');
+        $this->createConfig('alfa')->get('not-exist');
     }
 
     public function testGetThrowExceptionForVariableGroupEqual(): void
@@ -116,7 +116,7 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
-        $this->createConfig('environment')->get('failVariableGroupEqual');
+        $this->createConfig('alfa')->get('failVariableGroupEqual');
     }
 
     public function testGetThrowExceptionForVariableGroupNotExist(): void
@@ -130,7 +130,21 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
-        $this->createConfig('environment')->get('failVariableNotExist');
+        $this->createConfig('alfa')->get('failVariableNotExist');
+    }
+
+    public function testTest(): void
+    {
+        $config = $this->createConfig('beta');
+
+        $this->assertSame($config->get('events'), [
+            'root-common-key-1' => 'root-common-value-1',
+            'root-common-key-2' => 'root-common-value-2',
+            'a-common-key' => 'a-common-value',
+            'b-common-key' => 'b-common-value',
+            'root-events-key' => 'root-events-value',
+            'beta-events-key' => 'beta-events-value',
+        ]);
     }
 
     public function testDuplicateKeysErrorMessage(): void

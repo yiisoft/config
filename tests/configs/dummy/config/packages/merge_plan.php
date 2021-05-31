@@ -5,6 +5,11 @@ declare(strict_types=1);
 // Do not edit. Content will be replaced.
 return [
     '/' => [
+        'events' => [
+            '/' => [
+                'config/events.php',
+            ],
+        ],
         'failVariableGroupEqual' => [
             '/' => [
                 '$failVariableGroupEqual',
@@ -51,7 +56,7 @@ return [
             ],
         ],
     ],
-    'environment' => [
+    'alfa' => [
         'failVariableGroupEqual' => [
             '/' => [
                 '$failVariableGroupEqual',
@@ -65,17 +70,25 @@ return [
         'main' => [
             '/' => [
                 '$web',
-                'config/environment/main.php',
+                'config/alfa/main.php',
             ],
         ],
         'params' => [
             '/' => [
-                'config/environment/params.php',
+                'config/alfa/params.php',
             ],
         ],
         'web' => [
             '/' => [
-                'config/environment/web.php',
+                'config/alfa/web.php',
+            ],
+        ],
+    ],
+    'beta' => [
+        'events' => [
+            '/' => [
+                '$common',
+                'config/beta/events.php',
             ],
         ],
     ],
