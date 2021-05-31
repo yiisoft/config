@@ -91,5 +91,15 @@ return [
                 'config/beta/events.php',
             ],
         ],
+        'web' => [
+            '/' => [
+                'config/beta/web.php',
+            ],
+        ],
+        'params' => [
+            '/' => [
+                'config/beta/params.php',
+            ],
+        ],
     ],
 ];
