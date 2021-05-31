@@ -182,30 +182,32 @@ final class Config
      */
     private function buildFile(string $group, string $filePath): array
     {
-        $scopeRequire = static function (Config $config): array {
+        $scopeRequire = static function (): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
             set_error_handler(static function (int $errorNumber, string $errorString, string $errorFile, int $errorLine) {
                 throw new ErrorException($errorString, $errorNumber, 0, $errorFile, $errorLine);
             });
 
             /** @psalm-suppress MixedArgument */
-            extract(func_get_arg(2), EXTR_SKIP);
+            extract(func_get_arg(1), EXTR_SKIP);
             /**
              * @psalm-suppress UnresolvableInclude
              * @psalm-var array
              */
-            $result = require func_get_arg(1);
+            $result = require func_get_arg(0);
             restore_error_handler();
             return $result;
         };
 
         $scope = [];
+
         if ($group !== 'params') {
+            $scope['config'] = $this;
             $scope['params'] = $this->build[$this->environment]['params'] ?? $this->build[Options::DEFAULT_ENVIRONMENT]['params'];
         }
 
         /** @psalm-suppress TooManyArguments */
-        return $scopeRequire($this, $filePath, $scope);
+        return $scopeRequire($filePath, $scope);
     }
 
     /**

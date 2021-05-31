@@ -84,6 +84,48 @@ final class ConfigTest extends TestCase
         ]);
     }
 
+    public function testGetWithScopeExistenceCheck(): void
+    {
+        $config = $this->createConfig('beta');
+
+        $this->assertSame($config->get('params'), [
+            'root-params-key' => 'root-params-value',
+            'root-params-local-key' => 'root-params-local-value',
+            'a-params-key' => 'a-params-value',
+            'b-params-key' => 'b-params-value',
+            'beta-params-key' => 'beta-params-value',
+            'beta-params-isset-config' => false,
+            'beta-params-isset-params' => false,
+        ]);
+
+        $this->assertSame($config->get('web'), [
+            'root-common-key-1' => 'root-common-value-1',
+            'root-common-key-2' => 'root-common-value-2',
+            'a-common-key' => 'a-common-value',
+            'b-common-key' => 'b-common-value',
+            'root-web-key' => 'root-web-value',
+            'a-web-key' => 'a-web-value',
+            'b-web-key' => 'b-web-value',
+            'beta-web-key' => 'beta-web-value',
+            'beta-web-isset-config' => true,
+            'beta-web-isset-params' => true,
+        ]);
+    }
+
+    public function testGetWithEnvironmentVariableExistAndRootVariableNotExist(): void
+    {
+        $config = $this->createConfig('beta');
+
+        $this->assertSame($config->get('events'), [
+            'root-common-key-1' => 'root-common-value-1',
+            'root-common-key-2' => 'root-common-value-2',
+            'a-common-key' => 'a-common-value',
+            'b-common-key' => 'b-common-value',
+            'root-events-key' => 'root-events-value',
+            'beta-events-key' => 'beta-events-value',
+        ]);
+    }
+
     public function testGetThrowExceptionForEnvironmentNotExist(): void
     {
         $this->expectException(ErrorException::class);
@@ -131,20 +173,6 @@ final class ConfigTest extends TestCase
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
         $this->createConfig('alfa')->get('failVariableNotExist');
-    }
-
-    public function testTest(): void
-    {
-        $config = $this->createConfig('beta');
-
-        $this->assertSame($config->get('events'), [
-            'root-common-key-1' => 'root-common-value-1',
-            'root-common-key-2' => 'root-common-value-2',
-            'a-common-key' => 'a-common-value',
-            'b-common-key' => 'b-common-value',
-            'root-events-key' => 'root-events-value',
-            'beta-events-key' => 'beta-events-value',
-        ]);
     }
 
     public function testDuplicateKeysErrorMessage(): void
