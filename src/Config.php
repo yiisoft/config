@@ -240,7 +240,6 @@ final class Config
                 } else {
                     if (array_key_exists($k, $result)) {
                         $this->throwException($this->getDuplicateErrorMessage($k, $path, $context));
-                        //$this->test['error'][] = $k;
                     }
 
                     /** @var mixed */
