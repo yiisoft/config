@@ -11,8 +11,8 @@ use function file_put_contents;
 use function is_file;
 use function json_decode;
 use function json_encode;
-use function md5;
 use function ksort;
+use function md5;
 
 /**
  * @internal
@@ -47,7 +47,10 @@ final class ConfigFileUpdater
         }
     }
 
-    public function updateLockFile(): void
+    /**
+     * @param string[] $removedPackages
+     */
+    public function updateLockFile(array $removedPackages = []): void
     {
         $lockFileChanged = false;
 
@@ -65,6 +68,13 @@ final class ConfigFileUpdater
 
             $this->lockFileData[$package][$configFile->filename()] = $this->hash($configFile);
             $lockFileChanged = true;
+        }
+
+        foreach ($removedPackages as $removedPackage) {
+            if (isset($this->lockFileData[$removedPackage])) {
+                unset($this->lockFileData[$removedPackage]);
+                $lockFileChanged = true;
+            }
         }
 
         if ($lockFileChanged) {

@@ -50,6 +50,14 @@ final class ConfigFileUpdaterTest extends TestCase
         $this->assertDistLock($this->getDistLockContent());
     }
 
+    public function testUpdateLockFileWithRemovedPackages(): void
+    {
+        $this->putPackagesFileContents([Options::DIST_LOCK_FILENAME => json_encode($this->getDistLockContent())]);
+        $this->createConfigFileUpdater()->updateLockFile(['test/custom-source']);
+
+        $this->assertDistLock([]);
+    }
+
     public function testUpdateLockFileWithFileExistsAndNotNeedUpdate(): void
     {
         $this->putPackagesFileContents([
