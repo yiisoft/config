@@ -7,6 +7,7 @@ namespace Yiisoft\Config;
 use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 
+use function array_keys;
 use function count;
 use function dirname;
 use function file_exists;
@@ -63,12 +64,12 @@ final class ConfigFileHandler
     private array $updatedConfigFiles = [];
 
     /**
-     * @var string[]
+     * @var array<string, string>
      */
     private array $removedPackages = [];
 
     /**
-     * @var string[]
+     * @var array<string, string>
      */
     private array $ignoredRemovedPackages = [];
 
@@ -105,7 +106,7 @@ final class ConfigFileHandler
             $this->removePackage($packageName, $isRemoveMultiple);
         }
 
-        $this->updater->updateLockFile();
+        $this->updater->updateLockFile(array_keys($this->removedPackages));
         $this->updater->updateMergePlan();
         $this->outputMessages();
     }
@@ -283,12 +284,12 @@ final class ConfigFileHandler
     private function removePackageChoice(bool $choice, string $packageName): void
     {
         if ($choice === false) {
-            $this->ignoredRemovedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
+            $this->ignoredRemovedPackages[$packageName] = $this->getDestinationWithConfigsDirectory($packageName);
             return;
         }
 
         $this->filesystem->removeDirectory($this->getDestinationPath($packageName));
-        $this->removedPackages[] = $this->getDestinationWithConfigsDirectory($packageName);
+        $this->removedPackages[$packageName] = $this->getDestinationWithConfigsDirectory($packageName);
     }
 
     private function outputMessages(): void
