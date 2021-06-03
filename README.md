@@ -17,7 +17,7 @@
 [![type-coverage](https://shepherd.dev/github/yiisoft/config/coverage.svg)](https://shepherd.dev/github/yiisoft/config)
 
 This [Composer](https://getcomposer.org/) plugin provides assembling of configurations distributed with composer
-packages. It allows putting configuration needed to use a package right inside of the package thus implementing
+packages. It allows putting configuration needed to use a package right inside thus implementing
 a plugin system. The package becomes a plugin holding both the code and its configuration.
 
 ## Installation
@@ -175,10 +175,10 @@ read for all packages. The value is a path relative to where package `composer.j
 
 ## Environments
 
-The plugin supports creating additional environments on top of the base configuration. This allows you to create
-multiple environments for the application (e.g. `production` and `development`), without sharing a common part.
+The plugin supports creating additional environments added to the base configuration. This allows you to create
+multiple configurations for the application such as `production` and `development`.
 
-> The environment configurations merge with the main configurations, but do not replace them.
+> The environment configuration options are added to the main configuration options, but do not replace them.
 
 The environments are specified in the `composer.json` file of your application:
 
@@ -203,24 +203,24 @@ The environments are specified in the `composer.json` file of your application:
 },
 ```
 
-As shown, you can use configurations to the merge from both the current one, and the main environment.
-In given example, in the `dev` environment we use `$web` configuration from the main environment.
+Configuration defines the merge process. One of the environments from `config-plugin-environments`
+is merged with the main configuration defined by `config-plugin`. In given example, in the `dev` environment
+we use `$web` configuration from the main environment.
 
 This configuration has the following structure:
 
 ```
-config/             Configuration root folder.
+config/             Configuration root directory.
     dev/            Development environment files.
         app.php     Development environment app group configuration.
         params.php  Development environment parameters.
     prod/           Production environment files.
         app.php     Production environment app group configuration.
-    params.php      Main environment parameters.
-    web.php         Мain environment web group configuration.
+    params.php      Main configuration parameters.
+    web.php         Мain configuration web group configuration.
 ```
 
-To get a configuration group for a custom environment, you must specify
-the name of the environment when creating an instance of `Config`:
+To choose an environent to be used you must specify its name when creating an instance of `Config`:
 
 ```php
 $config = new \Yiisoft\Config\Config(
@@ -232,8 +232,8 @@ $config = new \Yiisoft\Config\Config(
 $appConfig = $config->get('app');
 ```
 
-If defined in environment, parameters `params` will be merged with `params` from the main configuration,
-and can be used in building all configurations in terms of current environment.
+If defined in an environment, `params` will be merged with `params` from the main configuration,
+and could be used as `$params` in all configurations.
 
 ## Commands
 
