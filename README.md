@@ -1,27 +1,29 @@
-<p align="center">    
-    <img src="logo.png" height="126px">
-    <h1 align="center">Config</h1>
+<p align="center">
+    <a href="https://github.com/yiisoft" target="_blank">
+        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="126px">
+        <img src="logo.png" height="126px">
+    </a>
+    <h1 align="center">Yii Config</h1>
     <br>
 </p>
-
-Composer plugin for config assembling.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/config/v/stable)](https://packagist.org/packages/yiisoft/config)
 [![Total Downloads](https://poser.pugx.org/yiisoft/config/downloads)](https://packagist.org/packages/yiisoft/config)
 [![Build status](https://github.com/yiisoft/config/workflows/build/badge.svg)](https://github.com/yiisoft/config/actions)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/config/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/config/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/config/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/config/?branch=master)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fconfig%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/config/master)
+[![static analysis](https://github.com/yiisoft/config/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/config/actions?query=workflow%3A%22static+analysis%22)
+[![type-coverage](https://shepherd.dev/github/yiisoft/config/coverage.svg)](https://shepherd.dev/github/yiisoft/config)
 
-This [Composer] plugin provides assembling
-of configurations distributed with composer packages.
-It allows putting configuration needed to use a package right inside of
-the package thus implementing a plugin system. The package becomes a plugin
-holding both the code and its configuration.
+This [Composer](https://getcomposer.org/) plugin provides assembling of configurations distributed with composer
+packages. It allows putting configuration needed to use a package right inside thus implementing
+a plugin system. The package becomes a plugin holding both the code and its configuration.
 
 ## Installation
 
-```sh
-composer require "yiisoft/config"
+```shell
+composer require yiisoft/config --prefer-dist
 ```
 
 ## How it works?
@@ -126,7 +128,6 @@ return [
 
 A special variable `$params` is read from `params` config.
 
-
 ### Using sub-configs
 
 In order to access a sub-config, use the following in your config:
@@ -165,11 +166,74 @@ $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
     '/config/packages', // Configs path.
 );
+
 $webConfig = $config->get('web');
 ```
 
-`source-directory` points to where to read configs from for the package the option is specified for. The option
-is read for all packages. The value is a path relative to where package `composer.json` is. Default value is `/config`.
+`source-directory` points to where to read configs from for the package the option is specified for. The option is
+read for all packages. The value is a path relative to where package `composer.json` is. Default value is empty string.
+
+## Environments
+
+The plugin supports creating additional environments added to the base configuration. This allows you to create
+multiple configurations for the application such as `production` and `development`.
+
+> The environment configuration options are added to the main configuration options, but do not replace them.
+
+The environments are specified in the `composer.json` file of your application:
+
+```json
+"extra": {
+    "config-plugin": {
+        "params": "config/params.php",
+        "web": "config/web.php",
+    },
+    "config-plugin-environments": {
+        "dev": {
+            "params": "config/dev/params.php",
+            "app": [
+                "$web",
+                "config/dev/app.php"
+            ]
+        },
+        "prod": {
+            "app": "config/prod/app.php"
+        }
+    }
+},
+```
+
+Configuration defines the merge process. One of the environments from `config-plugin-environments`
+is merged with the main configuration defined by `config-plugin`. In given example, in the `dev` environment
+we use `$web` configuration from the main environment.
+
+This configuration has the following structure:
+
+```
+config/             Configuration root directory.
+    dev/            Development environment files.
+        app.php     Development environment app group configuration.
+        params.php  Development environment parameters.
+    prod/           Production environment files.
+        app.php     Production environment app group configuration.
+    params.php      Main configuration parameters.
+    web.php         Мain configuration web group configuration.
+```
+
+To choose an environent to be used you must specify its name when creating an instance of `Config`:
+
+```php
+$config = new \Yiisoft\Config\Config(
+    dirname(__DIR__),
+    '/config/packages',
+    'dev',
+);
+
+$appConfig = $config->get('app');
+```
+
+If defined in an environment, `params` will be merged with `params` from the main configuration,
+and could be used as `$params` in all configurations.
 
 ## Commands
 
@@ -184,6 +248,33 @@ composer config-diff
 composer config-diff yiisoft/aliases yiisoft/view
 ```
 
+## Testing
+
+### Unit testing
+
+The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
+
+```shell
+./vendor/bin/phpunit --testdox --no-interaction
+```
+
+### Mutation testing
+
+The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
+[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
+
+```shell
+./vendor/bin/roave-infection-static-analysis-plugin
+```
+
+### Static analysis
+
+The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
+
+```shell
+./vendor/bin/psalm
+```
+
 ## License
 
 The config package is free software. It is released under the terms of the BSD License.
@@ -195,3 +286,15 @@ Maintained by [Yii Software](https://www.yiiframework.com/).
 
 The plugin is heavily inspired by [Composer config plugin](https://github.com/yiisoft/composer-config-plugin)
 originally created by HiQDev (http://hiqdev.com/) in 2016 and then adopted by Yii.
+
+## Support the project
+
+[![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
+
+## Follow updates
+
+[![Official website](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
+[![Twitter](https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555?style=flat)](https://twitter.com/yiiframework)
+[![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
+[![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
+[![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
