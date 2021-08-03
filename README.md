@@ -20,6 +20,12 @@ This [Composer](https://getcomposer.org/) plugin provides assembling of configur
 packages. It allows putting configuration needed to use a package right inside thus implementing
 a plugin system. The package becomes a plugin holding both the code and its configuration.
 
+## Requirements
+
+- PHP 7.4 or higher.
+- `JSON` PHP extension.
+- Composer 2.0 or higher.
+
 ## Installation
 
 ```shell

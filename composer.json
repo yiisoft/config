@@ -19,16 +19,16 @@
     "require": {
         "php": "^7.4|^8.0",
         "ext-json": "*",
-        "composer-plugin-api": "^1.0|^2.0",
+        "composer-plugin-api": "^2.0",
         "jfcherng/php-sequence-matcher": "^3.2",
         "yiisoft/var-dumper": "^1.1"
     },
     "require-dev": {
+        "composer/composer": "^2.0",
         "phpunit/phpunit": "^9.5",
         "roave/infection-static-analysis-plugin": "^1.8",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.9",
-        "composer/composer": "^1.0|^2.0"
+        "vimeo/psalm": "^4.9"
     },
     "config": {
         "sort-packages": true
