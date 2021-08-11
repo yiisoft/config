@@ -23,6 +23,7 @@ final class Config
      */
     private string $rootPath;
     private string $configsPath;
+    private array $mergeRecursive;
     private string $environment;
     private string $relativeConfigsPath;
 
@@ -43,11 +44,12 @@ final class Config
      *
      * @throws ErrorException If the environment does not exist.
      */
-    public function __construct(string $rootPath, string $configsPath = null, string $environment = null)
+    public function __construct(string $rootPath, string $configsPath = null, array $mergeRecursive = [], string $environment = null)
     {
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
+        $this->mergeRecursive = $mergeRecursive;
         $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
@@ -237,7 +239,12 @@ final class Config
                         /** @var mixed */
                         $result[$k] = $v;
                     }
-                } elseif (is_array($v) && isset($result[$k]) && is_array($result[$k])) {
+                } elseif (
+                    in_array($context[0], $this->mergeRecursive, true) &&
+                    is_array($v) &&
+                    isset($result[$k]) &&
+                    is_array($result[$k])
+                ) {
                     $result[$k] = $this->merge($context, $path ? $path . ' => ' . $k : $k, $result[$k], $v);
                 } else {
                     if (array_key_exists($k, $result)) {
