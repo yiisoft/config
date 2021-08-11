@@ -41,10 +41,11 @@ final class Config
      * @param string $rootPath The path to the project root where composer.json is located.
      * @param string|null $configsPath The path to where configs are stored.
      * @param string|null $environment The environment name.
+     * @param array $mergeRecursive Merge recursive flag
      *
      * @throws ErrorException If the environment does not exist.
      */
-    public function __construct(string $rootPath, string $configsPath = null, array $mergeRecursive = [], string $environment = null)
+    public function __construct(string $rootPath, string $configsPath = null, string $environment = null, array $mergeRecursive = [])
     {
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');

@@ -178,7 +178,7 @@ final class ConfigTest extends TestCase
     public function testDuplicateKeysErrorMessage(): void
     {
         $configsDir = dirname(__DIR__) . '/configs/duplicate-keys';
-        $config = new Config($configsDir, '/config/packages', ['params.php']);
+        $config = new Config($configsDir, '/config/packages');
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
@@ -193,7 +193,7 @@ final class ConfigTest extends TestCase
     public function testDuplicateKeysWithPathErrorMessage(): void
     {
         $configsDir = dirname(__DIR__) . '/configs/duplicate-keys-with-params';
-        $config = new Config($configsDir, '/packages', ['params.php']);
+        $config = new Config($configsDir, '/packages');
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessageMatches('~^Duplicate key "name => first-name" in~');
@@ -202,6 +202,6 @@ final class ConfigTest extends TestCase
 
     private function createConfig(string $environment = null): Config
     {
-        return new Config(dirname(__DIR__) . '/configs/dummy', 'config/packages', ['params.php'], $environment);
+        return new Config(dirname(__DIR__) . '/configs/dummy', 'config/packages', $environment);
     }
 }
