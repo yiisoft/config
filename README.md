@@ -179,6 +179,22 @@ $webConfig = $config->get('web');
 `source-directory` points to where to read configs from for the package the option is specified for. The option is
 read for all packages. The value is a path relative to where package `composer.json` is. Default value is empty string.
 
+## Merge recursive
+
+By default, all configs are not merged recursively, except for `params.php`, `events.php`, `events-console.php`,
+`events-web.php`. If you want to merge some configs recursive you must pass them to the constructor.
+
+```php
+$config = new \Yiisoft\Config\Config(
+    dirname(__DIR__),
+    '/config/packages',
+    ['modules.php'],
+    'dev',
+);
+
+$appConfig = $config->get('modules'); // merged recursively
+```
+
 ## Environments
 
 The plugin supports creating additional environments added to the base configuration. This allows you to create
@@ -232,6 +248,7 @@ To choose an environent to be used you must specify its name when creating an in
 $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
     '/config/packages',
+    [],
     'dev',
 );
 
