@@ -49,7 +49,15 @@ final class Config
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
-        $this->mergeRecursive = $mergeRecursive;
+        $this->mergeRecursive = array_merge(
+            $mergeRecursive,
+            [
+                'params.php',
+                'events.php',
+                'events-web.php',
+                'events-console.php'
+            ],
+        );
         $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
