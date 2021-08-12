@@ -188,8 +188,8 @@ By default, all configs are not merged recursively, except for `params.php`, `ev
 $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
     '/config/packages',
-    ['modules.php'],
     'dev',
+    ['modules.php'],
 );
 
 $appConfig = $config->get('modules'); // merged recursively
