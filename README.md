@@ -242,14 +242,13 @@ config/             Configuration root directory.
     web.php         Мain configuration web group configuration.
 ```
 
-To choose an environent to be used you must specify its name when creating an instance of `Config`:
+To choose an environment to be used you must specify its name when creating an instance of `Config`:
 
 ```php
 $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
     '/config/packages',
-    [],
-    'dev',
+    'dev'
 );
 
 $appConfig = $config->get('app');
