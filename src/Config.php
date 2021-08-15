@@ -41,7 +41,7 @@ final class Config
      * @param string $rootPath The path to the project root where composer.json is located.
      * @param string|null $configsPath The path to where configs are stored.
      * @param string|null $environment The environment name.
-     * @param array $mergeRecursive Merge recursive flag
+     * @param array $mergeRecursive Names of config files that should be merged recursively.
      *
      * @throws ErrorException If the environment does not exist.
      */

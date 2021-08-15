@@ -179,10 +179,10 @@ $webConfig = $config->get('web');
 `source-directory` points to where to read configs from for the package the option is specified for. The option is
 read for all packages. The value is a path relative to where package `composer.json` is. Default value is empty string.
 
-## Merge recursive
+## Recursive merge 
 
-By default, all configs are not merged recursively, except for `params.php`, `events.php`, `events-console.php`,
-`events-web.php`. If you want to merge some configs recursive you must pass them to the constructor.
+By default, no configs are merged recursively, except for `params.php`, `events.php`, `events-console.php`,
+`events-web.php`. If you want to merge some configs recursively you must pass their names to `Config` constructor:
 
 ```php
 $config = new \Yiisoft\Config\Config(
