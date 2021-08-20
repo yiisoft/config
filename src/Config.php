@@ -249,10 +249,10 @@ final class Config
                         $result[$k] = $v;
                     }
                 } elseif (
-                    in_array($context[0], $this->mergeRecursive, true) &&
-                    is_array($v) &&
                     isset($result[$k]) &&
-                    is_array($result[$k])
+                    is_array($result[$k]) &&
+                    is_array($v) &&
+                    in_array($context[0], $this->mergeRecursive, true)
                 ) {
                     $result[$k] = $this->merge($context, $path ? $path . ' => ' . $k : $k, $result[$k], $v);
                 } else {
