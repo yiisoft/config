@@ -50,7 +50,7 @@ final class Config
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
-        $this->mergeRecursive = array_merge(
+        $this->mergeRecursive = array_flip(array_merge(
             $mergeRecursive,
             [
                 'params.php',
@@ -58,7 +58,7 @@ final class Config
                 'events-web.php',
                 'events-console.php'
             ],
-        );
+        ));
         $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
@@ -132,9 +132,7 @@ final class Config
                 $path = $this->getConfigsPath($packageName) . '/' . $file;
 
                 if (Options::containsWildcard($file)) {
-                    $matches = glob($path);
-
-                    foreach ($matches as $match) {
+                    foreach (glob($path, GLOB_NOSORT) as $match) {
                         $this->build[$environment][$group] = $this->merge(
                             [$file, $group, $environment, $packageName],
                             '',
@@ -252,7 +250,7 @@ final class Config
                     isset($result[$k]) &&
                     is_array($result[$k]) &&
                     is_array($v) &&
-                    in_array($context[0], $this->mergeRecursive, true)
+                    array_key_exists($context[0], $this->mergeRecursive)
                 ) {
                     $result[$k] = $this->merge($context, $path ? $path . ' => ' . $k : $k, $result[$k], $v);
                 } else {
