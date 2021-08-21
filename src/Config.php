@@ -18,13 +18,6 @@ use function trim;
  */
 final class Config
 {
-    public const DEFAULT_RECURSIVE_MERGE_GROUPS = [
-        'params',
-        'events',
-        'events-web',
-        'events-console'
-    ];
-
     /**
      * @var string Path to composer.json directory.
      */
@@ -52,7 +45,7 @@ final class Config
      *
      * @throws ErrorException If the environment does not exist.
      */
-    public function __construct(string $rootPath, string $configsPath = null, string $environment = null, array $recursiveMergeGroups = self::DEFAULT_RECURSIVE_MERGE_GROUPS)
+    public function __construct(string $rootPath, string $configsPath = null, string $environment = null, array $recursiveMergeGroups = [])
     {
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');

@@ -181,9 +181,8 @@ read for all packages. The value is a path relative to where package `composer.j
 
 ## Recursive merge 
 
-By default, no config groups are merged recursively, except for `params`, `events`, `events-console`,
-`events-web`. If you want to have a different set of groups merged recursively you must pass their names
-to `Config` constructor:
+By default, no config groups are merged recursively. If you want to have a set of groups merged recursively you must
+pass their names to `Config` constructor:
 
 ```php
 use \Yiisoft\Config\Config;
@@ -192,10 +191,15 @@ $config = new Config(
     dirname(__DIR__),
     '/config/packages',
     'dev',
-    array_merge(Config::DEFAULT_RECURSIVE_MERGE_GROUPS, ['modules']),
+    [
+        'params',
+        'events',
+        'events-web',
+        'events-console',
+    ],
 );
 
-$appConfig = $config->get('modules'); // merged recursively
+$appConfig = $config->get('events-web'); // merged recursively
 ```
 
 ## Environments
