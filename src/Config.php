@@ -18,6 +18,13 @@ use function trim;
  */
 final class Config
 {
+    private const DEFAULT_RECURSIVE_MERGE_GROUPS = [
+        'params',
+        'events',
+        'events-web',
+        'events-console'
+    ];
+
     /**
      * @var string Path to composer.json directory.
      */
@@ -51,13 +58,7 @@ final class Config
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
         $this->recursiveMergeGroupsIndex = array_flip(array_merge(
-            $recursiveMergeGroups,
-            [
-                'params',
-                'events',
-                'events-web',
-                'events-console'
-            ],
+            $recursiveMergeGroups, self::DEFAULT_RECURSIVE_MERGE_GROUPS
         ));
         $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
 
