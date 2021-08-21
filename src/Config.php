@@ -18,7 +18,7 @@ use function trim;
  */
 final class Config
 {
-    private const DEFAULT_RECURSIVE_MERGE_GROUPS = [
+    public const DEFAULT_RECURSIVE_MERGE_GROUPS = [
         'params',
         'events',
         'events-web',
@@ -52,14 +52,12 @@ final class Config
      *
      * @throws ErrorException If the environment does not exist.
      */
-    public function __construct(string $rootPath, string $configsPath = null, string $environment = null, array $recursiveMergeGroups = [])
+    public function __construct(string $rootPath, string $configsPath = null, string $environment = null, array $recursiveMergeGroups = self::DEFAULT_RECURSIVE_MERGE_GROUPS)
     {
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
-        $this->recursiveMergeGroupsIndex = array_flip(array_merge(
-            $recursiveMergeGroups, self::DEFAULT_RECURSIVE_MERGE_GROUPS
-        ));
+        $this->recursiveMergeGroupsIndex = array_flip($recursiveMergeGroups);
         $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
 
         /** @psalm-suppress UnresolvableInclude, MixedAssignment */
