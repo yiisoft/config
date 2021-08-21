@@ -23,7 +23,7 @@ final class Config
      */
     private string $rootPath;
     private string $configsPath;
-    private array $mergeRecursive;
+    private array $recursiveMergeGroupsIndex;
     private string $environment;
     private string $relativeConfigsPath;
 
@@ -41,22 +41,22 @@ final class Config
      * @param string $rootPath The path to the project root where composer.json is located.
      * @param string|null $configsPath The path to where configs are stored.
      * @param string|null $environment The environment name.
-     * @param array $mergeRecursive Names of config files that should be merged recursively.
+     * @param array $recursiveMergeGroups Names of config groups that should be merged recursively.
      *
      * @throws ErrorException If the environment does not exist.
      */
-    public function __construct(string $rootPath, string $configsPath = null, string $environment = null, array $mergeRecursive = [])
+    public function __construct(string $rootPath, string $configsPath = null, string $environment = null, array $recursiveMergeGroups = [])
     {
         $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsPath ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
-        $this->mergeRecursive = array_flip(array_merge(
-            $mergeRecursive,
+        $this->recursiveMergeGroupsIndex = array_flip(array_merge(
+            $recursiveMergeGroups,
             [
-                'params.php',
-                'events.php',
-                'events-web.php',
-                'events-console.php'
+                'params',
+                'events',
+                'events-web',
+                'events-console'
             ],
         ));
         $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
@@ -250,7 +250,7 @@ final class Config
                     isset($result[$k]) &&
                     is_array($result[$k]) &&
                     is_array($v) &&
-                    array_key_exists($context[0], $this->mergeRecursive)
+                    array_key_exists($context[1], $this->recursiveMergeGroupsIndex)
                 ) {
                     $result[$k] = $this->merge($context, $path ? $path . ' => ' . $k : $k, $result[$k], $v);
                 } else {
