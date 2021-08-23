@@ -179,6 +179,29 @@ $webConfig = $config->get('web');
 `source-directory` points to where to read configs from for the package the option is specified for. The option is
 read for all packages. The value is a path relative to where package `composer.json` is. Default value is empty string.
 
+## Recursive merge 
+
+By default, no config groups are merged recursively. If you want to have a set of groups merged recursively you must
+pass their names to `Config` constructor:
+
+```php
+use \Yiisoft\Config\Config;
+
+$config = new Config(
+    dirname(__DIR__),
+    '/config/packages',
+    'dev',
+    [
+        'params',
+        'events',
+        'events-web',
+        'events-console',
+    ],
+);
+
+$appConfig = $config->get('events-web'); // merged recursively
+```
+
 ## Environments
 
 The plugin supports creating additional environments added to the base configuration. This allows you to create
@@ -226,13 +249,13 @@ config/             Configuration root directory.
     web.php         Мain configuration web group configuration.
 ```
 
-To choose an environent to be used you must specify its name when creating an instance of `Config`:
+To choose an environment to be used you must specify its name when creating an instance of `Config`:
 
 ```php
 $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
     '/config/packages',
-    'dev',
+    'dev'
 );
 
 $appConfig = $config->get('app');

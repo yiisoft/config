@@ -193,7 +193,9 @@ final class ConfigTest extends TestCase
     public function testDuplicateKeysWithPathErrorMessage(): void
     {
         $configsDir = dirname(__DIR__) . '/configs/duplicate-keys-with-params';
-        $config = new Config($configsDir, '/packages');
+        $config = new Config($configsDir, '/packages', null, [
+           'params',
+        ]);
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessageMatches('~^Duplicate key "name => first-name" in~');
