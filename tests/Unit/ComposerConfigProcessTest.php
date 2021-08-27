@@ -159,17 +159,17 @@ final class ComposerConfigProcessTest extends TestCase
                 'main' => [
                     Options::ROOT_PACKAGE_NAME => [
                         '$web',
-                        'alfa/main.php',
+                        'custom-dir/alfa/main.php',
                     ],
                 ],
                 'params' => [
                     Options::ROOT_PACKAGE_NAME => [
-                        'alfa/params.php',
+                        'custom-dir/alfa/params.php',
                     ],
                 ],
                 'web' => [
                     Options::ROOT_PACKAGE_NAME => [
-                        'alfa/web.php',
+                        'custom-dir/alfa/web.php',
                     ],
                 ],
             ],

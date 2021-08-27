@@ -60,7 +60,7 @@ final class ComposerConfigProcess
 
         $this->process($rootOptions, $packagesForCheck, $forceCheck);
         $this->appendRootPackageConfigToMergePlan($rootPackage, $rootOptions);
-        $this->appendEnvironmentsToMergePlan($rootPackage);
+        $this->appendEnvironmentsToMergePlan($rootPackage, $rootOptions);
     }
 
     /**
@@ -169,33 +169,15 @@ final class ComposerConfigProcess
     private function appendRootPackageConfigToMergePlan(RootPackageInterface $package, Options $options): void
     {
         foreach ($this->getPackageConfig($package) as $group => $files) {
-            $files = array_map(static function ($file) use ($options): string {
-                if (Options::isVariable($file)) {
-                    return $file;
-                }
-
-                $isOptional = Options::isOptional($file);
-                $result = $isOptional ? '?' : '';
-
-                if ($isOptional) {
-                    $file = substr($file, 1);
-                }
-
-                if ($options->sourceDirectory() !== '') {
-                    $result .= $options->sourceDirectory() . '/';
-                }
-
-                return $result . $file;
-            }, (array) $files);
-
             $packageGroups = $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] ?? [];
-            /** @psalm-suppress PropertyTypeCoercion */
-            $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] = [Options::ROOT_PACKAGE_NAME => $files] + $packageGroups;
+            /** @psalm-suppress MixedPropertyTypeCoercion */
+            $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group] =
+                [Options::ROOT_PACKAGE_NAME => $this->prepareFiles($files, $options)] + $packageGroups;
             ksort($this->mergePlan[Options::DEFAULT_ENVIRONMENT]);
         }
     }
 
-    private function appendEnvironmentsToMergePlan(RootPackageInterface $package): void
+    private function appendEnvironmentsToMergePlan(RootPackageInterface $package, Options $options): void
     {
         /** @psalm-var array<string, string|array<string, string|list<string>>> $environments */
         $environments = (array) ($package->getExtra()['config-plugin-environments'] ?? []);
@@ -207,13 +189,41 @@ final class ComposerConfigProcess
 
             foreach ((array) $groups as $group => $files) {
                 /** @psalm-suppress InvalidPropertyAssignmentValue */
-                $this->mergePlan[$environment][$group][Options::ROOT_PACKAGE_NAME] = (array) $files;
+                $this->mergePlan[$environment][$group][Options::ROOT_PACKAGE_NAME] =
+                    $this->prepareFiles($files, $options);
             }
 
             if (isset($this->mergePlan[$environment])) {
                 ksort($this->mergePlan[$environment]);
             }
         }
+    }
+
+    /**
+     * @param string|string[] $files
+     *
+     * @return string[]
+     */
+    private function prepareFiles($files, Options $options): array
+    {
+        return array_map(static function ($file) use ($options): string {
+            if (Options::isVariable($file)) {
+                return $file;
+            }
+
+            $isOptional = Options::isOptional($file);
+            $result = $isOptional ? '?' : '';
+
+            if ($isOptional) {
+                $file = substr($file, 1);
+            }
+
+            if ($options->sourceDirectory() !== '') {
+                $result .= $options->sourceDirectory() . '/';
+            }
+
+            return $result . $file;
+        }, (array)$files);
     }
 
     private function getPackageSourcePath(PackageInterface $package, Options $options): string

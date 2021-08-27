@@ -360,17 +360,17 @@ final class PackagesListBuilderTest extends ComposerTest
                 'main' => [
                     Options::ROOT_PACKAGE_NAME => [
                         '$web',
-                        'alfa/main.php',
+                        'app-configs/alfa/main.php',
                     ],
                 ],
                 'params' => [
                     Options::ROOT_PACKAGE_NAME => [
-                        'alfa/params.php',
+                        'app-configs/alfa/params.php',
                     ],
                 ],
                 'web' => [
                     Options::ROOT_PACKAGE_NAME => [
-                        'alfa/web.php',
+                        'app-configs/alfa/web.php',
                     ],
                 ],
             ],
