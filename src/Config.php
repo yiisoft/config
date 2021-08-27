@@ -41,7 +41,7 @@ final class Config
      * @param string $rootPath The path to the project root where composer.json is located.
      * @param string|null $configsPath The path to where configs are stored.
      * @param string|null $environment The environment name.
-     * @param array $recursiveMergeGroups Names of config groups that should be merged recursively.
+     * @param string[] $recursiveMergeGroups Names of config groups that should be merged recursively.
      *
      * @throws ErrorException If the environment does not exist.
      */
@@ -99,7 +99,7 @@ final class Config
             return;
         }
 
-        $this->build[$environment][$group] = [];
+        $this->build[$environment][$group] = $this->buildRootGroup($group, $environment);
 
         foreach ($this->mergePlan[$environment][$group] as $packageName => $files) {
             foreach ($files as $file) {
@@ -110,8 +110,8 @@ final class Config
                     $this->build[$environment][$group] = $this->merge(
                         [$file, $group, $environment, $packageName],
                         '',
-                        $this->build[$environment][$group],
                         $this->build[$environment][$variable] ?? $this->buildRootGroup($variable, $environment),
+                        $this->build[$environment][$group],
                     );
                     continue;
                 }
@@ -129,7 +129,6 @@ final class Config
                             [$file, $group, $environment, $packageName],
                             '',
                             $this->build[$environment][$group],
-                            $this->buildRootGroup($group, $environment),
                             $this->buildFile($group, $match),
                         );
                     }
@@ -144,7 +143,6 @@ final class Config
                     [$file, $group, $environment, $packageName],
                     '',
                     $this->build[$environment][$group],
-                    $this->buildRootGroup($group, $environment),
                     $this->buildFile($group, $path),
                 );
             }
@@ -214,7 +212,7 @@ final class Config
     /**
      * Merges two or more arrays into one recursively.
      *
-     * @param array $context Context containing the name of the file, group, assembly, and package.
+     * @param array $context Context containing the name of the file, group, environment, and package.
      * @param string $path The file path.
      * @param array ...$args Two or more arrays to merge.
      *

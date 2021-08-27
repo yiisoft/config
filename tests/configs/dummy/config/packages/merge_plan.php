@@ -81,6 +81,7 @@ return [
         'web' => [
             '/' => [
                 'config/alfa/web.php',
+                'config/alfa/web2.php',
             ],
         ],
     ],
