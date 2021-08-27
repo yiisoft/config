@@ -61,6 +61,7 @@ final class ConfigTest extends TestCase
             'a-web-key' => 'a-web-value',
             'b-web-key' => 'b-web-value',
             'alfa-web-key' => 'alfa-web-value',
+            'alfa-web2-key' => 'alfa-web2-value',
             'alfa-main-key' => 'alfa-main-value',
         ]);
 
@@ -81,6 +82,7 @@ final class ConfigTest extends TestCase
             'a-web-key' => 'a-web-value',
             'b-web-key' => 'b-web-value',
             'alfa-web-key' => 'alfa-web-value',
+            'alfa-web2-key' => 'alfa-web2-value',
         ]);
     }
 
