@@ -9,7 +9,7 @@ build:
   nodes:
     analysis:
       environment:
-        php: 7.4.12
+        php: 7.4.14
 
       tests:
         override:
@@ -17,7 +17,7 @@ build:
 
     tests-and-coverage:
       environment:
-        php: 7.4.12
+        php: 7.4.14
 
       dependencies:
         override:
