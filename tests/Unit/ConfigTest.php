@@ -19,6 +19,8 @@ final class ConfigTest extends TestCase
         $this->assertSame($config->get('common'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
         ]);
@@ -33,6 +35,8 @@ final class ConfigTest extends TestCase
         $this->assertSame($config->get('web'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
             'root-web-key' => 'root-web-value',
@@ -48,6 +52,8 @@ final class ConfigTest extends TestCase
         $this->assertSame($config->get('common'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
         ]);
@@ -55,6 +61,8 @@ final class ConfigTest extends TestCase
         $this->assertSame($config->get('main'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
             'root-web-key' => 'root-web-value',
@@ -76,6 +84,8 @@ final class ConfigTest extends TestCase
         $this->assertSame($config->get('web'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
             'root-web-key' => 'root-web-value',
@@ -103,6 +113,8 @@ final class ConfigTest extends TestCase
         $this->assertSame($config->get('web'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
             'root-web-key' => 'root-web-value',
@@ -121,6 +133,8 @@ final class ConfigTest extends TestCase
         $this->assertSame($config->get('events'), [
             'root-common-key-1' => 'root-common-value-1',
             'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
             'a-common-key' => 'a-common-value',
             'b-common-key' => 'b-common-value',
             'root-events-key' => 'root-events-value',

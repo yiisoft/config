@@ -23,6 +23,7 @@ return [
         'common' => [
             '/' => [
                 'config/common/*.php',
+                'config/common/*/*.php',
             ],
             'test/a' => [
                 'common.php',
