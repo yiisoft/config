@@ -124,7 +124,7 @@ final class Config
                 $path = $this->getConfigsPath($packageName) . '/' . $file;
 
                 if (Options::containsWildcard($file)) {
-                    foreach (glob($path) as $match) {
+                    foreach (glob($path, GLOB_NOSORT) as $match) {
                         $this->build[$environment][$group] = $this->merge(
                             [$file, $group, $environment, $packageName],
                             '',
