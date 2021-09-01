@@ -46,8 +46,8 @@ final class ConfigFileDiffer
         $packageFile = $this->configsPath . '/' . $configFile->destinationFile();
         $vendorFile = $configFile->sourceFilePath();
 
-        $this->io->write($this->vendorLine("-- $vendorFile"));
-        $this->io->write($this->packageLine("++ $packageFile"));
+        $this->io->write($this->packageLine("-- $packageFile"));
+        $this->io->write($this->vendorLine("++ $vendorFile"));
 
         if (!$this->fileExists($packageFile) || !$this->fileExists($vendorFile)) {
             return;
@@ -56,26 +56,26 @@ final class ConfigFileDiffer
         $packageLines = explode("\n", $this->normalizeLineEndings(file_get_contents($packageFile)));
         $vendorLines = explode("\n", $this->normalizeLineEndings(file_get_contents($vendorFile)));
 
-        foreach ((new SequenceMatcher($vendorLines, $packageLines))->getGroupedOpcodes() as $groupedOpcodes) {
+        foreach ((new SequenceMatcher($packageLines, $vendorLines))->getGroupedOpcodes() as $groupedOpcodes) {
             foreach ($groupedOpcodes as $groupedOpcode) {
-                [$tag, $vendorFirstLine, $vendorLastLine, $packageFirstLine, $packageLastLine] = $groupedOpcode;
+                [$tag, $packageFirstLine, $packageLastLine, $vendorFirstLine, $vendorLastLine] = $groupedOpcode;
 
                 if ($tag === SequenceMatcher::OP_DEL) {
-                    $this->addCommentLine("-$vendorFirstLine,$vendorLastLine");
-                    $this->addVendorLines($vendorLines, $vendorFirstLine, $vendorLastLine);
+                    $this->addCommentLine("-$packageFirstLine,$packageLastLine");
+                    $this->addPackageLines($packageLines, $packageFirstLine, $packageLastLine);
                     continue;
                 }
 
                 if ($tag === SequenceMatcher::OP_INS) {
-                    $this->addCommentLine("+$packageFirstLine,$packageLastLine");
-                    $this->addPackageLines($packageLines, $packageFirstLine, $packageLastLine);
+                    $this->addCommentLine("+$vendorFirstLine,$vendorLastLine");
+                    $this->addVendorLines($vendorLines, $vendorFirstLine, $vendorLastLine);
                     continue;
                 }
 
                 if ($tag === SequenceMatcher::OP_REP) {
-                    $this->addCommentLine("-$vendorFirstLine,$vendorLastLine +$packageFirstLine,$packageLastLine");
-                    $this->addVendorLines($vendorLines, $vendorFirstLine, $vendorLastLine);
+                    $this->addCommentLine("-$packageFirstLine,$packageLastLine +$vendorFirstLine,$vendorLastLine");
                     $this->addPackageLines($packageLines, $packageFirstLine, $packageLastLine);
+                    $this->addVendorLines($vendorLines, $vendorFirstLine, $vendorLastLine);
                 }
             }
         }
@@ -153,12 +153,12 @@ final class ConfigFileDiffer
 
     private function packageLine(string $content): string
     {
-        return "<fg=green>+$content</>";
+        return "<fg=red>-$content</>";
     }
 
     private function vendorLine(string $content): string
     {
-        return "<fg=red>-$content</>";
+        return "<fg=green>+$content</>";
     }
 
     private function normalizeLineEndings(string $value): string

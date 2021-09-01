@@ -17,11 +17,11 @@ final class ConfigFileDifferTest extends TestCase
         $this->createConfigFileDiffer()->diff($this->createConfigFile('params.php', 'added.php'));
 
         $this->assertOutputMessages(
-            "--- {$this->getSourcePath()}/diff-files/params.php\n"
-            . "+++ {$this->getSourcePath()}/diff-files/added.php\n"
-            . "= Lines: +3,5 =\n"
-            . "+\n"
-            . "+// Added comment\n"
+            "--- {$this->getSourcePath()}/diff-files/added.php\n"
+            . "+++ {$this->getSourcePath()}/diff-files/params.php\n"
+            . "= Lines: -3,5 =\n"
+            . "-\n"
+            . "-// Added comment\n"
         );
     }
 
@@ -30,11 +30,11 @@ final class ConfigFileDifferTest extends TestCase
         $this->createConfigFileDiffer()->diff($this->createConfigFile('params.php', 'changed.php'));
 
         $this->assertOutputMessages(
-            "--- {$this->getSourcePath()}/diff-files/params.php\n"
-            . "+++ {$this->getSourcePath()}/diff-files/changed.php\n"
+            "--- {$this->getSourcePath()}/diff-files/changed.php\n"
+            . "+++ {$this->getSourcePath()}/diff-files/params.php\n"
             . "= Lines: -5,6 +5,6 =\n"
-            . "-    'age' => 42,\n"
-            . "+    'age' => 19,\n"
+            . "-    'age' => 19,\n"
+            . "+    'age' => 42,\n"
         );
     }
 
@@ -43,13 +43,13 @@ final class ConfigFileDifferTest extends TestCase
         $this->createConfigFileDiffer()->diff($this->createConfigFile('params.php', 'deleted.php'));
 
         $this->assertOutputMessages(
-            "--- {$this->getSourcePath()}/diff-files/params.php\n"
-            . "+++ {$this->getSourcePath()}/diff-files/deleted.php\n"
-            . "= Lines: -4,8 =\n"
-            . "-return [\n"
-            . "-    'age' => 42,\n"
-            . "-];\n"
-            . "-\n"
+            "--- {$this->getSourcePath()}/diff-files/deleted.php\n"
+            . "+++ {$this->getSourcePath()}/diff-files/params.php\n"
+            . "= Lines: +4,8 =\n"
+            . "+return [\n"
+            . "+    'age' => 42,\n"
+            . "+];\n"
+            . "+\n"
         );
     }
 
@@ -69,8 +69,8 @@ final class ConfigFileDifferTest extends TestCase
         $this->createConfigFileDiffer()->diff($this->createConfigFile('not-exist.php', 'params.php'));
 
         $this->assertOutputMessages(
-            "--- {$this->getSourcePath()}/diff-files/not-exist.php\n"
-            . "+++ {$this->getSourcePath()}/diff-files/params.php\n"
+            "--- {$this->getSourcePath()}/diff-files/params.php\n"
+            . "+++ {$this->getSourcePath()}/diff-files/not-exist.php\n"
             . "The file \"{$this->getSourcePath()}/diff-files/not-exist.php\" does not exist or is not a file.\n"
         );
     }
@@ -80,8 +80,8 @@ final class ConfigFileDifferTest extends TestCase
         $this->createConfigFileDiffer()->diff($this->createConfigFile('params.php', 'not-exist.php'));
 
         $this->assertOutputMessages(
-            "--- {$this->getSourcePath()}/diff-files/params.php\n"
-            . "+++ {$this->getSourcePath()}/diff-files/not-exist.php\n"
+            "--- {$this->getSourcePath()}/diff-files/not-exist.php\n"
+            . "+++ {$this->getSourcePath()}/diff-files/params.php\n"
             . "The file \"{$this->getSourcePath()}/diff-files/not-exist.php\" does not exist or is not a file.\n"
         );
     }

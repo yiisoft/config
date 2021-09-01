@@ -53,15 +53,15 @@ final class DiffCommandTest extends TestCase
 
         $this->assertOutputMessages(
             "\n= diff-files =\n\n"
-            . "--- {$this->getRootPath()}/tests/Packages/custom-source/custom-dir/params.php\n"
-            . "+++ {$this->getRootPath()}/tests/configs/diff-files/custom-dir/params.php\n"
-            . "= Lines: -4,5 +4,7 =\n"
-            . "-return [];\n"
-            . "+return [\n"
-            . "+    'age' => 42,\n"
-            . "+];\n"
-            . "= Lines: -6,7 =\n"
-            . "-\n"
+            . "--- {$this->getRootPath()}/tests/configs/diff-files/custom-dir/params.php\n"
+            . "+++ {$this->getRootPath()}/tests/Packages/custom-source/custom-dir/params.php\n"
+            . "= Lines: -4,7 +4,5 =\n"
+            . "-return [\n"
+            . "-    'age' => 42,\n"
+            . "-];\n"
+            . "+return [];\n"
+            . "= Lines: +6,7 =\n"
+            . "+\n"
         );
     }
 
@@ -75,8 +75,8 @@ final class DiffCommandTest extends TestCase
 
         $this->assertOutputMessages(
             "\n= test/custom-source =\n\n"
-            . "--- {$this->getRootPath()}/tests/Packages/custom-source/custom-dir/params.php\n"
-            . "+++ {$this->getRootPath()}/config/packages/test/custom-source/custom-dir/params.php\n"
+            . "--- {$this->getRootPath()}/config/packages/test/custom-source/custom-dir/params.php\n"
+            . "+++ {$this->getRootPath()}/tests/Packages/custom-source/custom-dir/params.php\n"
             . "The file \"{$this->getRootPath()}/config/packages/test/custom-source/custom-dir/params.php\""
             . " does not exist or is not a file.\n"
         );
