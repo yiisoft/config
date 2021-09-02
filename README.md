@@ -170,7 +170,7 @@ that is `index.php`:
 ```php
 $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
-    '/config/packages', // Configs path.
+    'config/packages', // Configs path.
 );
 
 $webConfig = $config->get('web');
@@ -179,17 +179,17 @@ $webConfig = $config->get('web');
 `source-directory` points to where to read configs from for the package the option is specified for. The option is
 read for all packages. The value is a path relative to where package `composer.json` is. Default value is empty string.
 
-## Recursive merge 
+## Recursive merge of arrays 
 
-By default, no config groups are merged recursively. If you want to have a set of groups merged recursively you must
-pass their names to `Config` constructor:
+By default, recursive merging of arrays in configuration files is not performed. If you want to recursively merge
+arrays in a certain group of configs, such as params, you must pass group names to the `Config` constructor:
 
 ```php
 use \Yiisoft\Config\Config;
 
 $config = new Config(
     dirname(__DIR__),
-    '/config/packages',
+    'config/packages',
     'dev',
     [
         'params',
@@ -254,7 +254,7 @@ To choose an environment to be used you must specify its name when creating an i
 ```php
 $config = new \Yiisoft\Config\Config(
     dirname(__DIR__),
-    '/config/packages',
+    'config/packages',
     'dev'
 );
 
@@ -266,7 +266,7 @@ and could be used as `$params` in all configurations.
 
 ## Commands
 
-The plugin adds extra `config-diff`command to composer. It displays the difference between the vendor and application
+The plugin adds extra `config-diff` command to composer. It displays the difference between the vendor and application
 configuration files in the console.
 
 ```shell
