@@ -59,9 +59,9 @@ The `web` in the above is a config group. The config loader obtains it runtime a
 The configurations are loaded as follows:
 
 - Vendor configurations from each `vendor/package-name`. These provide default values.
-- Application configurations from `config`. These may override default values.
+- Root package configurations from `config`. These may override default values.
 
-> Please note that same named keys are not allowed in any vendor configurations or any application configurations.
+> Please note that same named keys are not allowed in any vendor configurations or any root package configurations.
 
 ## Config groups
 
@@ -167,7 +167,7 @@ A number of options is available both for Composer plugin and a config loader. C
 },
 ```
 
-the `source-directory` specifies where to read the configs for the package for which the option is specified.
+The `source-directory` specifies where to read the configs for the package for which the option is specified.
 The option is available for reading for all packages, including the root package, which is typically an application.
 The value is a path relative to where the `composer.json` file is located. The default value is `config`.
 
