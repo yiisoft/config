@@ -68,7 +68,7 @@ final class ConfigPaths
         }
 
         if (strpos($file,"$this->vendorPath/") === 0) {
-            return $this->relativeVendorPath . substr($file, strlen("$this->vendorPath"));
+            return $this->relativeVendorPath . substr($file, strlen($this->vendorPath));
         }
 
         return "$this->relativeVendorPath/$package/$file";
