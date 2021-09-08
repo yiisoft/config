@@ -63,9 +63,9 @@ The configurations are loaded as follows:
 - If there is a key match, the configuration of the root package will overwrite
   the configuration of the package from the vendor.
 
-> Please note that there is no full-fledged merge. The configuration of the root package will replace
-> the configuration of the package from the vendor only once. If there are more than one matches,
-> an exception about duplicate keys will be thrown.
+> Please note that there is no full-fledged merge. There are two layers: the root package (application)
+> and packages from the vendor. The same keys can be in different layers, but if there is a key match in
+> the root package or in packages from the vendor, an exception will be thrown about duplicate keys.
 
 ## Config groups
 
