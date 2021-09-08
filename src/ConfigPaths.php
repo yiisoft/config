@@ -14,7 +14,6 @@ use function trim;
  */
 final class ConfigPaths
 {
-    private string $rootPath;
     private string $configsPath;
     private string $vendorPath;
     private string $relativeConfigsPath;
@@ -27,11 +26,10 @@ final class ConfigPaths
      */
     public function __construct(string $rootPath, string $configsDirectory = null, string $vendorDirectory = null)
     {
-        $this->rootPath = $rootPath;
         $this->relativeConfigsPath = trim($configsDirectory ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
         $this->relativeVendorPath = trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
-        $this->configsPath = $this->rootPath . '/' . $this->relativeConfigsPath;
-        $this->vendorPath = $this->rootPath . '/' . $this->relativeVendorPath;
+        $this->configsPath = $rootPath . '/' . $this->relativeConfigsPath;
+        $this->vendorPath = $rootPath . '/' . $this->relativeVendorPath;
     }
 
     /**
