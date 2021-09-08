@@ -58,14 +58,10 @@ $webConfig = $config->get('web');
 The `web` in the above is a config group. The config loader obtains it runtime according to the merge plan.
 The configurations are loaded as follows:
 
-- First, the default package configurations are loaded from the vendor.
-- Then the root package configurations are loaded.
-- If there is a key match, the configuration of the root package will overwrite
-  the configuration of the package from the vendor.
+- Vendor configurations from each `vendor/package-name`. These provide default values.
+- Application configurations from `config`. These may override default values.
 
-> Please note that there is no full-fledged merge. There are two layers: the root package (application)
-> and packages from the vendor. The same keys can be in different layers, but if there is a key match in
-> the root package or in packages from the vendor, an exception will be thrown about duplicate keys.
+> Please note that same named keys are not allowed in any vendor configurations or any application configurations.
 
 ## Config groups
 
