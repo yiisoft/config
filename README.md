@@ -56,12 +56,13 @@ $webConfig = $config->get('web');
 ```
 
 The `web` in the above is a config group. The config loader obtains it runtime according to the merge plan.
-The configurations are loaded as follows:
+The configuration consists of three layers that are loaded as follows:
 
 - Vendor configurations from each `vendor/package-name`. These provide default values.
-- Root package configurations from `config`. These may override default values.
+- Root package configurations from `config`. These may override vendor configurations.
+- Environment specific configurations from `config`. These may override root and vendor configurations.
 
-> Please note that same named keys are not allowed in any vendor configurations or any root package configurations.
+> Please note that same named keys are not allowed within a configuration layer.
 
 ## Config groups
 
