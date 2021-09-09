@@ -28,11 +28,10 @@ final class Merger
     private MergePlan $mergePlan;
     private array $recursiveMergeGroupsIndex;
 
-
     /**
-     * @var array<string, array<string, string>>
+     * @psalm-var array<string, array<string, array<string, string>>>
      */
-    private array $rootGroupMergedKeys = [];
+    private array $rootPackageMergedKeys = [];
 
     /**
      * @param ConfigPaths $paths The config paths instance.
@@ -93,7 +92,7 @@ final class Merger
                 if (
                     array_key_exists($k, $result) && (
                         $context->package() !== Options::ROOT_PACKAGE_NAME ||
-                        isset($this->rootGroupMergedKeys[$context->group()][$k])
+                        isset($this->rootPackageMergedKeys[$context->environment()][$context->group()][$k])
                     )
                 ) {
                     throw new ErrorException(
@@ -104,7 +103,7 @@ final class Merger
                 }
 
                 if ($context->package() === Options::ROOT_PACKAGE_NAME && !Options::isVariable($context->file())) {
-                    $this->rootGroupMergedKeys[$context->group()][$k] = $context->file();
+                    $this->rootPackageMergedKeys[$context->environment()][$context->group()][$k] = $context->file();
                 }
                 /** @var mixed */
                 $result[$k] = $v;
@@ -125,16 +124,16 @@ final class Merger
      */
     private function getDuplicateErrorMessage(string $key, string $recursiveKeyPath, Context $context): string
     {
-        if (isset($this->rootGroupMergedKeys[$context->group()][$key])) {
+        if (isset($this->rootPackageMergedKeys[$context->environment()][$context->group()][$key])) {
             return $this->formatDuplicateErrorMessage($key, $recursiveKeyPath, [
                 $this->paths->relative($context->file(), $context->package()),
-                $this->paths->relative($this->rootGroupMergedKeys[$context->group()][$key]),
+                $this->paths->relative($this->rootPackageMergedKeys[$context->environment()][$context->group()][$key]),
             ]);
         }
 
         $filePaths = [$this->paths->relative($context->file(), $context->package())];
         $group = $this->mergePlan->getGroup($context->group(), $context->environment());
-        unset($group[$context->package()]);
+        unset($group[$context->package()], $group[Options::ROOT_PACKAGE_NAME]);
 
         foreach ($group as $package => $files) {
             foreach ($files as $file) {

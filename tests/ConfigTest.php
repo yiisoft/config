@@ -212,14 +212,41 @@ final class ConfigTest extends TestCase
         $this->createConfig('alfa')->get('failVariableNotExist');
     }
 
-    public function testDuplicateKeysErrorMessage(): void
+    public function testDuplicateRootKeysErrorMessage(): void
     {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-keys'));
+        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys'));
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
             'Duplicate key "age" in configs:' . "\n" .
-            ' - config/params.php' . "\n" .
+            ' - config/params/a.php' . "\n" .
+            ' - config/params/b.php'
+        );
+
+        $config->get('params');
+    }
+
+    public function testDuplicateEnvironmentKeysErrorMessage(): void
+    {
+        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys'), 'environment');
+
+        $this->expectException(ErrorException::class);
+        $this->expectErrorMessage(
+            'Duplicate key "age" in configs:' . "\n" .
+            ' - config/environment/params/a.php' . "\n" .
+            ' - config/environment/params/b.php'
+        );
+
+        $config->get('params');
+    }
+
+    public function testDuplicateVendorKeysErrorMessage(): void
+    {
+        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys'));
+
+        $this->expectException(ErrorException::class);
+        $this->expectErrorMessage(
+            'Duplicate key "age" in configs:' . "\n" .
             ' - vendor/package/a/params.php' . "\n" .
             ' - vendor/package/b/params.php'
         );
@@ -229,7 +256,7 @@ final class ConfigTest extends TestCase
 
     public function testDuplicateKeysWithRecursiveKeyPathErrorMessage(): void
     {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-keys-with-params'), null, [
+        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys-with-params'), null, [
            'params',
         ]);
 
