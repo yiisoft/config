@@ -15,12 +15,12 @@ use function trim;
 final class Options
 {
     public const MERGE_PLAN_FILENAME = 'MERGE_PLAN.php';
-    public const DEFAULT_CONFIGS_DIRECTORY = 'config';
+    public const DEFAULT_CONFIG_DIRECTORY = 'config';
     public const DEFAULT_VENDOR_DIRECTORY = 'vendor';
     public const DEFAULT_ENVIRONMENT = '/';
     public const ROOT_PACKAGE_NAME = '/';
 
-    private string $sourceDirectory = self::DEFAULT_CONFIGS_DIRECTORY;
+    private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;
 
     public function __construct(array $extra)
     {

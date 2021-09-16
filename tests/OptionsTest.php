@@ -40,7 +40,7 @@ final class OptionsTest extends TestCase
     public function testDefaultSourceDirectory(): void
     {
         $options = new Options([]);
-        $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $options->sourceDirectory());
+        $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
 
     public function testExtraOptionsNotArray(): void
@@ -48,6 +48,6 @@ final class OptionsTest extends TestCase
         $options = new Options([
             'config-plugin-options' => true,
         ]);
-        $this->assertSame(Options::DEFAULT_CONFIGS_DIRECTORY, $options->sourceDirectory());
+        $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
 }

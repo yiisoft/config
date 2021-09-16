@@ -14,21 +14,21 @@ use function trim;
  */
 final class ConfigPaths
 {
-    private string $configsPath;
+    private string $configPath;
     private string $vendorPath;
-    private string $relativeConfigsPath;
+    private string $relativeConfigPath;
     private string $relativeVendorPath;
 
     /**
      * @param string $rootPath The absolute path to the project root where `composer.json` is located.
-     * @param string|null $configsDirectory The relative path to the configuration storage location.
+     * @param string|null $configDirectory The relative path to the configuration storage location.
      * @param string|null $vendorDirectory The relative path to the vendor directory.
      */
-    public function __construct(string $rootPath, string $configsDirectory = null, string $vendorDirectory = null)
+    public function __construct(string $rootPath, string $configDirectory = null, string $vendorDirectory = null)
     {
-        $this->relativeConfigsPath = trim($configsDirectory ?? Options::DEFAULT_CONFIGS_DIRECTORY, '/');
+        $this->relativeConfigPath = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
         $this->relativeVendorPath = trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
-        $this->configsPath = $rootPath . '/' . $this->relativeConfigsPath;
+        $this->configPath = $rootPath . '/' . $this->relativeConfigPath;
         $this->vendorPath = $rootPath . '/' . $this->relativeVendorPath;
     }
 
@@ -43,7 +43,7 @@ final class ConfigPaths
     public function absolute(string $file, string $package = Options::ROOT_PACKAGE_NAME): string
     {
         if ($package === Options::ROOT_PACKAGE_NAME) {
-            return "$this->configsPath/$file";
+            return "$this->configPath/$file";
         }
 
         return "$this->vendorPath/$package/$file";
@@ -60,11 +60,11 @@ final class ConfigPaths
     public function relative(string $file, string $package = Options::ROOT_PACKAGE_NAME): string
     {
         if ($package === Options::ROOT_PACKAGE_NAME) {
-            if (strpos($file,"$this->configsPath/") === 0) {
-                $file = substr($file, strlen("$this->configsPath/"));
+            if (strpos($file,"$this->configPath/") === 0) {
+                $file = substr($file, strlen("$this->configPath/"));
             }
 
-            return "$this->relativeConfigsPath/$file";
+            return "$this->relativeConfigPath/$file";
         }
 
         if (strpos($file,"$this->vendorPath/") === 0) {
