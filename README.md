@@ -275,35 +275,48 @@ $appConfig = $config->get('events-web'); // merged recursively
 
 ## Commands
 
-The plugin adds extra `config-copy` command to composer. It copies the package config files from the vendor
+### yii-config-copy
+
+The plugin adds extra `yii-config-copy` command to composer. It copies the package config files from the vendor
 to the config directory of the root package:
 
 ```shell
-composer config-copy <package-name> [target-path] [files]
+composer yii-config-copy <package-name> [target-path] [files]
 ```
 
 Copies all config files of the `yiisoft/view` package:
 
 ```shell
 # To the `config` directory
-composer config-copy yiisoft/view
+composer yii-config-copy yiisoft/view
 
 # To the `config/my/path` directory
-composer config-copy yiisoft/view my/path
+composer yii-config-copy yiisoft/view my/path
 ```
 
 Copies the specified config files of the `yiisoft/view` package:
 
 ```shell
 # To the `config` directory
-composer config-copy yiisoft/view / params.php web.php
+composer yii-config-copy yiisoft/view / params.php web.php
 
 # To the `config/my/path` directory and without the file extension
-composer config-copy yiisoft/view my/path params web
+composer yii-config-copy yiisoft/view my/path params web
 ```
 
 In order to avoid conflicts with file names, a prefix is added to the names of the copied files:
 `yiisoft-view-params.php`, `yiisoft-view-web.php`.
+
+### yii-config-rebuild
+
+The command `yii-config-rebuild` is provided to the update of the merge plan file. This command may be required
+if you have added files or folders to the application configuration file structure that were not specified in the
+`composer.json` of the root package. You need to add to the information about new files in the `composer.json` of
+the root package and call the command:
+
+```shell
+composer yii-config-rebuild
+```
 
 ## Testing
 
