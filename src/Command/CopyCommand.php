@@ -26,7 +26,7 @@ final class CopyCommand extends BaseCommand
     protected function configure(): void
     {
         $this
-            ->setName('config-copy')
+            ->setName('yii-config-copy')
             ->setDescription('Copying package configuration files to the application')
             ->setHelp('This command copies the package configuration files from the vendor to the application.')
             ->addArgument('package', InputArgument::REQUIRED, 'Package')
