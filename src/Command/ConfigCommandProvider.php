@@ -15,6 +15,7 @@ final class ConfigCommandProvider implements CommandProvider
     {
         return [
             new CopyCommand(),
+            new RebuildCommand(),
         ];
     }
 }

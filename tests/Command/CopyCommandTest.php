@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Unit\Command;
+namespace Yiisoft\Config\Tests\Command;
 
 use Symfony\Component\Console\Tester\CommandTester;
 use Yiisoft\Config\Command\CopyCommand;
