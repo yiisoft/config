@@ -43,7 +43,7 @@ final class ConfigFileUpdater
         if (is_file($this->lockFilePath)) {
             $this->lockFileExisted = true;
             /** @psalm-suppress MixedAssignment*/
-            $this->lockFileData = json_decode(file_get_contents($this->lockFilePath), true, 512,  JSON_THROW_ON_ERROR);
+            $this->lockFileData = json_decode(file_get_contents($this->lockFilePath), true, 512, JSON_THROW_ON_ERROR);
         }
     }
 
@@ -121,11 +121,11 @@ final class ConfigFileUpdater
             return false;
         }
 
-        if (isset($lockData[$filename]) && $lockData[$filename] === $this->hash($configFile)) {
-            return false;
-        }
+        return ! (isset($lockData[$filename]) && $lockData[$filename] === $this->hash($configFile))
 
-        return true;
+
+
+         ;
     }
 
     public function lockFileExisted(): bool

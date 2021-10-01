@@ -101,7 +101,7 @@ final class MessagesTest extends ComposerTest
             ' - config/packages/test/k/config/common.php' . "\n" .
             "\n" . 'Changes in the config files were ignored:' . "\n" .
             ' - config/packages/test/k/config/params.php' . "\n" .
-            "Please review the files above and change them yourself if necessary." . "\n"
+            'Please review the files above and change them yourself if necessary.' . "\n"
         );
     }
 

@@ -142,7 +142,7 @@ final class PackagesListBuilderTest extends ComposerTest
                 ],
                 'subdir' => [
                     'test/custom-source' => [
-                        'subdir/*.php'
+                        'subdir/*.php',
                     ],
                 ],
                 'web' => [
@@ -323,7 +323,7 @@ final class PackagesListBuilderTest extends ComposerTest
                         'web' => 'alfa/web.php',
                         'main' => [
                             '$web',
-                            'alfa/main.php'
+                            'alfa/main.php',
                         ],
                     ],
                 ],

@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Yiisoft\Config\Command\ConfigCommandProvider;
 use Yiisoft\Config\Command\DiffCommand;
 
-final class ConfigCommandProvideTest extends TestCase
+final class ConfigCommandProviderTest extends TestCase
 {
     public function testGetCommands(): void
     {

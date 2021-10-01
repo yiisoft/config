@@ -225,7 +225,6 @@ final class ConfigFileHandlerTest extends TestCase
         return [[true], [false]];
     }
 
-
     /**
      * @dataProvider askConfirmationDataProvider
      *

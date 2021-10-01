@@ -210,7 +210,7 @@ final class ConfigTest extends TestCase
     {
         $configsDir = dirname(__DIR__) . '/configs/duplicate-keys-with-params';
         $config = new Config($configsDir, '/packages', null, [
-           'params',
+            'params',
         ]);
 
         $this->expectException(ErrorException::class);

@@ -104,7 +104,7 @@ final class ComposerConfigProcessTest extends TestCase
                     'web' => 'alfa/web.php',
                     'main' => [
                         '$web',
-                        'alfa/main.php'
+                        'alfa/main.php',
                     ],
                 ],
                 Options::ROOT_PACKAGE_NAME => [
@@ -112,7 +112,7 @@ final class ComposerConfigProcessTest extends TestCase
                     'web' => 'alfa/web.php',
                     'main' => [
                         '$web',
-                        'alfa/main.php'
+                        'alfa/main.php',
                     ],
                 ],
             ],
