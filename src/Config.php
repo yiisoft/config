@@ -128,7 +128,7 @@ final class Config
                             new Context($match, $package, $group, $environment),
                             '',
                             $this->build[$environment][$group],
-                            $this->buildFile($group, $match),
+                            $this->buildFile($match),
                         );
                     }
                     continue;
@@ -142,7 +142,7 @@ final class Config
                     new Context($file, $package, $group, $environment),
                     '',
                     $this->build[$environment][$group],
-                    $this->buildFile($group, $filePath),
+                    $this->buildFile($filePath),
                 );
             }
         }
@@ -171,14 +171,13 @@ final class Config
     /**
      * Builds the configuration from the file.
      *
-     * @param string $group The group name.
      * @param string $filePath The file path.
      *
      * @throws ErrorException If an error occurred during the build.
      *
      * @return array The configuration from the file.
      */
-    private function buildFile(string $group, string $filePath): array
+    private function buildFile(string $filePath): array
     {
         $scopeRequire = static function (): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
