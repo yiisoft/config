@@ -141,7 +141,20 @@ return [
 ];
 ```
 
-A special variable `$params` is read from `params` config.
+A special variable `$params` is read from config (by default, group `params`).
+
+### Using custom group for `$params`
+
+By default for `$params` used group `params`. You can set own group for `$params` via constructor of `Config`:
+
+```php
+$config = new Config(
+    new ConfigPaths(__DIR__ . '/configs'),
+    null,
+    [],
+    'custom-params' // Group name for `$params`
+);
+```
 
 ### Using sub-configs
 
@@ -150,6 +163,8 @@ In order to access a sub-config, use the following in your config:
 ```php
 'routes' => $config->get('routes');
 ```
+
+### Override `$params`
 
 ## Options
 
