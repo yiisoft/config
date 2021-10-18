@@ -43,7 +43,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         parent::__construct($name, $data, $dataName);
 
         $this->filesystem = new Filesystem();
-        $this->sourceDirectory = dirname(__DIR__) . "/TestAsset/packages";
+        $this->sourceDirectory = dirname(__DIR__) . '/TestAsset/packages';
         $this->tempDirectory = sys_get_temp_dir() . '/yiisoft';
         $this->tempConfigsDirectory = "$this->tempDirectory/config";
     }
@@ -63,7 +63,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function getSourcePath(string $path = ''): string
     {
-
         return $this->sourceDirectory . (empty($path) ? '' : '/' . trim($path, '/'));
     }
 

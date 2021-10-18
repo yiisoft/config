@@ -84,15 +84,15 @@ final class MergePlanProcessTest extends TestCase
                 'web' => 'alfa/web.php',
                 'main' => [
                     '$web',
-                    'alfa/main.php'
+                    'alfa/main.php',
                 ],
             ],
-            Options::DEFAULT_ENVIRONMENT=> [
+            Options::DEFAULT_ENVIRONMENT => [
                 'params' => 'params.php',
                 'web' => 'web.php',
                 'main' => [
                     '$web',
-                    'main.php'
+                    'main.php',
                 ],
             ],
         ]));
