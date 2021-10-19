@@ -60,14 +60,14 @@ final class ConfigPaths
     public function relative(string $file, string $package = Options::ROOT_PACKAGE_NAME): string
     {
         if ($package === Options::ROOT_PACKAGE_NAME) {
-            if (strpos($file,"$this->configPath/") === 0) {
+            if (strpos($file, "$this->configPath/") === 0) {
                 $file = substr($file, strlen("$this->configPath/"));
             }
 
             return "$this->relativeConfigPath/$file";
         }
 
-        if (strpos($file,"$this->vendorPath/") === 0) {
+        if (strpos($file, "$this->vendorPath/") === 0) {
             return $this->relativeVendorPath . substr($file, strlen($this->vendorPath));
         }
 

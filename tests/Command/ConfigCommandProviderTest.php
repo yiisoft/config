@@ -11,7 +11,7 @@ use Yiisoft\Config\Command\ConfigCommandProvider;
 use Yiisoft\Config\Command\CopyCommand;
 use Yiisoft\Config\Command\RebuildCommand;
 
-final class ConfigCommandProvideTest extends TestCase
+final class ConfigCommandProviderTest extends TestCase
 {
     public function testGetCommands(): void
     {

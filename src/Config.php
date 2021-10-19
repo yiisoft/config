@@ -25,6 +25,8 @@ final class Config
     private MergePlan $mergePlan;
     private Merger $merger;
     private string $environment;
+    private string $paramsGroup;
+    private bool $isBuildingParams = false;
 
     /**
      * @psalm-var array<string, array<string, array>>
@@ -38,10 +40,15 @@ final class Config
      *
      * @throws ErrorException If the environment does not exist.
      */
-    public function __construct(ConfigPaths $paths, string $environment = null, array $recursiveMergeGroups = [])
-    {
+    public function __construct(
+        ConfigPaths $paths,
+        string $environment = null,
+        array $recursiveMergeGroups = [],
+        string $paramsGroup = 'params'
+    ) {
         $this->paths = $paths;
         $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
+        $this->paramsGroup = $paramsGroup;
 
         /** @psalm-suppress UnresolvableInclude, MixedArgument */
         $this->mergePlan = new MergePlan(require $this->paths->absolute(Options::MERGE_PLAN_FILENAME));
@@ -68,7 +75,7 @@ final class Config
             return $this->build[$this->environment][$group];
         }
 
-        $this->buildGroup('params', $this->environment);
+        $this->buildParams();
         $environment = $this->prepareEnvironmentGroup($group, $this->environment);
 
         $this->buildGroup($group, $environment);
@@ -116,12 +123,12 @@ final class Config
                 $filePath = $this->paths->absolute($file, $package);
 
                 if (Options::containsWildcard($file)) {
-                    foreach (glob($filePath, GLOB_NOSORT) as $match) {
+                    foreach (glob($filePath) as $match) {
                         $this->build[$environment][$group] = $this->merger->merge(
                             new Context($match, $package, $group, $environment),
                             '',
                             $this->build[$environment][$group],
-                            $this->buildFile($group, $match),
+                            $this->buildFile($match),
                         );
                     }
                     continue;
@@ -135,7 +142,7 @@ final class Config
                     new Context($file, $package, $group, $environment),
                     '',
                     $this->build[$environment][$group],
-                    $this->buildFile($group, $filePath),
+                    $this->buildFile($filePath),
                 );
             }
         }
@@ -164,14 +171,13 @@ final class Config
     /**
      * Builds the configuration from the file.
      *
-     * @param string $group The group name.
      * @param string $filePath The file path.
      *
      * @throws ErrorException If an error occurred during the build.
      *
      * @return array The configuration from the file.
      */
-    private function buildFile(string $group, string $filePath): array
+    private function buildFile(string $filePath): array
     {
         $scopeRequire = static function (): array {
             /** @psalm-suppress InvalidArgument, MissingClosureParamType */
@@ -192,9 +198,10 @@ final class Config
 
         $scope = [];
 
-        if ($group !== 'params') {
+        if (!$this->isBuildingParams) {
             $scope['config'] = $this;
-            $scope['params'] = $this->build[$this->environment]['params'] ?? $this->build[Options::DEFAULT_ENVIRONMENT]['params'];
+            $scope['params'] = $this->build[$this->environment][$this->paramsGroup]
+                ?? $this->build[Options::DEFAULT_ENVIRONMENT][$this->paramsGroup];
         }
 
         /** @psalm-suppress TooManyArguments */
@@ -252,6 +259,13 @@ final class Config
         }
 
         return $name;
+    }
+
+    private function buildParams(): void
+    {
+        $this->isBuildingParams = true;
+        $this->buildGroup($this->paramsGroup, $this->environment);
+        $this->isBuildingParams = false;
     }
 
     /**
