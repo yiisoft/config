@@ -159,7 +159,7 @@ final class Merger
      */
     private function getDuplicateErrorMessage(array $recursiveKeyPath, array $context): string
     {
-        $context = array_map(function($f) {
+        $context = array_map(function ($f) {
             return $this->paths->myr($f);
         }, $context);
         return $this->formatDuplicateErrorMessage($recursiveKeyPath, $context);
