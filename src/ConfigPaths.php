@@ -14,6 +14,7 @@ use function trim;
  */
 final class ConfigPaths
 {
+    private string $rootPath;
     private string $configPath;
     private string $vendorPath;
     private string $relativeConfigPath;
@@ -26,6 +27,7 @@ final class ConfigPaths
      */
     public function __construct(string $rootPath, string $configDirectory = null, string $vendorDirectory = null)
     {
+        $this->rootPath = $rootPath;
         $this->relativeConfigPath = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
         $this->relativeVendorPath = trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
         $this->configPath = $rootPath . '/' . $this->relativeConfigPath;
@@ -72,5 +74,12 @@ final class ConfigPaths
         }
 
         return "$this->relativeVendorPath/$package/$file";
+    }
+
+    public function myr(string $file): string
+    {
+        return strpos($file, "$this->rootPath/") === 0
+            ? substr($file, strlen("$this->rootPath/"))
+            : $file;
     }
 }
