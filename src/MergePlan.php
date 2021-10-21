@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config;
 
-use ErrorException;
-
 /**
  * @internal
  */
@@ -71,63 +69,6 @@ final class MergePlan
         return $this->mergePlan[$environment][$group] ?? [];
     }
 
-    public function getGroupFiles(string $group, string $environment): array
-    {
-        if (isset($this->mergePlan[$environment][$group])) {
-            $data = $this->mergePlan[$environment][$group];
-        } else {
-            if (
-                $environment === Options::DEFAULT_ENVIRONMENT
-                || !isset($this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group])
-            ) {
-                $this->throwException(sprintf('The "%s" configuration group does not exist.', $group));
-            }
-
-            $data = $this->mergePlan[Options::DEFAULT_ENVIRONMENT][$group];
-        }
-
-        foreach ($data as $package => $files) {
-            foreach ($files as $file) {
-                if (Options::isVariable($file)) {
-                    $variable = $this->prepareVariable($file, $group, $environment);
-                    $this->buildGroup($variable);
-
-                    continue;
-                }
-            }
-        }
-    }
-
-    /**
-     * Checks the configuration variable and returns its name.
-     *
-     * @param string $variable The variable.
-     * @param string $group The group name.
-     * @param string $environment The environment name.
-     *
-     * @throws ErrorException If the variable name is not valid.
-     *
-     * @return string The variable name.
-     */
-    private function prepareVariable(string $variable, string $group, string $environment): string
-    {
-        $name = substr($variable, 1);
-
-        if ($name === $group) {
-            $this->throwException(sprintf(
-                'The variable "%s" must not be located inside the "%s" config group.',
-                "$variable",
-                "$name",
-            ));
-        }
-
-        if (!$this->hasGroup($name, $environment) && !$this->hasGroup($name)) {
-            $this->throwException(sprintf('The "%s" configuration group does not exist.', $name));
-        }
-
-        return $name;
-    }
-
     /**
      * Returns the merge plan as an array.
      *
@@ -146,7 +87,7 @@ final class MergePlan
      *
      * @return bool Whether the group exists in the merge plan.
      */
-    public function hasGroup(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): bool
+    public function hasGroup(string $group, string $environment): bool
     {
         return isset($this->mergePlan[$environment][$group]);
     }

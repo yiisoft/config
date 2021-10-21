@@ -16,7 +16,7 @@ final class FilesExctractor
     private string $environment;
 
     /**
-     * @psalm-var array<string,array<string,Context|array<string,Context>>>
+     * @psalm-var array<string,array<string,Context>>
      */
     private array $cache = [];
 
@@ -31,7 +31,7 @@ final class FilesExctractor
     }
 
     /**
-     * @psalm-return array<array<string,Context>>
+     * @psalm-return array<string,Context>
      */
     public function extract(string $group): array
     {
@@ -54,14 +54,25 @@ final class FilesExctractor
 
         $this->cache[$group] = [];
 
-        $this->x(Options::ROOT_PACKAGE_NAME, $group, $this->mergePlan->getGroup($group, Options::ROOT_PACKAGE_NAME));
+        $this->process(
+            Options::ROOT_PACKAGE_NAME,
+            $group,
+            $this->mergePlan->getGroup($group, Options::ROOT_PACKAGE_NAME)
+        );
 
         if ($environment !== Options::ROOT_PACKAGE_NAME) {
-            $this->x($environment, $group, $this->mergePlan->getGroup($group, $environment));
+            $this->process(
+                $environment,
+                $group,
+                $this->mergePlan->getGroup($group, $environment)
+            );
         }
     }
 
-    private function x(string $environment, string $group, array $data): void
+    /**
+     * @psalm-param array<string, string[]> $data
+     */
+    private function process(string $environment, string $group, array $data): void
     {
         foreach ($data as $package => $items) {
             foreach ($items as $item) {

@@ -18,11 +18,8 @@ use function sprintf;
  */
 final class Config
 {
-    private ConfigPaths $paths;
-    private MergePlan $mergePlan;
     private Merger $merger;
     private FilesExctractor $filesExctractor;
-    private string $environment;
     private string $paramsGroup;
     private bool $isBuildingParams = false;
 
@@ -45,19 +42,18 @@ final class Config
         array $modifiers = [],
         string $paramsGroup = 'params'
     ) {
-        $this->paths = $paths;
-        $this->environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
+        $environment = $environment ?? Options::DEFAULT_ENVIRONMENT;
         $this->paramsGroup = $paramsGroup;
 
         /** @psalm-suppress UnresolvableInclude, MixedArgument */
-        $this->mergePlan = new MergePlan(require $this->paths->absolute(Options::MERGE_PLAN_FILENAME));
+        $mergePlan = new MergePlan(require $paths->absolute(Options::MERGE_PLAN_FILENAME));
 
-        if (!$this->mergePlan->hasEnvironment($this->environment)) {
-            $this->throwException(sprintf('The "%s" configuration environment does not exist.', $this->environment));
+        if (!$mergePlan->hasEnvironment($environment)) {
+            $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));
         }
 
-        $this->merger = new Merger($this->paths, $this->mergePlan, $modifiers);
-        $this->filesExctractor = new FilesExctractor($this->paths, $this->mergePlan, $this->environment);
+        $this->merger = new Merger($paths, $modifiers);
+        $this->filesExctractor = new FilesExctractor($paths, $mergePlan, $environment);
     }
 
     /**
@@ -75,12 +71,23 @@ final class Config
             return $this->build[$group];
         }
 
-        $this->merger->prepare();
-        $this->buildParams();
-        $this->merger->prepare();
-        $this->buildGroup($group);
+        $this->runBuildParams();
+        $this->runBuildGroup($group);
 
         return $this->build[$group];
+    }
+
+    private function runBuildParams(): void
+    {
+        $this->isBuildingParams = true;
+        $this->runBuildGroup($this->paramsGroup);
+        $this->isBuildingParams = false;
+    }
+
+    private function runBuildGroup(string $group): void
+    {
+        $this->merger->reset();
+        $this->buildGroup($group);
     }
 
     /**
@@ -176,13 +183,6 @@ final class Config
 
         /** @psalm-suppress TooManyArguments */
         return $scopeRequire($filePath, $scope);
-    }
-
-    private function buildParams(): void
-    {
-        $this->isBuildingParams = true;
-        $this->buildGroup($this->paramsGroup);
-        $this->isBuildingParams = false;
     }
 
     /**
