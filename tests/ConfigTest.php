@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Modifier\RecursiveMerge;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
 use Yiisoft\Config\Modifier\ReverseMerge;
 
 final class ConfigTest extends TestCase
@@ -303,9 +304,13 @@ final class ConfigTest extends TestCase
 
     public function testConfigWithReverseMerge(): void
     {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'), null, [
-            ReverseMerge::groups('common', 'params'),
-        ]);
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'),
+            null,
+            [
+                ReverseMerge::groups('common', 'params'),
+            ]
+        );
 
         $this->assertSame([
             'root-common-nested-key-2' => 'root-common-nested-value-2',
@@ -340,6 +345,51 @@ final class ConfigTest extends TestCase
             'a-common-key' => 'a-common-value',
             'root-web-key' => 'root-web-value',
         ], $config->get('web'));
+    }
+
+    public function testRemoveFromVendor(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive'),
+            null,
+            [
+                RecursiveMerge::groups('params'),
+                RemoveFromVendor::keys(
+                    ['b-params-key'],
+                    ['array'],
+                    ['nested', 'a']
+                ),
+            ]
+        );
+
+        $this->assertSame([
+            'a-params-key' => 'a-params-value',
+            'root-params-key' => 'root-params-value',
+            'array' => [7, 8, 9],
+            'nested' => [
+                'a' => [1],
+                'b' => 2,
+            ],
+        ], $config->get('params'));
+    }
+
+    public function testReveseAndRecursive(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse'),
+            null,
+            [
+                RecursiveMerge::groups('params'),
+                ReverseMerge::groups('params'),
+            ]
+        );
+
+        $this->assertSame([
+            'array' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
+            'nested' => [
+                'nested-key' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
+            ],
+        ], $config->get('params'));
     }
 
     private function createConfig(string $environment = null): Config

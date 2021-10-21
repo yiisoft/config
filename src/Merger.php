@@ -7,6 +7,7 @@ namespace Yiisoft\Config;
 use ErrorException;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Config\Modifier\RecursiveMerge;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
 use Yiisoft\Config\Modifier\ReverseMerge;
 
 use function array_key_exists;
@@ -28,6 +29,7 @@ final class Merger
     private ConfigPaths $paths;
     private array $recursiveMergeGroupsIndex;
     private array $reverseMergeGroupsIndex;
+    private array $removeFromVendorKeysIndex;
 
     /**
      * @psalm-var array<int, array>
@@ -44,12 +46,18 @@ final class Merger
 
         $reverseMergeGroups = [];
         $recursiveMergeGroups = [];
+        $this->removeFromVendorKeysIndex = [];
         foreach ($modifiers as $modifier) {
             if ($modifier instanceof ReverseMerge) {
                 $reverseMergeGroups = array_merge($reverseMergeGroups, $modifier->getGroups());
             }
             if ($modifier instanceof RecursiveMerge) {
                 $recursiveMergeGroups = array_merge($recursiveMergeGroups, $modifier->getGroups());
+            }
+            if ($modifier instanceof RemoveFromVendor) {
+                foreach ($modifier->getKeys() as $path) {
+                    ArrayHelper::setValue($this->removeFromVendorKeysIndex, $path, true);
+                }
             }
         }
 
@@ -83,6 +91,9 @@ final class Merger
         $isRecursiveMerge = array_key_exists($context->group(), $this->recursiveMergeGroupsIndex);
 
         $result = $isReverseMerge ? array_pop($args) : array_shift($args);
+        if ($isReverseMerge) {
+            $this->fillCache($context, $recursiveKeyPath, $result, $isRecursiveMerge);
+        }
 
         while (!empty($args)) {
             /** @psalm-var mixed $v */
@@ -98,6 +109,8 @@ final class Merger
                     continue;
                 }
 
+                $fullKeyPath = array_merge($recursiveKeyPath, [$k]);
+
                 if (
                     $isRecursiveMerge
                     && is_array($v)
@@ -106,30 +119,31 @@ final class Merger
                         || is_array($result[$k])
                     )
                 ) {
-                    $recursiveKeyPath[] = $k;
                     /** @var array $array */
                     $array = $result[$k] ?? [];
-                    $result[$k] = $this->merge(
+                    $this->setValue(
                         $context,
-                        $recursiveKeyPath,
-                        $array,
-                        $v,
+                        $fullKeyPath,
+                        $result,
+                        $k,
+                        $isReverseMerge
+                            ? $this->merge($context, $fullKeyPath, $v, $array)
+                            : $this->merge($context, $fullKeyPath, $array, $v)
                     );
                     continue;
                 }
 
                 $existKey = array_key_exists($k, $result);
-                $recursiveKeyPath[] = $k;
 
-                if ($existKey) {
+                if ($existKey && !$isReverseMerge) {
                     /** @var string|null $file */
                     $file = ArrayHelper::getValue(
                         $this->cacheKeys,
-                        array_merge([$context->level()], $recursiveKeyPath)
+                        array_merge([$context->level()], $fullKeyPath)
                     );
                     if ($file !== null) {
                         throw new ErrorException(
-                            $this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]),
+                            $this->getDuplicateErrorMessage($fullKeyPath, [$file, $context->file()]),
                             0,
                             E_USER_ERROR,
                         );
@@ -137,19 +151,93 @@ final class Merger
                 }
 
                 if (!$isReverseMerge || !$existKey) {
-                    /** @psalm-suppress MixedPropertyTypeCoercion */
-                    ArrayHelper::setValue(
-                        $this->cacheKeys,
-                        array_merge([$context->level()], $recursiveKeyPath),
-                        $context->file()
-                    );
-                    /** @var mixed */
-                    $result[$k] = $v;
+                    $isSet = $this->setValue($context, $fullKeyPath, $result, $k, $v);
+                    if ($isSet && !$isReverseMerge && !$context->isVariable()) {
+                        /** @psalm-suppress MixedPropertyTypeCoercion */
+                        ArrayHelper::setValue(
+                            $this->cacheKeys,
+                            array_merge([$context->level()], $fullKeyPath),
+                            $context->file()
+                        );
+                    }
                 }
             }
         }
 
         return $result;
+    }
+
+    /**
+     * @param string[] $recursiveKeyPath
+     */
+    private function fillCache(Context $context, array $recursiveKeyPath, array $array, bool $isRecursiveMerge): void
+    {
+        /** @var mixed $value */
+        foreach ($array as $key => $value) {
+            if (is_int($key)) {
+                continue;
+            }
+
+            if (
+                $isRecursiveMerge
+                && is_array($value)
+            ) {
+                continue;
+            }
+
+            $recursiveKeyPath[] = $key;
+
+            /** @var string|null $file */
+            $file = ArrayHelper::getValue(
+                $this->cacheKeys,
+                array_merge([$context->level()], $recursiveKeyPath)
+            );
+            if ($file !== null) {
+                throw new ErrorException(
+                    $this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]),
+                    0,
+                    E_USER_ERROR,
+                );
+            }
+
+            if ($context->isVariable()) {
+                continue;
+            }
+
+            if (
+                $context->isVendor()
+                && ArrayHelper::getValue($this->removeFromVendorKeysIndex, $recursiveKeyPath, false)
+            ) {
+                continue;
+            }
+
+            /** @psalm-suppress MixedPropertyTypeCoercion */
+            ArrayHelper::setValue(
+                $this->cacheKeys,
+                array_merge([$context->level()], $recursiveKeyPath),
+                $context->file()
+            );
+        }
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @psalm-param non-empty-array<array-key, string> $keyPath
+     */
+    private function setValue(Context $context, array $keyPath, array &$array, string $key, $value): bool
+    {
+        if (
+            $context->isVendor()
+            && ArrayHelper::getValue($this->removeFromVendorKeysIndex, $keyPath, false)
+        ) {
+            return false;
+        }
+
+        /** @var mixed */
+        $array[$key] = $value;
+
+        return true;
     }
 
     /**

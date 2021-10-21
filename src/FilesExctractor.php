@@ -77,7 +77,7 @@ final class FilesExctractor
         foreach ($data as $package => $items) {
             foreach ($items as $item) {
                 if (Options::isVariable($item)) {
-                    $this->cache[$group][$item] = new Context($environment, $group, $package, $item);
+                    $this->cache[$group][$item] = new Context($environment, $group, $package, $item, true);
                     continue;
                 }
 
@@ -91,7 +91,7 @@ final class FilesExctractor
                 $files = Options::containsWildcard($item) ? glob($filePath) : [$filePath];
                 foreach ($files as $file) {
                     if (is_file($file)) {
-                        $this->cache[$group][$file] = new Context($environment, $group, $package, $file);
+                        $this->cache[$group][$file] = new Context($environment, $group, $package, $file, false);
                     } elseif (!$isOptional) {
                         $this->throwException(sprintf('The "%s" file does not found.', $file));
                     }
