@@ -354,6 +354,17 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
+    public function testBrokenFile(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/broken-file'),
+        );
+
+        $this->expectException(ErrorException::class);
+        $this->expectErrorMessage('test-error');
+        $config->get('params');
+    }
+
     public function testConfigWithReverseMerge(): void
     {
         $config = new Config(
