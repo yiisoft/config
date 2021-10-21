@@ -4,67 +4,48 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config;
 
-/**
- * @internal
- */
 final class Context
 {
-    private string $file;
-    private string $package;
+    public const VENDOR = 1;
+    public const APPLICATION = 2;
+    public const ENVIRONMENT = 3;
+
     private string $group;
-    private string $environment;
+    private int $level;
+    private string $file;
 
-    /**
-     * @param string $file The config file.
-     * @param string $package The package name.
-     * @param string $group The group name.
-     * @param string $environment The environment name.
-     */
-    public function __construct(string $file, string $package, string $group, string $environment)
+    public function __construct(string $environment, string $group, string $package, string $file)
     {
-        $this->file = $file;
-        $this->package = $package;
         $this->group = $group;
-        $this->environment = $environment;
+        $this->level = $this->detectLevel($environment, $package);
+        $this->file = $file;
     }
 
-    /**
-     * Returns the config file.
-     *
-     * @return string The config file.
-     */
-    public function file(): string
-    {
-        return $this->file;
-    }
-
-    /**
-     * Returns the package name.
-     *
-     * @return string The package name.
-     */
-    public function package(): string
-    {
-        return $this->package;
-    }
-
-    /**
-     * Returns the group name.
-     *
-     * @return string The group name.
-     */
     public function group(): string
     {
         return $this->group;
     }
 
-    /**
-     * Returns the environment name.
-     *
-     * @return string The environment name.
-     */
-    public function environment(): string
+    public function level(): int
     {
-        return $this->environment;
+        return $this->level;
+    }
+
+    public function file(): string
+    {
+        return $this->file;
+    }
+
+    private function detectLevel(string $environment, string $package): int
+    {
+        if ($package !== Options::ROOT_PACKAGE_NAME) {
+            return self::VENDOR;
+        }
+
+        if ($environment === Options::DEFAULT_ENVIRONMENT) {
+            return self::APPLICATION;
+        }
+
+        return self::ENVIRONMENT;
     }
 }

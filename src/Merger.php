@@ -72,7 +72,7 @@ final class Merger
     /**
      * Merges two or more arrays into one recursively.
      *
-     * @param NewContext $context Context containing the name of the file, package, group and environment.
+     * @param Context $context Context containing the name of the file, package, group and environment.
      * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
      * @param array ...$args Two or more arrays to merge.
      *
@@ -80,7 +80,7 @@ final class Merger
      *
      * @return array The merged array.
      */
-    public function merge(NewContext $context, array $recursiveKeyPath = [], array ...$args): array
+    public function merge(Context $context, array $recursiveKeyPath = [], array ...$args): array
     {
         if ($args === []) {
             return [];

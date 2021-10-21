@@ -16,7 +16,7 @@ final class FilesExctractor
     private string $environment;
 
     /**
-     * @psalm-var array<string,array<string,NewContext|array<string,NewContext>>>
+     * @psalm-var array<string,array<string,Context|array<string,Context>>>
      */
     private array $cache = [];
 
@@ -31,7 +31,7 @@ final class FilesExctractor
     }
 
     /**
-     * @psalm-return array<array<string,NewContext>>
+     * @psalm-return array<array<string,Context>>
      */
     public function extract(string $group): array
     {
@@ -66,7 +66,7 @@ final class FilesExctractor
         foreach ($data as $package => $items) {
             foreach ($items as $item) {
                 if (Options::isVariable($item)) {
-                    $this->cache[$group][$item] = new NewContext($environment, $group, $package, $item);
+                    $this->cache[$group][$item] = new Context($environment, $group, $package, $item);
                     continue;
                 }
 
@@ -80,7 +80,7 @@ final class FilesExctractor
                 $files = Options::containsWildcard($item) ? glob($filePath) : [$filePath];
                 foreach ($files as $file) {
                     if (is_file($file)) {
-                        $this->cache[$group][$file] = new NewContext($environment, $group, $package, $file);
+                        $this->cache[$group][$file] = new Context($environment, $group, $package, $file);
                     } elseif (!$isOptional) {
                         $this->throwException('file not found');
                     }
