@@ -392,6 +392,34 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
+    public function testEvents(): void
+    {
+        $eventGroups = ['events', 'events-console'];
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/events'),
+            null,
+            [
+                RecursiveMerge::groups(...$eventGroups),
+                ReverseMerge::groups(...$eventGroups),
+            ]
+        );
+
+        $this->assertSame([
+            'e1' => [
+                ['app3', 'handler1'],
+                ['app1', 'handler1'],
+                ['package-b1', 'handler1'],
+                ['package-a1', 'handler1'],
+                ['package-a2', 'handler1'],
+                ['package-a3', 'handler1'],
+            ],
+            'e2' => [
+                ['app2', 'handler2'],
+                ['package-b2', 'handler1'],
+            ],
+        ], $config->get('events-console'));
+    }
+
     private function createConfig(string $environment = null): Config
     {
         return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'), $environment);
