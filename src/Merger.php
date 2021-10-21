@@ -86,10 +86,9 @@ final class Merger
         $isReverseMerge = array_key_exists($context->group(), $this->reverseMergeGroupsIndex);
         $isRecursiveMerge = array_key_exists($context->group(), $this->recursiveMergeGroupsIndex);
 
-        $result = $isReverseMerge ? $arrayB : $arrayA;
-        if ($isReverseMerge) {
-            $this->fillCache($context, $recursiveKeyPath, $result, $isRecursiveMerge);
-        }
+        $result = $isReverseMerge
+            ? $this->prepareArrayForReverse($context, $recursiveKeyPath, $arrayB, $isRecursiveMerge)
+            : $arrayA;
 
         /** @psalm-var mixed $v */
         foreach ($isReverseMerge ? $arrayA : $arrayB as $k => $v) {
@@ -164,11 +163,21 @@ final class Merger
     /**
      * @param string[] $recursiveKeyPath
      */
-    private function fillCache(Context $context, array $recursiveKeyPath, array $array, bool $isRecursiveMerge): void
+    private function prepareArrayForReverse(Context $context, array $recursiveKeyPath, array $array, bool $isRecursiveMerge): array
     {
+        $result = [];
+
         /** @var mixed $value */
         foreach ($array as $key => $value) {
             if (is_int($key)) {
+                $result[$key] = $value;
+                continue;
+            }
+
+            if (
+                $context->isVendor()
+                && ArrayHelper::getValue($this->removeFromVendorKeysIndex, array_merge($recursiveKeyPath, [$key]), false)
+            ) {
                 continue;
             }
 
@@ -176,10 +185,12 @@ final class Merger
                 $isRecursiveMerge
                 && is_array($value)
             ) {
+                $result[$key] = $value;
                 continue;
             }
 
             if ($context->isVariable()) {
+                $result[$key] = $value;
                 continue;
             }
 
@@ -198,12 +209,7 @@ final class Merger
                 );
             }
 
-            if (
-                $context->isVendor()
-                && ArrayHelper::getValue($this->removeFromVendorKeysIndex, $recursiveKeyPath, false)
-            ) {
-                continue;
-            }
+            $result[$key] = $value;
 
             /** @psalm-suppress MixedPropertyTypeCoercion */
             ArrayHelper::setValue(
@@ -212,6 +218,8 @@ final class Merger
                 $context->file()
             );
         }
+
+        return $result;
     }
 
     /**
