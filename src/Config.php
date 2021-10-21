@@ -31,8 +31,8 @@ final class Config
     /**
      * @param ConfigPaths $paths The config paths instance.
      * @param string|null $environment The environment name.
-     * @param object[] $modifiers
-     * @param string $paramsGroup
+     * @param object[] $modifiers Modifiers that affect merge process.
+     * @param string $paramsGroup Group name for $params.
      *
      * @throws ErrorException If the environment does not exist.
      */
