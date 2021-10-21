@@ -229,6 +229,23 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
+    public function testDuplicateRootKeysErrorMessageWithReverseMerge(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys'),
+            null,
+            [ReverseMerge::groups('params')]
+        );
+
+        $this->expectException(ErrorException::class);
+        $this->expectErrorMessage(
+            'Duplicate key "age" in configs:' . "\n" .
+            ' - config/params/a.php' . "\n" .
+            ' - config/params/b.php'
+        );
+        $config->get('params');
+    }
+
     public function testDuplicateEnvironmentKeysErrorMessage(): void
     {
         $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys'), 'environment');
@@ -243,9 +260,44 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
+    public function testDuplicateEnvironmentKeysErrorMessageWithReverseMerge(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys'),
+            'environment',
+            [ReverseMerge::groups('params')]
+        );
+
+        $this->expectException(ErrorException::class);
+        $this->expectErrorMessage(
+            'Duplicate key "age" in configs:' . "\n" .
+            ' - config/environment/params/a.php' . "\n" .
+            ' - config/environment/params/b.php'
+        );
+        $config->get('params');
+    }
+
     public function testDuplicateVendorKeysErrorMessage(): void
     {
         $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys'));
+
+        $this->expectException(ErrorException::class);
+        $this->expectErrorMessage(
+            'Duplicate key "age" in configs:' . "\n" .
+            ' - vendor/package/a/params.php' . "\n" .
+            ' - vendor/package/b/params.php'
+        );
+
+        $config->get('params');
+    }
+
+    public function testDuplicateVendorKeysErrorMessageWithReverseMerge(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys'),
+            null,
+            [ReverseMerge::groups('params')]
+        );
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
