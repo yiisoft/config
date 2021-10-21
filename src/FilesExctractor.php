@@ -15,11 +15,6 @@ final class FilesExctractor
     private MergePlan $mergePlan;
     private string $environment;
 
-    /**
-     * @psalm-var array<string,array<string,Context>>
-     */
-    private array $cache = [];
-
     public function __construct(
         ConfigPaths $paths,
         MergePlan $mergePlan,
@@ -35,49 +30,40 @@ final class FilesExctractor
      */
     public function extract(string $group): array
     {
-        if (isset($this->cache[$group])) {
-            return $this->cache[$group];
-        }
-
-        $this->performExtract($group);
-
-        return $this->cache[$group];
-    }
-
-    public function performExtract(string $group): void
-    {
-        if (isset($this->cache[$group])) {
-            return;
-        }
-
         $environment = $this->prepareEnvironment($group);
 
-        $this->cache[$group] = [];
-
-        $this->process(
+        $result = $this->process(
             Options::ROOT_PACKAGE_NAME,
             $group,
             $this->mergePlan->getGroup($group, Options::ROOT_PACKAGE_NAME)
         );
 
         if ($environment !== Options::ROOT_PACKAGE_NAME) {
-            $this->process(
-                $environment,
-                $group,
-                $this->mergePlan->getGroup($group, $environment)
+            $result = array_merge(
+                $result,
+                $this->process(
+                    $environment,
+                    $group,
+                    $this->mergePlan->getGroup($group, $environment)
+                )
             );
         }
+
+        return $result;
     }
 
     /**
      * @psalm-param array<string, string[]> $data
+     *
+     * @psalm-return array<string,Context>
      */
-    private function process(string $environment, string $group, array $data): void
+    private function process(string $environment, string $group, array $data): array
     {
+        $result = [];
         foreach ($data as $package => $items) {
             foreach ($items as $item) {
                 if (Options::isVariable($item)) {
-                    $this->cache[$group][$item] = new Context($environment, $group, $package, $item, true);
+                    $result[$item] = new Context($environment, $group, $package, $item, true);
                     continue;
                 }
 
@@ -91,13 +77,14 @@ final class FilesExctractor
                 $files = Options::containsWildcard($item) ? glob($filePath) : [$filePath];
                 foreach ($files as $file) {
                     if (is_file($file)) {
-                        $this->cache[$group][$file] = new Context($environment, $group, $package, $file, false);
+                        $result[$file] = new Context($environment, $group, $package, $file, false);
                     } elseif (!$isOptional) {
                         $this->throwException(sprintf('The "%s" file does not found.', $file));
                     }
                 }
             }
         }
+        return $result;
     }
 
     /**
