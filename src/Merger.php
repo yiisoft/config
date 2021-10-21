@@ -12,7 +12,6 @@ use Yiisoft\Config\Modifier\ReverseMerge;
 
 use function array_key_exists;
 use function array_flip;
-use function array_shift;
 use function array_map;
 use function implode;
 use function is_array;
@@ -180,6 +179,10 @@ final class Merger
                 continue;
             }
 
+            if ($context->isVariable()) {
+                continue;
+            }
+
             $recursiveKeyPath[] = $key;
 
             /** @var string|null $file */
@@ -193,10 +196,6 @@ final class Merger
                     0,
                     E_USER_ERROR,
                 );
-            }
-
-            if ($context->isVariable()) {
-                continue;
             }
 
             if (

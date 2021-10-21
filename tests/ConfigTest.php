@@ -425,7 +425,7 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
-    public function testReveseAndRecursive(): void
+    public function testReverseAndRecursive(): void
     {
         $config = new Config(
             new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse'),
@@ -442,6 +442,22 @@ final class ConfigTest extends TestCase
                 'nested-key' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
             ],
         ], $config->get('params'));
+    }
+
+    public function testReverseWithTwoVariables(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/variables'),
+            null,
+            [
+                ReverseMerge::groups('web'),
+            ]
+        );
+
+        $this->assertSame([
+            'b' => 2,
+            'a' => 1,
+        ], $config->get('web'));
     }
 
     public function testEvents(): void
