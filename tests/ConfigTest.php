@@ -516,6 +516,26 @@ final class ConfigTest extends TestCase
         ], $config->get('events-console'));
     }
 
+    public function testReverseAndRemoveNestedKeyFromVendor(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse'),
+            null,
+            [
+                RecursiveMerge::groups('params'),
+                ReverseMerge::groups('params'),
+                RemoveFromVendor::keys(['nested', 'nested-key']),
+            ]
+        );
+
+        $this->assertSame([
+            'array' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
+            'nested' => [
+                'nested-key' => [7, 8, 9],
+            ],
+        ], $config->get('params'));
+    }
+
     private function createConfig(string $environment = null): Config
     {
         return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'), $environment);
