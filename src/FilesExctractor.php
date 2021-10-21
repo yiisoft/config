@@ -93,7 +93,7 @@ final class FilesExctractor
                     if (is_file($file)) {
                         $this->cache[$group][$file] = new Context($environment, $group, $package, $file);
                     } elseif (!$isOptional) {
-                        $this->throwException('file not found');
+                        $this->throwException(sprintf('The "%s" file does not found.', $file));
                     }
                 }
             }

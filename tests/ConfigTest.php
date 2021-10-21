@@ -288,6 +288,19 @@ final class ConfigTest extends TestCase
         );
     }
 
+    public function testNotFoundFile(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/not-found-file'),
+        );
+
+        $this->expectException(ErrorException::class);
+        $this->expectErrorMessageMatches(
+            '~^The ".*/params2\.php" file does not found\.$~'
+        );
+        $config->get('params');
+    }
+
     public function testConfigWithReverseMerge(): void
     {
         $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'), null, [
