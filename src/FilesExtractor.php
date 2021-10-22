@@ -38,7 +38,7 @@ final class FilesExtractor
      *
      * @throws ErrorException If an error occurred during the extract.
      *
-     * @return array<string, Context>
+     * @psalm-return array<string, Context>
      */
     public function extract(string $group): array
     {

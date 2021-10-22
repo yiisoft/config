@@ -122,7 +122,6 @@ final class Config
 
             $this->build[$group] = $this->merger->merge(
                 $context,
-                [],
                 $this->build[$group],
                 $array,
             );
