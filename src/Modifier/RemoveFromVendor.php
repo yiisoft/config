@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Modifier;
 
 /**
- * In process getting configuration all elements of arrays from vendor packages with specified key paths
- * will be ignored. Support for nested keys only works in conjunction with {@see RecursiveMerge} modifier.
+ * Marks specified keys to be ignored when reading configuration from vendor packages.
+ * Nested keys are suppored only when {@see RecursiveMerge} modifier is applied as well.
  *
  * The modifier should be specified as
  *

@@ -292,9 +292,10 @@ $params = $config->get('params'); // merged recursively
 
 ### Reverse merge of arrays
 
-Result of merging will be ordered by source the opposite to actual merge. It is especially useful for merging
-module config with core config where more specific config has more priority, such as events. For enable reverse
-merge pass `ReverseMerge` modifier with specified group names to the `Config` constructor:
+Result of reverse merge is be ordered descending by data source. It is useful for merging module config with
+base config where more specific config (i.e. module's) has more priority. One of such cases is merging events.
+
+To enable reverse merge pass `ReverseMerge` modifier with specified group names to the `Config` constructor:
 
 ```php
 use Yiisoft\Config\Config;
@@ -338,7 +339,7 @@ $params = $config->get('params');
 
 ### Combine modifiers
 
-`Config` supports the simultaneous use of several modifiers:
+`Config` supports simultaneous use of several modifiers:
 
 ```php
 use Yiisoft\Config\Config;
