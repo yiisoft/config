@@ -87,7 +87,7 @@ final class MergePlan
      *
      * @return bool Whether the group exists in the merge plan.
      */
-    public function hasGroup(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): bool
+    public function hasGroup(string $group, string $environment): bool
     {
         return isset($this->mergePlan[$environment][$group]);
     }

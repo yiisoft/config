@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace Yiisoft\Config;
 
 use ErrorException;
+use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Config\Modifier\RecursiveMerge;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
+use Yiisoft\Config\Modifier\ReverseMerge;
 
 use function array_key_exists;
 use function array_flip;
-use function array_shift;
 use function array_map;
-use function file_get_contents;
 use function implode;
 use function is_array;
-use function is_file;
 use function is_int;
 use function sprintf;
 use function substr_count;
@@ -25,88 +26,134 @@ use function usort;
 final class Merger
 {
     private ConfigPaths $paths;
-    private MergePlan $mergePlan;
     private array $recursiveMergeGroupsIndex;
+    private array $reverseMergeGroupsIndex;
+    private array $removeFromVendorKeysIndex;
 
     /**
-     * @psalm-var array<string, array<string, array<string, string>>>
+     * @psalm-var array<int, array>
      */
-    private array $rootPackageMergedKeys = [];
+    private array $cacheKeys = [];
 
     /**
      * @param ConfigPaths $paths The config paths instance.
-     * @param MergePlan $mergePlan The merge plan instance.
-     * @param string[] $recursiveMergeGroups Names of config groups that should be merged recursively.
+     * @param object[] $modifiers Names of config groups that should be merged recursively.
      */
-    public function __construct(ConfigPaths $paths, MergePlan $mergePlan, array $recursiveMergeGroups = [])
+    public function __construct(ConfigPaths $paths, array $modifiers = [])
     {
         $this->paths = $paths;
-        $this->mergePlan = $mergePlan;
+
+        $reverseMergeGroups = [];
+        $recursiveMergeGroups = [];
+        $this->removeFromVendorKeysIndex = [];
+        foreach ($modifiers as $modifier) {
+            if ($modifier instanceof ReverseMerge) {
+                $reverseMergeGroups = array_merge($reverseMergeGroups, $modifier->getGroups());
+            }
+            if ($modifier instanceof RecursiveMerge) {
+                $recursiveMergeGroups = array_merge($recursiveMergeGroups, $modifier->getGroups());
+            }
+            if ($modifier instanceof RemoveFromVendor) {
+                foreach ($modifier->getKeys() as $path) {
+                    ArrayHelper::setValue($this->removeFromVendorKeysIndex, $path, true);
+                }
+            }
+        }
+
+        $this->reverseMergeGroupsIndex = array_flip($reverseMergeGroups);
         $this->recursiveMergeGroupsIndex = array_flip($recursiveMergeGroups);
+    }
+
+    public function reset(): void
+    {
+        $this->cacheKeys = [];
     }
 
     /**
      * Merges two or more arrays into one recursively.
      *
      * @param Context $context Context containing the name of the file, package, group and environment.
-     * @param string $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
-     * @param array ...$args Two or more arrays to merge.
+     * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
+     * @param array $arrayA First array to merge.
+     * @param array $arrayB Second array to merge.
      *
      * @throws ErrorException If an error occurred during the merge.
      *
      * @return array The merged array.
      */
-    public function merge(Context $context, string $recursiveKeyPath = '', array ...$args): array
+    public function merge(Context $context, array $recursiveKeyPath, array $arrayA, array $arrayB): array
     {
-        $result = array_shift($args) ?: [];
+        $isReverseMerge = array_key_exists($context->group(), $this->reverseMergeGroupsIndex);
+        $isRecursiveMerge = array_key_exists($context->group(), $this->recursiveMergeGroupsIndex);
 
-        while (!empty($args)) {
-            /** @psalm-var mixed $v */
-            foreach (array_shift($args) as $k => $v) {
-                if (is_int($k)) {
-                    if (array_key_exists($k, $result) && $result[$k] !== $v) {
-                        /** @var mixed */
-                        $result[] = $v;
-                    } else {
-                        /** @var mixed */
-                        $result[$k] = $v;
-                    }
-                    continue;
+        $result = $isReverseMerge
+            ? $this->prepareArrayForReverse($context, $recursiveKeyPath, $arrayB, $isRecursiveMerge)
+            : $arrayA;
+
+        /** @psalm-var mixed $v */
+        foreach ($isReverseMerge ? $arrayA : $arrayB as $k => $v) {
+            if (is_int($k)) {
+                if (array_key_exists($k, $result) && $result[$k] !== $v) {
+                    /** @var mixed */
+                    $result[] = $v;
+                } else {
+                    /** @var mixed */
+                    $result[$k] = $v;
                 }
+                continue;
+            }
 
-                if (
-                    isset($result[$k]) &&
-                    is_array($result[$k]) &&
-                    is_array($v) &&
-                    array_key_exists($context->group(), $this->recursiveMergeGroupsIndex)
-                ) {
-                    $result[$k] = $this->merge(
-                        $context,
-                        $recursiveKeyPath ? $recursiveKeyPath . ' => ' . $k : $k,
-                        $result[$k],
-                        $v,
-                    );
-                    continue;
-                }
+            $fullKeyPath = array_merge($recursiveKeyPath, [$k]);
 
-                if (
-                    array_key_exists($k, $result) && (
-                        $context->package() !== Options::ROOT_PACKAGE_NAME ||
-                        isset($this->rootPackageMergedKeys[$context->environment()][$context->group()][$k])
-                    )
-                ) {
+            if (
+                $isRecursiveMerge
+                && is_array($v)
+                && (
+                    !array_key_exists($k, $result)
+                    || is_array($result[$k])
+                )
+            ) {
+                /** @var array $array */
+                $array = $result[$k] ?? [];
+                $this->setValue(
+                    $context,
+                    $fullKeyPath,
+                    $result,
+                    $k,
+                    $isReverseMerge
+                        ? $this->merge($context, $fullKeyPath, $v, $array)
+                        : $this->merge($context, $fullKeyPath, $array, $v)
+                );
+                continue;
+            }
+
+            $existKey = array_key_exists($k, $result);
+
+            if ($existKey && !$isReverseMerge) {
+                /** @var string|null $file */
+                $file = ArrayHelper::getValue(
+                    $this->cacheKeys,
+                    array_merge([$context->level()], $fullKeyPath)
+                );
+                if ($file !== null) {
                     throw new ErrorException(
-                        $this->getDuplicateErrorMessage($k, $recursiveKeyPath, $context),
+                        $this->getDuplicateErrorMessage($fullKeyPath, [$file, $context->file()]),
                         0,
                         E_USER_ERROR,
                     );
                 }
+            }
 
-                if ($context->package() === Options::ROOT_PACKAGE_NAME && !Options::isVariable($context->file())) {
-                    $this->rootPackageMergedKeys[$context->environment()][$context->group()][$k] = $context->file();
+            if (!$isReverseMerge || !$existKey) {
+                $isSet = $this->setValue($context, $fullKeyPath, $result, $k, $v);
+                if ($isSet && !$isReverseMerge && !$context->isVariable()) {
+                    /** @psalm-suppress MixedPropertyTypeCoercion */
+                    ArrayHelper::setValue(
+                        $this->cacheKeys,
+                        array_merge([$context->level()], $fullKeyPath),
+                        $context->file()
+                    );
                 }
-                /** @var mixed */
-                $result[$k] = $v;
             }
         }
 
@@ -114,62 +161,102 @@ final class Merger
     }
 
     /**
-     * Returns a duplicate key error message.
-     *
-     * @param string $key The duplicate key.
-     * @param string $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
-     * @param Context $context Context containing the name of the file, package, group and environment.
-     *
-     * @return string The duplicate key error message.
+     * @param string[] $recursiveKeyPath
      */
-    private function getDuplicateErrorMessage(string $key, string $recursiveKeyPath, Context $context): string
+    private function prepareArrayForReverse(Context $context, array $recursiveKeyPath, array $array, bool $isRecursiveMerge): array
     {
-        if (isset($this->rootPackageMergedKeys[$context->environment()][$context->group()][$key])) {
-            return $this->formatDuplicateErrorMessage($key, $recursiveKeyPath, [
-                $this->paths->relative($context->file(), $context->package()),
-                $this->paths->relative($this->rootPackageMergedKeys[$context->environment()][$context->group()][$key]),
-            ]);
-        }
+        $result = [];
 
-        $filePaths = [$this->paths->relative($context->file(), $context->package())];
-        $group = $this->mergePlan->getGroup($context->group(), $context->environment());
-        unset($group[$context->package()], $group[Options::ROOT_PACKAGE_NAME]);
-
-        foreach ($group as $package => $files) {
-            foreach ($files as $file) {
-                if (Options::isVariable($file)) {
-                    continue;
-                }
-
-                if (Options::isOptional($file)) {
-                    $file = substr($file, 1);
-                }
-
-                $absoluteFilePath = $this->paths->absolute($file, $package);
-
-                if (is_file($absoluteFilePath) && ($fileContent = file_get_contents($absoluteFilePath)) !== false) {
-                    if (strpos($fileContent, $key) !== false) {
-                        $filePaths[] = $this->paths->relative($file, $package);
-                    }
-                }
+        /** @var mixed $value */
+        foreach ($array as $key => $value) {
+            if (is_int($key)) {
+                $result[$key] = $value;
+                continue;
             }
+
+            if (
+                $context->isVendor()
+                && ArrayHelper::getValue($this->removeFromVendorKeysIndex, array_merge($recursiveKeyPath, [$key]), false)
+            ) {
+                continue;
+            }
+
+            if (
+                $isRecursiveMerge
+                && is_array($value)
+            ) {
+                $result[$key] = $value;
+                continue;
+            }
+
+            if ($context->isVariable()) {
+                $result[$key] = $value;
+                continue;
+            }
+
+            $recursiveKeyPath[] = $key;
+
+            /** @var string|null $file */
+            $file = ArrayHelper::getValue(
+                $this->cacheKeys,
+                array_merge([$context->level()], $recursiveKeyPath)
+            );
+            if ($file !== null) {
+                throw new ErrorException(
+                    $this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]),
+                    0,
+                    E_USER_ERROR,
+                );
+            }
+
+            $result[$key] = $value;
+
+            /** @psalm-suppress MixedPropertyTypeCoercion */
+            ArrayHelper::setValue(
+                $this->cacheKeys,
+                array_merge([$context->level()], $recursiveKeyPath),
+                $context->file()
+            );
         }
 
-        return $this->formatDuplicateErrorMessage($key, $recursiveKeyPath, $filePaths);
+        return $result;
     }
 
     /**
-     * Formats a duplicate key error message.
+     * @param mixed $value
+     *
+     * @psalm-param non-empty-array<array-key, string> $keyPath
+     */
+    private function setValue(Context $context, array $keyPath, array &$array, string $key, $value): bool
+    {
+        if (
+            $context->isVendor()
+            && ArrayHelper::getValue($this->removeFromVendorKeysIndex, $keyPath, false)
+        ) {
+            return false;
+        }
+
+        /** @var mixed */
+        $array[$key] = $value;
+
+        return true;
+    }
+
+    /**
+     * Returns a duplicate key error message.
      *
      * @param string $key The duplicate key.
-     * @param string $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
-     * @param string[] $filePaths The paths to the files where duplicate keys were found.
+     * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
+     * @param string[] $absoulteFilePaths
      *
-     * @return string The formatted duplicate key error message.
+     * @return string The duplicate key error message.
      */
-    private function formatDuplicateErrorMessage(string $key, string $recursiveKeyPath, array $filePaths): string
+    private function getDuplicateErrorMessage(array $recursiveKeyPath, array $absoulteFilePaths): string
     {
-        $filePaths = array_map(static fn (string $filePath) => ' - ' . $filePath, $filePaths);
+        $filePaths = array_map(
+            fn (string $filePath) => ' - ' . $this->paths->relative($filePath),
+            $absoulteFilePaths
+        );
 
         usort($filePaths, static function (string $a, string $b) {
             $countDirsA = substr_count($a, '/');
@@ -179,7 +266,7 @@ final class Merger
 
         return sprintf(
             "Duplicate key \"%s\" in configs:\n%s",
-            $recursiveKeyPath ? $recursiveKeyPath . ' => ' . $key : $key,
+            implode(' => ', $recursiveKeyPath),
             implode("\n", $filePaths),
         );
     }

@@ -266,27 +266,100 @@ $appConfig = $config->get('app');
 If defined in an environment, `params` will be merged with `params` from the main configuration,
 and could be used as `$params` in all configurations.
 
-## Recursive merge of arrays
+## Configuration modifiers
+
+### Recursive merge of arrays
 
 By default, recursive merging of arrays in configuration files is not performed. If you want to recursively merge
-arrays in a certain group of configs, such as params, you must pass group names to the `Config` constructor:
+arrays in a certain group of configs, such as params, you must pass `RecursiveMerge` modifier with specified
+group names to the `Config` constructor:
 
 ```php
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RecursiveMerge;
 
 $config = new Config(
     new ConfigPaths(dirname(__DIR__)),
     'dev',
     [
-        'params',
-        'events',
-        'events-web',
-        'events-console',
+        RecursiveMerge::groups('params', 'events', 'events-web', 'events-console'),
     ],
 );
 
-$appConfig = $config->get('events-web'); // merged recursively
+$params = $config->get('params'); // merged recursively
+```
+
+### Reverse merge of arrays
+
+Result of reverse merge is be ordered descending by data source. It is useful for merging module config with
+base config where more specific config (i.e. module's) has more priority. One of such cases is merging events.
+
+To enable reverse merge pass `ReverseMerge` modifier with specified group names to the `Config` constructor:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\ReverseMerge;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        ReverseMerge::groups('events', 'events-web', 'events-console'),
+    ],
+);
+
+$events = $config->get('events-console'); // merged reversed
+```
+
+### Remove elements from vendor package configuration
+
+Sometimes it is necessary to remove some elements of vendor packages configuration. To do this,
+pass `RemoveFromVendor` modifier with specified key paths to the `Config` constructor:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        RemoveFromVendor::keys(
+            ['key-for-remove'],
+            ['nested', 'key', 'for-remove'],
+        ),
+    ],
+);
+
+$params = $config->get('params');
+```
+
+### Combine modifiers
+
+`Config` supports simultaneous use of several modifiers:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RecursiveMerge;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
+use Yiisoft\Config\Modifier\ReverseMerge;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        RecursiveMerge::groups('params', 'events', 'events-web', 'events-console'),
+        ReverseMerge::groups('events', 'events-web', 'events-console'),
+        RemoveFromVendor::keys(
+            ['key-for-remove'],
+            ['nested', 'key', 'for-remove'],
+        ),
+    ],
+);
 ```
 
 ## Commands

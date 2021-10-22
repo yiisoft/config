@@ -14,10 +14,9 @@ use function trim;
  */
 final class ConfigPaths
 {
+    private string $rootPath;
     private string $configPath;
     private string $vendorPath;
-    private string $relativeConfigPath;
-    private string $relativeVendorPath;
 
     /**
      * @param string $rootPath The absolute path to the project root where `composer.json` is located.
@@ -26,10 +25,9 @@ final class ConfigPaths
      */
     public function __construct(string $rootPath, string $configDirectory = null, string $vendorDirectory = null)
     {
-        $this->relativeConfigPath = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
-        $this->relativeVendorPath = trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
-        $this->configPath = $rootPath . '/' . $this->relativeConfigPath;
-        $this->vendorPath = $rootPath . '/' . $this->relativeVendorPath;
+        $this->rootPath = $rootPath;
+        $this->configPath = $rootPath . '/' . trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
+        $this->vendorPath = $rootPath . '/' . trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
     }
 
     /**
@@ -53,24 +51,13 @@ final class ConfigPaths
      * Returns the relative path to the configuration file.
      *
      * @param string $file Config file.
-     * @param string $package Name of the package. {@see Options::ROOT_PACKAGE_NAME} stands for the root package.
      *
      * @return string The relative path to the configuration file.
      */
-    public function relative(string $file, string $package = Options::ROOT_PACKAGE_NAME): string
+    public function relative(string $file): string
     {
-        if ($package === Options::ROOT_PACKAGE_NAME) {
-            if (strpos($file, "$this->configPath/") === 0) {
-                $file = substr($file, strlen("$this->configPath/"));
-            }
-
-            return "$this->relativeConfigPath/$file";
-        }
-
-        if (strpos($file, "$this->vendorPath/") === 0) {
-            return $this->relativeVendorPath . substr($file, strlen($this->vendorPath));
-        }
-
-        return "$this->relativeVendorPath/$package/$file";
+        return strpos($file, "$this->rootPath/") === 0
+            ? substr($file, strlen("$this->rootPath/"))
+            : $file;
     }
 }
