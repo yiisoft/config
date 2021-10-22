@@ -9,7 +9,7 @@ use ErrorException;
 /**
  * @internal
  */
-final class FilesExctractor
+final class FilesExtractor
 {
     private ConfigPaths $paths;
     private MergePlan $mergePlan;

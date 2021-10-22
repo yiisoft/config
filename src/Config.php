@@ -19,7 +19,7 @@ use function sprintf;
 final class Config
 {
     private Merger $merger;
-    private FilesExctractor $filesExctractor;
+    private FilesExtractor $filesExtractor;
     private string $paramsGroup;
     private bool $isBuildingParams = false;
 
@@ -53,7 +53,7 @@ final class Config
         }
 
         $this->merger = new Merger($paths, $modifiers);
-        $this->filesExctractor = new FilesExctractor($paths, $mergePlan, $environment);
+        $this->filesExtractor = new FilesExtractor($paths, $mergePlan, $environment);
     }
 
     /**
@@ -105,7 +105,7 @@ final class Config
 
         $this->build[$group] = [];
 
-        foreach ($this->filesExctractor->extract($group) as $file => $context) {
+        foreach ($this->filesExtractor->extract($group) as $file => $context) {
             if (Options::isVariable($file)) {
                 $variable = $this->prepareVariable($file, $group);
                 $array = $this->get($variable);
