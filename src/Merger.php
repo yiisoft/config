@@ -222,7 +222,6 @@ final class Merger
             }
 
             if ($isRecursiveMerge && is_array($value)) {
-                $result[$key] = $value;
                 $result[$key] = $this->prepareArrayForReverse(
                     $context,
                     array_merge($recursiveKeyPath, [$key]),
