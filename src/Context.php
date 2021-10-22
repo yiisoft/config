@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config;
 
+/**
+ * @internal
+ */
 final class Context
 {
-    public const VENDOR = 1;
-    public const APPLICATION = 2;
-    public const ENVIRONMENT = 3;
+    private const VENDOR = 1;
+    private const APPLICATION = 2;
+    private const ENVIRONMENT = 3;
 
     private string $group;
     private int $level;
