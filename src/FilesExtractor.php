@@ -6,6 +6,12 @@ namespace Yiisoft\Config;
 
 use ErrorException;
 
+use function array_merge;
+use function glob;
+use function is_file;
+use function sprintf;
+use function substr;
+
 /**
  * @internal
  */
@@ -26,19 +32,21 @@ final class FilesExtractor
     }
 
     /**
-     * @psalm-return array<string,Context>
+     * Extracts group configuration data from files.
+     *
+     * @param string $group The group name.
+     *
+     * @throws ErrorException If an error occurred during the extract.
+     *
+     * @return array<string, Context>
      */
     public function extract(string $group): array
     {
         $environment = $this->prepareEnvironment($group);
 
-        $result = $this->process(
-            Options::ROOT_PACKAGE_NAME,
-            $group,
-            $this->mergePlan->getGroup($group, Options::ROOT_PACKAGE_NAME)
-        );
+        $result = $this->process(Options::ROOT_PACKAGE_NAME, $group, $this->mergePlan->getGroup($group));
 
-        if ($environment !== Options::ROOT_PACKAGE_NAME) {
+        if ($environment !== Options::DEFAULT_ENVIRONMENT) {
             $result = array_merge(
                 $result,
                 $this->process(
@@ -55,11 +63,14 @@ final class FilesExtractor
     /**
      * @psalm-param array<string, string[]> $data
      *
-     * @psalm-return array<string,Context>
+     * @throws ErrorException If an error occurred during the process.
+     *
+     * @psalm-return array<string, Context>
      */
     private function process(string $environment, string $group, array $data): array
     {
         $result = [];
+
         foreach ($data as $package => $items) {
             foreach ($items as $item) {
                 if (Options::isVariable($item)) {
@@ -68,13 +79,14 @@ final class FilesExtractor
                 }
 
                 $isOptional = Options::isOptional($item);
+
                 if ($isOptional) {
                     $item = substr($item, 1);
                 }
 
                 $filePath = $this->paths->absolute($item, $package);
-
                 $files = Options::containsWildcard($item) ? glob($filePath) : [$filePath];
+
                 foreach ($files as $file) {
                     if (is_file($file)) {
                         $result[$file] = new Context($environment, $group, $package, $file, false);
@@ -84,6 +96,7 @@ final class FilesExtractor
                 }
             }
         }
+
         return $result;
     }
 
