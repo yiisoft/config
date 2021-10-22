@@ -4,6 +4,68 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Modifier;
 
+/**
+ * Result of merging specified groups will be ordered by source the opposite to actual merge. It is especially
+ * useful for merging module config with core config where more specific config has more priority.
+ *
+ * The modifier should be specified as
+ *
+ * ```php
+ * ReverseMerge::groups('events', 'events-web', 'events-console')
+ * ```
+ *
+ * For example:
+ *
+ * - configuration in application `composer.json`:
+ *
+ * ```
+ * "config-plugin": {
+ *     "events": "events.php",
+ *     "params": "params.php",
+ * }
+ * ```
+ *
+ * - application `events.php` contents:
+ *
+ * ```php
+ * return ['a' => 1, 'b' => 2];
+ * ```
+ *
+ * - configuration in vendor package:
+ *
+ * ```
+ * "config-plugin": {
+ *     "events": "events.php",
+ * }
+ * ```
+ *
+ * - vendor package `events.php` contents:
+ *
+ * ```php
+ * return ['c' => 3, 'd' => 4];
+ * ```
+ *
+ * - getting configuration:
+ *
+ * ```php
+ * $config = new Config(new ConfigPaths($configsDir), null, [
+ *     ReverseMerge::groups('events'),
+ * ]);
+ *
+ * $result = $config->get('events');
+ * ```
+ *
+ * The result will be:
+ *
+ * ```php
+ * [
+ *     'a' => 1,
+ *     'b' => 2,
+ *     'c' => 3,
+ *     'd' => 3,
+ * ]
+ * ```
+ */
 final class ReverseMerge
 {
     /**
