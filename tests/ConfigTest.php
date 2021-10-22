@@ -365,6 +365,28 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
+    public function testDeepRecursive(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/deep-recursive'),
+            null,
+            [
+                RecursiveMerge::groups('params'),
+            ]
+        );
+
+        $this->assertSame([
+            'nested' => [
+                'nested2' => [
+                    'nested3-1' => 1,
+                    'nested3-2' => 2,
+                    'nested3-3' => 3,
+                    'nested3-4' => 4,
+                ],
+            ],
+        ], $config->get('params'));
+    }
+
     public function testConfigWithReverseMerge(): void
     {
         $config = new Config(
