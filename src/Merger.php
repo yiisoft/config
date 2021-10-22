@@ -73,7 +73,6 @@ final class Merger
      * Merges two or more arrays into one recursively.
      *
      * @param Context $context Context containing the name of the file, package, group and environment.
-     * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
      * @param array $arrayA First array to merge.
      * @param array $arrayB Second array to merge.
      *
@@ -81,17 +80,49 @@ final class Merger
      *
      * @return array The merged array.
      */
-    public function merge(Context $context, array $recursiveKeyPath, array $arrayA, array $arrayB): array
+    public function merge(Context $context, array $arrayA, array $arrayB): array
     {
-        $isReverseMerge = array_key_exists($context->group(), $this->reverseMergeGroupsIndex);
         $isRecursiveMerge = array_key_exists($context->group(), $this->recursiveMergeGroupsIndex);
+        $isReverseMerge = array_key_exists($context->group(), $this->reverseMergeGroupsIndex);
 
-        $result = $isReverseMerge
-            ? $this->prepareArrayForReverse($context, $recursiveKeyPath, $arrayB, $isRecursiveMerge)
-            : $arrayA;
+        if ($isReverseMerge) {
+            $arrayB = $this->prepareArrayForReverse($context, [], $arrayB, $isRecursiveMerge);
+        }
+
+        return $this->performMerge(
+            $context,
+            [],
+            $isReverseMerge ? $arrayB : $arrayA,
+            $isReverseMerge ? $arrayA : $arrayB,
+            $isRecursiveMerge,
+            $isReverseMerge,
+        );
+    }
+
+    /**
+     * @param Context $context Context containing the name of the file, package, group and environment.
+     * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
+     * @param array $arrayA First array to merge.
+     * @param array $arrayB Second array to merge.
+     * @param bool $isRecursiveMerge
+     * @param bool $isReverseMerge
+     *
+     * @throws ErrorException If an error occurred during the merge.
+     *
+     * @return array The merged array.
+     */
+    public function performMerge(
+        Context $context,
+        array $recursiveKeyPath,
+        array $arrayA,
+        array $arrayB,
+        bool $isRecursiveMerge,
+        bool $isReverseMerge
+    ): array {
+        $result = $arrayA;
 
         /** @psalm-var mixed $v */
-        foreach ($isReverseMerge ? $arrayA : $arrayB as $k => $v) {
+        foreach ($arrayB as $k => $v) {
             if (is_int($k)) {
                 if (array_key_exists($k, $result) && $result[$k] !== $v) {
                     /** @var mixed */
@@ -120,9 +151,7 @@ final class Merger
                     $fullKeyPath,
                     $result,
                     $k,
-                    $isReverseMerge
-                        ? $this->merge($context, $fullKeyPath, $v, $array)
-                        : $this->merge($context, $fullKeyPath, $array, $v)
+                    $this->performMerge($context, $fullKeyPath, $array, $v, $isReverseMerge, $isReverseMerge)
                 );
                 continue;
             }
@@ -176,7 +205,10 @@ final class Merger
 
             if (
                 $context->isVendor()
-                && ArrayHelper::getValue($this->removeFromVendorKeysIndex, array_merge($recursiveKeyPath, [$key]), false)
+                && ArrayHelper::getValue(
+                    $this->removeFromVendorKeysIndex,
+                    array_merge($recursiveKeyPath, [$key])
+                ) === true
             ) {
                 continue;
             }
@@ -185,7 +217,12 @@ final class Merger
                 $isRecursiveMerge
                 && is_array($value)
             ) {
-                $result[$key] = $value;
+                $result[$key] = $this->prepareArrayForReverse(
+                    $context,
+                    array_merge($recursiveKeyPath, [$key]),
+                    $value,
+                    $isRecursiveMerge
+                );
                 continue;
             }
 
@@ -231,7 +268,7 @@ final class Merger
     {
         if (
             $context->isVendor()
-            && ArrayHelper::getValue($this->removeFromVendorKeysIndex, $keyPath, false)
+            && ArrayHelper::getValue($this->removeFromVendorKeysIndex, $keyPath) === true
         ) {
             return false;
         }
