@@ -11,6 +11,7 @@ use function func_get_arg;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
+use function substr;
 
 /**
  * Config takes merge plan prepared by {@see \Yiisoft\Config\Composer\EventHandler}
@@ -77,6 +78,9 @@ final class Config
         return $this->build[$group];
     }
 
+    /**
+     * @throws ErrorException If an error occurred during the build.
+     */
     private function runBuildParams(): void
     {
         $this->isBuildingParams = true;
@@ -84,6 +88,9 @@ final class Config
         $this->isBuildingParams = false;
     }
 
+    /**
+     * @throws ErrorException If an error occurred during the build.
+     */
     private function runBuildGroup(string $group): void
     {
         $this->merger->reset();
@@ -112,6 +119,7 @@ final class Config
             } else {
                 $array = $this->buildFile($file);
             }
+
             $this->build[$group] = $this->merger->merge(
                 $context,
                 $this->build[$group],
@@ -164,6 +172,7 @@ final class Config
 
             /** @psalm-suppress MixedArgument */
             extract(func_get_arg(1), EXTR_SKIP);
+
             /**
              * @psalm-suppress UnresolvableInclude
              * @psalm-var array

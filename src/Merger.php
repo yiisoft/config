@@ -13,6 +13,7 @@ use Yiisoft\Config\Modifier\ReverseMerge;
 use function array_key_exists;
 use function array_flip;
 use function array_map;
+use function array_merge;
 use function implode;
 use function is_array;
 use function is_int;
@@ -46,13 +47,16 @@ final class Merger
         $reverseMergeGroups = [];
         $recursiveMergeGroups = [];
         $this->removeFromVendorKeysIndex = [];
+
         foreach ($modifiers as $modifier) {
             if ($modifier instanceof ReverseMerge) {
                 $reverseMergeGroups = array_merge($reverseMergeGroups, $modifier->getGroups());
             }
+
             if ($modifier instanceof RecursiveMerge) {
                 $recursiveMergeGroups = array_merge($recursiveMergeGroups, $modifier->getGroups());
             }
+
             if ($modifier instanceof RemoveFromVendor) {
                 foreach ($modifier->getKeys() as $path) {
                     ArrayHelper::setValue($this->removeFromVendorKeysIndex, $path, true);
@@ -164,17 +168,15 @@ final class Merger
                     $this->cacheKeys,
                     array_merge([$context->level()], $fullKeyPath)
                 );
+
                 if ($file !== null) {
-                    throw new ErrorException(
-                        $this->getDuplicateErrorMessage($fullKeyPath, [$file, $context->file()]),
-                        0,
-                        E_USER_ERROR,
-                    );
+                    $this->throwException($this->getDuplicateErrorMessage($fullKeyPath, [$file, $context->file()]));
                 }
             }
 
             if (!$isReverseMerge || !$existKey) {
                 $isSet = $this->setValue($context, $fullKeyPath, $result, $k, $v);
+
                 if ($isSet && !$isReverseMerge && !$context->isVariable()) {
                     /** @psalm-suppress MixedPropertyTypeCoercion */
                     ArrayHelper::setValue(
@@ -191,9 +193,15 @@ final class Merger
 
     /**
      * @param string[] $recursiveKeyPath
+     *
+     * @throws ErrorException If an error occurred during the prepare.
      */
-    private function prepareArrayForReverse(Context $context, array $recursiveKeyPath, array $array, bool $isRecursiveMerge): array
-    {
+    private function prepareArrayForReverse(
+        Context $context,
+        array $recursiveKeyPath,
+        array $array,
+        bool $isRecursiveMerge
+    ): array {
         $result = [];
 
         /** @var mixed $value */
@@ -213,10 +221,7 @@ final class Merger
                 continue;
             }
 
-            if (
-                $isRecursiveMerge
-                && is_array($value)
-            ) {
+            if ($isRecursiveMerge && is_array($value)) {
                 $result[$key] = $this->prepareArrayForReverse(
                     $context,
                     array_merge($recursiveKeyPath, [$key]),
@@ -238,12 +243,9 @@ final class Merger
                 $this->cacheKeys,
                 array_merge([$context->level()], $recursiveKeyPath)
             );
+
             if ($file !== null) {
-                throw new ErrorException(
-                    $this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]),
-                    0,
-                    E_USER_ERROR,
-                );
+                $this->throwException($this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]));
             }
 
             $result[$key] = $value;
@@ -282,17 +284,16 @@ final class Merger
     /**
      * Returns a duplicate key error message.
      *
-     * @param string $key The duplicate key.
      * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
-     * @param string[] $absoulteFilePaths
+     * @param string[] $absoluteFilePaths The absolute paths to the files in which duplicates are found.
      *
      * @return string The duplicate key error message.
      */
-    private function getDuplicateErrorMessage(array $recursiveKeyPath, array $absoulteFilePaths): string
+    private function getDuplicateErrorMessage(array $recursiveKeyPath, array $absoluteFilePaths): string
     {
         $filePaths = array_map(
             fn (string $filePath) => ' - ' . $this->paths->relative($filePath),
-            $absoulteFilePaths
+            $absoluteFilePaths,
         );
 
         usort($filePaths, static function (string $a, string $b) {
@@ -306,5 +307,15 @@ final class Merger
             implode(' => ', $recursiveKeyPath),
             implode("\n", $filePaths),
         );
+    }
+
+    /**
+     * @param string $message
+     *
+     * @throws ErrorException
+     */
+    private function throwException(string $message): void
+    {
+        throw new ErrorException($message, 0, E_USER_ERROR);
     }
 }
