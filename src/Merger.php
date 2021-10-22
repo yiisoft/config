@@ -155,7 +155,7 @@ final class Merger
                     $fullKeyPath,
                     $result,
                     $k,
-                    $this->performMerge($context, $fullKeyPath, $array, $v, $isReverseMerge, $isReverseMerge)
+                    $this->performMerge($context, $fullKeyPath, $array, $v, $isRecursiveMerge, $isReverseMerge)
                 );
                 continue;
             }
