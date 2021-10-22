@@ -194,7 +194,7 @@ final class Merger
     /**
      * @param string[] $recursiveKeyPath
      *
-     * @throws ErrorException If an error occurred during the prepare.
+     * @throws ErrorException If an error occurred during prepare.
      */
     private function prepareArrayForReverse(
         Context $context,

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Modifier;
 
 /**
- * Result of reverse merge is be ordered descending by data source. It is useful for merging module
+ * Result of reverse merge is being ordered descending by data source. It is useful for merging module
  * config with base config where more specific config (i.e. module's) has more priority.
  *
  * The modifier should be specified as

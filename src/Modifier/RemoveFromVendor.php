@@ -6,7 +6,7 @@ namespace Yiisoft\Config\Modifier;
 
 /**
  * Marks specified keys to be ignored when reading configuration from vendor packages.
- * Nested keys are suppored only when {@see RecursiveMerge} modifier is applied as well.
+ * Nested keys are supported only when {@see RecursiveMerge} modifier is applied as well.
  *
  * The modifier should be specified as
  *

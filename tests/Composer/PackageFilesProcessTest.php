@@ -16,7 +16,6 @@ final class PackageFilesProcessTest extends TestCase
     {
         $process = new PackageFilesProcess($this->createComposerMock(), ['test/ba']);
 
-        $this->assertInstanceOf(ConfigPaths::class, $process->paths());
         $this->assertCount(1, $process->files());
 
         $this->assertSame('web.php', $process->files()[0]->filename());
@@ -31,7 +30,6 @@ final class PackageFilesProcessTest extends TestCase
     {
         $process = new PackageFilesProcess($this->createComposerMock(), ['test/ba', 'test/d-dev-c']);
 
-        $this->assertInstanceOf(ConfigPaths::class, $process->paths());
         $this->assertCount(2, $process->files());
 
         $this->assertSame('web.php', $process->files()[0]->filename());

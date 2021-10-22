@@ -23,7 +23,7 @@ final class EventHandlerTest extends TestCase
                 ScriptEvents::POST_INSTALL_CMD => 'onPostUpdateCommandDump',
                 ScriptEvents::POST_UPDATE_CMD => 'onPostUpdateCommandDump',
             ],
-            (new EventHandler())->getSubscribedEvents(),
+            EventHandler::getSubscribedEvents(),
         );
     }
 

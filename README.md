@@ -141,11 +141,11 @@ return [
 ];
 ```
 
-A special variable `$params` is read from config (by default, group `params`).
+A special variable `$params` is read from config (by default, group is named `params`).
 
 ### Using custom group for `$params`
 
-By default for `$params` used group `params`. You can set own group for `$params` via constructor of `Config`:
+By default, `$params` variable is read from `params` group. You can customize the group name via constructor of `Config`:
 
 ```php
 $config = new Config(
@@ -183,11 +183,11 @@ A number of options is available both for Composer plugin and a config loader. C
 },
 ```
 
-The `source-directory` specifies where to read the configs for the package for which the option is specified.
-The option is available for reading for all packages, including the root package, which is typically an application.
+The `source-directory` option specifies where to read the configs from for a package the option is specified for.
+It is available for all packages, including the root package, which is typically an application.
 The value is a path relative to where the `composer.json` file is located. The default value is `config`.
 
-If you are changing the source directory for the root package, don't forget to adjust configs path when creating
+If you change the source directory for the root package, don't forget to adjust configs path when creating
 an instance of `Config`. Usually that is `index.php`:
 
 ```php
@@ -292,7 +292,7 @@ $params = $config->get('params'); // merged recursively
 
 ### Reverse merge of arrays
 
-Result of reverse merge is be ordered descending by data source. It is useful for merging module config with
+Result of reverse merge is being ordered descending by data source. It is useful for merging module config with
 base config where more specific config (i.e. module's) has more priority. One of such cases is merging events.
 
 To enable reverse merge pass `ReverseMerge` modifier with specified group names to the `Config` constructor:
@@ -366,7 +366,7 @@ $config = new Config(
 
 ### yii-config-copy
 
-The plugin adds extra `yii-config-copy` command to composer. It copies the package config files from the vendor
+The plugin adds extra `yii-config-copy` command to Composer. It copies the package config files from the vendor
 to the config directory of the root package:
 
 ```shell
@@ -398,10 +398,10 @@ In order to avoid conflicts with file names, a prefix is added to the names of t
 
 ### yii-config-rebuild
 
-The command `yii-config-rebuild` is provided to the update of the merge plan file. This command may be required
-if you have added files or folders to the application configuration file structure that were not specified in the
-`composer.json` of the root package. You need to add to the information about new files in the `composer.json` of
-the root package and call the command:
+The `yii-config-rebuild` command updates merge plan file. This command may be used if you have added files or directories
+to the application configuration file structure and these were not specified in `composer.json` of the root package.
+In this case you need to add to the information about new files to `composer.json` of the root package by executing the
+command:
 
 ```shell
 composer yii-config-rebuild
