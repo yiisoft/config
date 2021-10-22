@@ -44,7 +44,7 @@ final class FilesExtractor
     {
         $environment = $this->prepareEnvironment($group);
 
-        $result = $this->process(Options::ROOT_PACKAGE_NAME, $group, $this->mergePlan->getGroup($group));
+        $result = $this->process(Options::DEFAULT_ENVIRONMENT, $group, $this->mergePlan->getGroup($group));
 
         if ($environment !== Options::DEFAULT_ENVIRONMENT) {
             $result = array_merge(
