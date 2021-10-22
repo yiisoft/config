@@ -170,11 +170,7 @@ final class Merger
                 );
 
                 if ($file !== null) {
-                    throw new ErrorException(
-                        $this->getDuplicateErrorMessage($fullKeyPath, [$file, $context->file()]),
-                        0,
-                        E_USER_ERROR,
-                    );
+                    $this->throwException($this->getDuplicateErrorMessage($fullKeyPath, [$file, $context->file()]));
                 }
             }
 
@@ -250,11 +246,7 @@ final class Merger
             );
 
             if ($file !== null) {
-                throw new ErrorException(
-                    $this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]),
-                    0,
-                    E_USER_ERROR,
-                );
+                $this->throwException($this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]));
             }
 
             $result[$key] = $value;
@@ -316,5 +308,15 @@ final class Merger
             implode(' => ', $recursiveKeyPath),
             implode("\n", $filePaths),
         );
+    }
+
+    /**
+     * @param string $message
+     *
+     * @throws ErrorException
+     */
+    private function throwException(string $message): void
+    {
+        throw new ErrorException($message, 0, E_USER_ERROR);
     }
 }
