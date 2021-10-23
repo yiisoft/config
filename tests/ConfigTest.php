@@ -632,6 +632,18 @@ final class ConfigTest extends TestCase
         ], $config->get('definitions-backend'));
     }
 
+    public function testDoubleDotInPath(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/double-dot-in-path'),
+        );
+
+        $this->assertSame([
+            'a' => 1,
+            'b' => 2,
+        ], $config->get('params'));
+    }
+
     private function createConfig(string $environment = Options::DEFAULT_ENVIRONMENT): Config
     {
         return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'), $environment);
