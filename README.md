@@ -76,7 +76,7 @@ each package `composer.json`:
             "params.php",
             "?params-local.php"
         ],
-        "common": "config/common.php",
+        "common": "common.php",
         "web": [
             "$common",
             "web.php",
