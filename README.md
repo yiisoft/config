@@ -39,7 +39,7 @@ After composer updates its autoload file, and that happens after `dump-autoload`
 Composer plugin:
 
 - Scans installed packages for `config-plugin` extra option in their `composer.json`.
-- Writes a merge plan into `config/MERGE_PLAN.php`. It includes configuration from each package `composer.json`.
+- Writes a merge plan into `config/.merge-plan.php`. It includes configuration from each package `composer.json`.
   
 In the application entry point, usually `index.php`, we create an instance of config loader and require a configuration
 we need:
