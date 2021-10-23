@@ -31,7 +31,7 @@ final class Config
 
     /**
      * @param ConfigPaths $paths The config paths instance.
-     * @param string $environment The environment name.
+     * @param string|null $environment The environment name.
      * @param object[] $modifiers Modifiers that affect merge process.
      * @param string $paramsGroup Group name for $params.
      *
@@ -39,10 +39,13 @@ final class Config
      */
     public function __construct(
         ConfigPaths $paths,
-        string $environment = Options::DEFAULT_ENVIRONMENT,
+        ?string $environment = null,
         array $modifiers = [],
         string $paramsGroup = 'params'
     ) {
+        if ($environment === null) {
+            $environment = Options::DEFAULT_ENVIRONMENT;
+        }
         $this->paramsGroup = $paramsGroup;
 
         /** @psalm-suppress UnresolvableInclude, MixedArgument */
