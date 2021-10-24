@@ -29,9 +29,7 @@
     ],
     "require": {
         "php": "^7.4|^8.0",
-        "ext-json": "*",
         "composer-plugin-api": "^2.0",
-        "jfcherng/php-sequence-matcher": "^3.2",
         "yiisoft/var-dumper": "^1.1"
     },
     "require-dev": {
@@ -55,7 +53,7 @@
         }
     },
     "extra": {
-        "class": "Yiisoft\\Config\\ComposerEventHandler",
+        "class": "Yiisoft\\Config\\Composer\\EventHandler",
         "branch-alias": {
             "dev-master": "1.0.x-dev"
         }

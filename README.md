@@ -23,7 +23,6 @@ a plugin system. The package becomes a plugin holding both the code and its conf
 ## Requirements
 
 - PHP 7.4 or higher.
-- `JSON` PHP extension.
 - Composer 2.0 or higher.
 
 ## Installation
@@ -40,20 +39,30 @@ After composer updates its autoload file, and that happens after `dump-autoload`
 Composer plugin:
 
 - Scans installed packages for `config-plugin` extra option in their `composer.json`.
-- Copies missing config files into the project `configs`.
-- Writes a merge plan into `config/packages/merge_plan.php`. It includes configuration from each package `composer.json`.
-- Tracks change to configuration files from the vendor by storing metadata in the `config/packages/dist.lock` file.
-- In the interactive console mode it asks what to do with modified configs after updating packages in the vendor.
+- Writes a merge plan into `config/.merge-plan.php`. It includes configuration from each package `composer.json`.
   
 In the application entry point, usually `index.php`, we create an instance of config loader and require a configuration
 we need:
 
 ```php
-$config = new \Yiisoft\Config\Config(dirname(__DIR__));
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+);
+
 $webConfig = $config->get('web');
 ```
 
 The `web` in the above is a config group. The config loader obtains it runtime according to the merge plan.
+The configuration consists of three layers that are loaded as follows:
+
+- Vendor configurations from each `vendor/package-name`. These provide default values.
+- Root package configurations from `config`. These may override vendor configurations.
+- Environment specific configurations from `config`. These may override root and vendor configurations.
+
+> Please note that same named keys are not allowed within a configuration layer.
 
 ## Config groups
 
@@ -64,16 +73,16 @@ each package `composer.json`:
 "extra": {
     "config-plugin": {
         "params": [
-            "config/params.php",
-            "?config/params-local.php"
+            "params.php",
+            "?params-local.php"
         ],
-        "common": "config/common.php",
+        "common": "common.php",
         "web": [
             "$common",
-            "config/web.php",
+            "web.php",
             "../src/Modules/*/config/web.php"
         ],
-        "other": "config/other.php"
+        "other": "other.php"
     }
 },
 ```
@@ -132,7 +141,20 @@ return [
 ];
 ```
 
-A special variable `$params` is read from `params` config.
+A special variable `$params` is read from config (by default, group is named `params`).
+
+### Using custom group for `$params`
+
+By default, `$params` variable is read from `params` group. You can customize the group name via constructor of `Config`:
+
+```php
+$config = new Config(
+    new ConfigPaths(__DIR__ . '/configs'),
+    null,
+    [],
+    'custom-params' // Group name for `$params`
+);
+```
 
 ### Using sub-configs
 
@@ -142,6 +164,8 @@ In order to access a sub-config, use the following in your config:
 'routes' => $config->get('routes');
 ```
 
+### Override `$params`
+
 ## Options
 
 A number of options is available both for Composer plugin and a config loader. Composer options are specified in
@@ -150,8 +174,7 @@ A number of options is available both for Composer plugin and a config loader. C
 ```json
 "extra": {
     "config-plugin-options": {
-      "output-directory": "/config/packages",
-      "source-directory": "/config",
+      "source-directory": "config",
     },
     "config-plugin": {
         // ...
@@ -160,46 +183,22 @@ A number of options is available both for Composer plugin and a config loader. C
 },
 ```
 
-In the above `output-directory` points to where configs will be copied to. The path is relative to where
-`composer.json` is. The option is read for the root package, which is typically an application.
-Default is "/config/packages".
+The `source-directory` option specifies where to read the configs from for a package the option is specified for.
+It is available for all packages, including the root package, which is typically an application.
+The value is a path relative to where the `composer.json` file is located. The default value is `config`.
 
-If you change output directory, don't forget to adjust configs path when creating an instance of `Config`. Usually
-that is `index.php`:
+If you change the source directory for the root package, don't forget to adjust configs path when creating
+an instance of `Config`. Usually that is `index.php`:
 
 ```php
-$config = new \Yiisoft\Config\Config(
-    dirname(__DIR__),
-    'config/packages', // Configs path.
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__), 'path/to/config/directory'),
 );
 
 $webConfig = $config->get('web');
-```
-
-`source-directory` points to where to read configs from for the package the option is specified for. The option is
-read for all packages. The value is a path relative to where package `composer.json` is. Default value is empty string.
-
-## Recursive merge of arrays 
-
-By default, recursive merging of arrays in configuration files is not performed. If you want to recursively merge
-arrays in a certain group of configs, such as params, you must pass group names to the `Config` constructor:
-
-```php
-use \Yiisoft\Config\Config;
-
-$config = new Config(
-    dirname(__DIR__),
-    'config/packages',
-    'dev',
-    [
-        'params',
-        'events',
-        'events-web',
-        'events-console',
-    ],
-);
-
-$appConfig = $config->get('events-web'); // merged recursively
 ```
 
 ## Environments
@@ -207,26 +206,27 @@ $appConfig = $config->get('events-web'); // merged recursively
 The plugin supports creating additional environments added to the base configuration. This allows you to create
 multiple configurations for the application such as `production` and `development`.
 
-> The environment configuration options are added to the main configuration options, but do not replace them.
-
 The environments are specified in the `composer.json` file of your application:
 
 ```json
 "extra": {
+    "config-plugin-options": {
+        "source-directory": "config",
+    },
     "config-plugin": {
-        "params": "config/params.php",
-        "web": "config/web.php",
+        "params": "params.php",
+        "web": "web.php",
     },
     "config-plugin-environments": {
         "dev": {
-            "params": "config/dev/params.php",
+            "params": "dev/params.php",
             "app": [
                 "$web",
-                "config/dev/app.php"
+                "dev/app.php"
             ]
         },
         "prod": {
-            "app": "config/prod/app.php"
+            "app": "prod/app.php"
         }
     }
 },
@@ -252,10 +252,12 @@ config/             Configuration root directory.
 To choose an environment to be used you must specify its name when creating an instance of `Config`:
 
 ```php
-$config = new \Yiisoft\Config\Config(
-    dirname(__DIR__),
-    'config/packages',
-    'dev'
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
 );
 
 $appConfig = $config->get('app');
@@ -264,17 +266,145 @@ $appConfig = $config->get('app');
 If defined in an environment, `params` will be merged with `params` from the main configuration,
 and could be used as `$params` in all configurations.
 
+## Configuration modifiers
+
+### Recursive merge of arrays
+
+By default, recursive merging of arrays in configuration files is not performed. If you want to recursively merge
+arrays in a certain group of configs, such as params, you must pass `RecursiveMerge` modifier with specified
+group names to the `Config` constructor:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RecursiveMerge;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        RecursiveMerge::groups('params', 'events', 'events-web', 'events-console'),
+    ],
+);
+
+$params = $config->get('params'); // merged recursively
+```
+
+### Reverse merge of arrays
+
+Result of reverse merge is being ordered descending by data source. It is useful for merging module config with
+base config where more specific config (i.e. module's) has more priority. One of such cases is merging events.
+
+To enable reverse merge pass `ReverseMerge` modifier with specified group names to the `Config` constructor:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\ReverseMerge;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        ReverseMerge::groups('events', 'events-web', 'events-console'),
+    ],
+);
+
+$events = $config->get('events-console'); // merged reversed
+```
+
+### Remove elements from vendor package configuration
+
+Sometimes it is necessary to remove some elements of vendor packages configuration. To do this,
+pass `RemoveFromVendor` modifier with specified key paths to the `Config` constructor:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        RemoveFromVendor::keys(
+            ['key-for-remove'],
+            ['nested', 'key', 'for-remove'],
+        ),
+    ],
+);
+
+$params = $config->get('params');
+```
+
+### Combine modifiers
+
+`Config` supports simultaneous use of several modifiers:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RecursiveMerge;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
+use Yiisoft\Config\Modifier\ReverseMerge;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        RecursiveMerge::groups('params', 'events', 'events-web', 'events-console'),
+        ReverseMerge::groups('events', 'events-web', 'events-console'),
+        RemoveFromVendor::keys(
+            ['key-for-remove'],
+            ['nested', 'key', 'for-remove'],
+        ),
+    ],
+);
+```
+
 ## Commands
 
-The plugin adds extra `config-diff` command to composer. It displays the difference between the vendor and application
-configuration files in the console.
+### yii-config-copy
+
+The plugin adds extra `yii-config-copy` command to Composer. It copies the package config files from the vendor
+to the config directory of the root package:
 
 ```shell
-# For all config files
-composer config-diff
+composer yii-config-copy <package-name> [target-path] [files]
+```
 
-# For the config files of the specified packages
-composer config-diff yiisoft/aliases yiisoft/view
+Copies all config files of the `yiisoft/view` package:
+
+```shell
+# To the `config` directory
+composer yii-config-copy yiisoft/view
+
+# To the `config/my/path` directory
+composer yii-config-copy yiisoft/view my/path
+```
+
+Copies the specified config files of the `yiisoft/view` package:
+
+```shell
+# To the `config` directory
+composer yii-config-copy yiisoft/view / params.php web.php
+
+# To the `config/my/path` directory and without the file extension
+composer yii-config-copy yiisoft/view my/path params web
+```
+
+In order to avoid conflicts with file names, a prefix is added to the names of the copied files:
+`yiisoft-view-params.php`, `yiisoft-view-web.php`.
+
+### yii-config-rebuild
+
+The `yii-config-rebuild` command updates merge plan file. This command may be used if you have added files or directories
+to the application configuration file structure and these were not specified in `composer.json` of the root package.
+In this case you need to add to the information about new files to `composer.json` of the root package by executing the
+command:
+
+```shell
+composer yii-config-rebuild
 ```
 
 ## Testing

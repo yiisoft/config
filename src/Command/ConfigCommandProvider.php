@@ -14,7 +14,8 @@ final class ConfigCommandProvider implements CommandProvider
     public function getCommands(): array
     {
         return [
-            new DiffCommand(),
+            new CopyCommand(),
+            new RebuildCommand(),
         ];
     }
 }
