@@ -55,16 +55,16 @@ final class PackageFilesProcessTest extends TestCase
         $this->assertCount(12, $process->files());
 
         $this->assertSameIgnoringSlash('params.php', $process->files()[0]->filename());
-        $this->assertSameIgnoringSlash('config/params.php', $process->files()[0]->relativePath());
+        $this->assertSameIgnoringSlash('params.php', $process->files()[0]->relativePath());
         $this->assertSameIgnoringSlash(
-            $this->getSourcePath('a/config/params.php'),
+            $this->getSourcePath('a/params.php'),
             $process->files()[0]->absolutePath(),
         );
 
         $this->assertSame('web.php', $process->files()[1]->filename());
-        $this->assertSame('config/web.php', $process->files()[1]->relativePath());
+        $this->assertSame('web.php', $process->files()[1]->relativePath());
         $this->assertSameIgnoringSlash(
-            $this->getSourcePath('a/config/web.php'),
+            $this->getSourcePath('a/web.php'),
             $process->files()[1]->absolutePath(),
         );
 

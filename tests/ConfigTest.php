@@ -218,7 +218,7 @@ final class ConfigTest extends TestCase
 
     public function testDuplicateRootKeysErrorMessage(): void
     {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys'));
+        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys', 'config'));
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
@@ -233,7 +233,7 @@ final class ConfigTest extends TestCase
     public function testDuplicateRootKeysErrorMessageWithReverseMerge(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [ReverseMerge::groups('params')]
         );
@@ -249,7 +249,10 @@ final class ConfigTest extends TestCase
 
     public function testDuplicateEnvironmentKeysErrorMessage(): void
     {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys'), 'environment');
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys', 'config'),
+            'environment'
+        );
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
@@ -264,7 +267,7 @@ final class ConfigTest extends TestCase
     public function testDuplicateEnvironmentKeysErrorMessageWithReverseMerge(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys', 'config'),
             'environment',
             [ReverseMerge::groups('params')]
         );
@@ -280,7 +283,7 @@ final class ConfigTest extends TestCase
 
     public function testDuplicateVendorKeysErrorMessage(): void
     {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys'));
+        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys', 'config'));
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
@@ -295,7 +298,7 @@ final class ConfigTest extends TestCase
     public function testDuplicateVendorKeysErrorMessageWithReverseMerge(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [ReverseMerge::groups('params')]
         );
@@ -313,7 +316,7 @@ final class ConfigTest extends TestCase
     public function testDuplicateKeysWithRecursiveKeyPathErrorMessage(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys-with-params'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys-with-params', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [RecursiveMerge::groups('params')]
         );
@@ -326,7 +329,7 @@ final class ConfigTest extends TestCase
     public function testConfigWithCustomParams(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/custom-params'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/custom-params', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [],
             'custom-params'
@@ -347,7 +350,7 @@ final class ConfigTest extends TestCase
     public function testNotFoundFile(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/not-found-file'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/not-found-file', 'config'),
         );
 
         $this->expectException(ErrorException::class);
@@ -360,7 +363,7 @@ final class ConfigTest extends TestCase
     public function testBrokenFile(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/broken-file'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/broken-file', 'config'),
         );
 
         $this->expectException(ErrorException::class);
@@ -371,7 +374,7 @@ final class ConfigTest extends TestCase
     public function testDeepRecursive(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/deep-recursive'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/deep-recursive', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups('params'),
@@ -393,7 +396,7 @@ final class ConfigTest extends TestCase
     public function testConfigWithReverseMerge(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 ReverseMerge::groups('common', 'params'),
@@ -438,7 +441,7 @@ final class ConfigTest extends TestCase
     public function testRemoveFromVendor(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups('params'),
@@ -464,7 +467,7 @@ final class ConfigTest extends TestCase
     public function testRemoveFromVendorNested(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups('params'),
@@ -486,7 +489,7 @@ final class ConfigTest extends TestCase
     public function testRemoveFromVendorNestedWithReverse(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups('params'),
@@ -509,7 +512,7 @@ final class ConfigTest extends TestCase
     public function testReverseAndRecursive(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups('params'),
@@ -528,7 +531,7 @@ final class ConfigTest extends TestCase
     public function testReverseWithTwoVariables(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/variables'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/variables', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 ReverseMerge::groups('web'),
@@ -545,7 +548,7 @@ final class ConfigTest extends TestCase
     {
         $eventGroups = ['events', 'events-console'];
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/events'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/events', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups(...$eventGroups),
@@ -573,7 +576,7 @@ final class ConfigTest extends TestCase
     {
         $eventGroups = ['events', 'events-console'];
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/events'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/events', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups(...$eventGroups),
@@ -600,7 +603,7 @@ final class ConfigTest extends TestCase
     public function testReverseAndRemoveNestedKeyFromVendor(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse', 'config'),
             Options::DEFAULT_ENVIRONMENT,
             [
                 RecursiveMerge::groups('params'),
@@ -620,7 +623,7 @@ final class ConfigTest extends TestCase
     public function testNestedGroupInEnvironment(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/nested-in-environment'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/nested-in-environment', 'config'),
             'environment',
         );
 
@@ -635,7 +638,7 @@ final class ConfigTest extends TestCase
     public function testDoubleDotInPath(): void
     {
         $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/double-dot-in-path'),
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/double-dot-in-path', 'config'),
         );
 
         $this->assertSame([
@@ -646,6 +649,6 @@ final class ConfigTest extends TestCase
 
     private function createConfig(string $environment = Options::DEFAULT_ENVIRONMENT): Config
     {
-        return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy'), $environment);
+        return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy', 'config'), $environment);
     }
 }

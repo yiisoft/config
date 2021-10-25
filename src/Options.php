@@ -15,7 +15,7 @@ use function trim;
 final class Options
 {
     public const MERGE_PLAN_FILENAME = '.merge-plan.php';
-    public const DEFAULT_CONFIG_DIRECTORY = 'config';
+    public const DEFAULT_CONFIG_DIRECTORY = '';
     public const DEFAULT_VENDOR_DIRECTORY = 'vendor';
     public const DEFAULT_ENVIRONMENT = '/';
     public const ROOT_PACKAGE_NAME = '/';
