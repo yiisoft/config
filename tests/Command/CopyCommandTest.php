@@ -118,19 +118,19 @@ final class CopyCommandTest extends TestCase
     {
         $this->executeCommand('test/a');
 
-        $this->assertFileExists($this->getSourcePath('a/config/params.php'));
-        $this->assertFileExists($this->getSourcePath('a/config/web.php'));
+        $this->assertFileExists($this->getSourcePath('a/params.php'));
+        $this->assertFileExists($this->getSourcePath('a/web.php'));
 
         $this->assertFileExists($this->getTempPath('test-a-params.php'));
         $this->assertFileExists($this->getTempPath('test-a-web.php'));
 
         $this->assertEqualStringsIgnoringLineEndings(
-            file_get_contents($this->getSourcePath('a/config/params.php')),
+            file_get_contents($this->getSourcePath('a/params.php')),
             file_get_contents($this->getTempPath('test-a-params.php')),
         );
 
         $this->assertEqualStringsIgnoringLineEndings(
-            file_get_contents($this->getSourcePath('a/config/web.php')),
+            file_get_contents($this->getSourcePath('a/web.php')),
             file_get_contents($this->getTempPath('test-a-web.php')),
         );
     }

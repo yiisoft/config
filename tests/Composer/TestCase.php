@@ -79,7 +79,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 Options::DEFAULT_ENVIRONMENT => [
                     'params' => [
                         'test/a' => [
-                            'config/params.php',
+                            'params.php',
                         ],
                         'test/c' => [
                             'config/params.php',
@@ -94,7 +94,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     ],
                     'web' => [
                         'test/a' => [
-                            'config/web.php',
+                            'web.php',
                         ],
                         'test/ba' => [
                             'config/web.php',

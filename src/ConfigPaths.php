@@ -26,8 +26,12 @@ final class ConfigPaths
     public function __construct(string $rootPath, string $configDirectory = null, string $vendorDirectory = null)
     {
         $this->rootPath = $rootPath;
-        $this->configPath = $rootPath . '/' . trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
-        $this->vendorPath = $rootPath . '/' . trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
+
+        $configDirectory = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
+        $this->configPath = $rootPath . ($configDirectory === '' ? '' : "/$configDirectory");
+
+        $vendorDirectory = trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
+        $this->vendorPath = $rootPath . ($vendorDirectory === '' ? '' : "/$vendorDirectory");
     }
 
     /**
