@@ -207,6 +207,7 @@ final class Merger
         /** @var mixed $value */
         foreach ($array as $key => $value) {
             if (is_int($key)) {
+                /** @var mixed */
                 $result[$key] = $value;
                 continue;
             }
@@ -232,6 +233,7 @@ final class Merger
             }
 
             if ($context->isVariable()) {
+                /** @var mixed */
                 $result[$key] = $value;
                 continue;
             }
@@ -248,6 +250,7 @@ final class Merger
                 $this->throwException($this->getDuplicateErrorMessage($recursiveKeyPath, [$file, $context->file()]));
             }
 
+            /** @var mixed */
             $result[$key] = $value;
 
             /** @psalm-suppress MixedPropertyTypeCoercion */
