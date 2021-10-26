@@ -43,7 +43,7 @@ final class Config
         array $modifiers = [],
         string $paramsGroup = 'params'
     ) {
-        if ($environment === null) {
+        if (empty($environment)) {
             $environment = Options::DEFAULT_ENVIRONMENT;
         }
         $this->paramsGroup = $paramsGroup;

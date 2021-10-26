@@ -647,6 +647,31 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
+    public function dataDefaultEnvironment(): array
+    {
+        return [
+            [null],
+            [''],
+            ['/'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataDefaultEnvironment
+     */
+    public function testDefaultEnvironment(?string $environment): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/variables', 'config'),
+            $environment,
+        );
+
+        $this->assertSame([
+            'a' => 1,
+            'b' => 2,
+        ], $config->get('web'));
+    }
+
     private function createConfig(string $environment = Options::DEFAULT_ENVIRONMENT): Config
     {
         return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy', 'config'), $environment);
