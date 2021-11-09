@@ -605,7 +605,7 @@ final class ConfigTest extends TestCase
                     'nested' => [
                         'nested-app' => 0,
                     ],
-                ]
+                ],
             ],
             [
                 ['*' => 'params1'],
@@ -620,7 +620,7 @@ final class ConfigTest extends TestCase
                         'nested-b' => 2,
                         'nested-app' => 0,
                     ],
-                ]
+                ],
             ],
             [
                 ['package/a' => '*'],
@@ -635,7 +635,7 @@ final class ConfigTest extends TestCase
                         'nested-b' => 2,
                         'nested-app' => 0,
                     ],
-                ]
+                ],
             ],
             [
                 ['package/a' => ['params1', 'params2']],
@@ -650,7 +650,7 @@ final class ConfigTest extends TestCase
                         'nested-b' => 2,
                         'nested-app' => 0,
                     ],
-                ]
+                ],
             ],
             [
                 ['package/a' => 'params1'],
@@ -666,7 +666,7 @@ final class ConfigTest extends TestCase
                         'nested-b' => 2,
                         'nested-app' => 0,
                     ],
-                ]
+                ],
             ],
         ];
     }
