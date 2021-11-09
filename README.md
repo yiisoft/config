@@ -316,7 +316,9 @@ $events = $config->get('events-console'); // merged reversed
 ### Remove elements from vendor package configuration
 
 Sometimes it is necessary to remove some elements of vendor packages configuration. To do this,
-pass `RemoveFromVendor` modifier with specified key paths to the `Config` constructor:
+pass `RemoveFromVendor` modifier to the `Config` constructor.
+
+Remove specified key paths:
 
 ```php
 use Yiisoft\Config\Config;
@@ -335,6 +337,37 @@ $config = new Config(
 );
 
 $params = $config->get('params');
+```
+
+Remove specified configuration groups:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        RemoveFromVendor::groups([
+            // Remove group `params` from all vendor packages
+            '*' => 'params',
+            
+            // Remove groups `common` and `web` from all vendor packages
+            '*' => ['common', 'web'],
+            
+            // Remove all groups from package `yiisoft/auth`
+            'yiisoft/auth' => '*',
+            
+            // Remove groups `params` from package `yiisoft/http`
+            'yiisoft/http' => 'params',
+            
+            // Remove groups `params` and `common` from package `yii-web`
+            'yiisoft/yii-web' => ['params', 'common'],
+        ]),
+    ],
+);
 ```
 
 ### Combine modifiers

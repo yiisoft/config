@@ -56,7 +56,7 @@ final class Config
         }
 
         $this->merger = new Merger($paths, $modifiers);
-        $this->filesExtractor = new FilesExtractor($paths, $mergePlan, $environment);
+        $this->filesExtractor = new FilesExtractor($paths, $mergePlan, $environment, $modifiers);
     }
 
     /**

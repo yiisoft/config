@@ -591,6 +591,104 @@ final class ConfigTest extends TestCase
         ], $config->get('params2'));
     }
 
+    public function dataRemoveGroupsFromVendor(): array
+    {
+        return [
+            [
+                ['*' => '*'],
+                [
+                    'nested' => [
+                        'nested-app' => 0,
+                    ],
+                ],
+                [
+                    'nested' => [
+                        'nested-app' => 0,
+                    ],
+                ]
+            ],
+            [
+                ['*' => 'params1'],
+                [
+                    'nested' => [
+                        'nested-app' => 0,
+                    ],
+                ],
+                [
+                    'nested' => [
+                        'nested-a' => 1,
+                        'nested-b' => 2,
+                        'nested-app' => 0,
+                    ],
+                ]
+            ],
+            [
+                ['package/a' => '*'],
+                [
+                    'nested' => [
+                        'nested-b' => 2,
+                        'nested-app' => 0,
+                    ],
+                ],
+                [
+                    'nested' => [
+                        'nested-b' => 2,
+                        'nested-app' => 0,
+                    ],
+                ]
+            ],
+            [
+                ['package/a' => ['params1', 'params2']],
+                [
+                    'nested' => [
+                        'nested-b' => 2,
+                        'nested-app' => 0,
+                    ],
+                ],
+                [
+                    'nested' => [
+                        'nested-b' => 2,
+                        'nested-app' => 0,
+                    ],
+                ]
+            ],
+            [
+                ['package/a' => 'params1'],
+                [
+                    'nested' => [
+                        'nested-b' => 2,
+                        'nested-app' => 0,
+                    ],
+                ],
+                [
+                    'nested' => [
+                        'nested-a' => 1,
+                        'nested-b' => 2,
+                        'nested-app' => 0,
+                    ],
+                ]
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataRemoveGroupsFromVendor
+     */
+    public function testRemoveGroupsFromVendor(array $groups, array $params1, array $params2): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor-packages', 'config'),
+            Options::DEFAULT_ENVIRONMENT,
+            [
+                RecursiveMerge::groups('params1', 'params2'),
+                RemoveFromVendor::groups($groups),
+            ]
+        );
+
+        $this->assertSame($params1, $config->get('params1'));
+        $this->assertSame($params2, $config->get('params2'));
+    }
+
     public function testReverseAndRecursive(): void
     {
         $config = new Config(

@@ -80,4 +80,35 @@ final class RemoveFromVendor
     {
         return new RemoveKeysFromVendor(...$keys);
     }
+
+    /**
+     * Marks specified groups to be ignored when reading configuration from vendor packages.
+     *
+     * The modifier should be specified as
+     *
+     * ```php
+     * RemoveFromVendor::groups([
+     *   // Remove group `params` from all vendor packages
+     *   '*' => 'params',
+     *
+     *   // Remove groups `common` and `web` from all vendor packages
+     *   '*' => ['common', 'web'],
+     *
+     *   // Remove all groups from package `yiisoft/auth`
+     *   'yiisoft/auth' => '*',
+     *
+     *   // Remove groups `params` from package `yiisoft/http`
+     *   'yiisoft/http' => 'params',
+     *
+     *   // Remove groups `params` and `common` from package `yii-web`
+     *   'yiisoft/yii-web' => ['params', 'common'],
+     *   ]),
+     * ```
+     *
+     * @psalm-param array<string,string|string[]> $groups
+     */
+    public static function groups(array $groups): RemoveGroupsFromVendor
+    {
+        return new RemoveGroupsFromVendor($groups);
+    }
 }
