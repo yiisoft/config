@@ -137,7 +137,7 @@ final class Merger
      *
      * @return array The merged array.
      */
-    public function performMerge(
+    private function performMerge(
         Context $context,
         array $recursiveKeyPath,
         array $arrayA,
