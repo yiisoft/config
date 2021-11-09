@@ -330,7 +330,7 @@ $config = new Config(
         RemoveFromVendor::keys(
             ['key-for-remove'],
             ['nested', 'key', 'for-remove'],
-        ),
+        )->package('vendor/package', 'params'),
     ],
 );
 

@@ -6,6 +6,9 @@ namespace Yiisoft\Config\Modifier;
 
 use InvalidArgumentException;
 
+/**
+ * @see RemoveFromVendor::keys()
+ */
 final class RemoveKeysFromVendor
 {
     /**
