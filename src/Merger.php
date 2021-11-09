@@ -42,7 +42,7 @@ final class Merger
 
     /**
      * @param ConfigPaths $configPaths The config paths instance.
-     * @param object[] $modifiers Names of config groups that should be merged recursively.
+     * @param object[] $modifiers Modifiers that affect merge process.
      */
     public function __construct(ConfigPaths $configPaths, array $modifiers = [])
     {
@@ -234,10 +234,7 @@ final class Merger
                 continue;
             }
 
-            if (
-                $context->isVendor()
-                && $this->isRemoveKeyFromVendor($context, array_merge($recursiveKeyPath, [$key]))
-            ) {
+            if ($this->isRemoveKeyFromVendor($context, array_merge($recursiveKeyPath, [$key]))) {
                 continue;
             }
 
@@ -290,10 +287,7 @@ final class Merger
      */
     private function setValue(Context $context, array $keyPath, array &$array, string $key, $value): bool
     {
-        if (
-            $context->isVendor()
-            && $this->isRemoveKeyFromVendor($context, $keyPath)
-        ) {
+        if ($this->isRemoveKeyFromVendor($context, $keyPath)) {
             return false;
         }
 
@@ -308,6 +302,10 @@ final class Merger
      */
     private function isRemoveKeyFromVendor(Context $context, array $keyPath): bool
     {
+        if (!$context->isVendor()) {
+            return false;
+        }
+
         $configPaths = [
             '*',
             $context->package() . '~*',
