@@ -329,10 +329,25 @@ $config = new Config(
     new ConfigPaths(dirname(__DIR__)),
     'dev',
     [
+        // Remove elements `key-for-remove` and `nested→key→for-remove` from all groups in all vendor packages
         RemoveFromVendor::keys(
             ['key-for-remove'],
             ['nested', 'key', 'for-remove'],
-        )->package('vendor/package', 'params'),
+        ),
+        
+        // Remove elements `a` and `b` from all groups in package `yiisoft/auth`
+        RemoveFromVendor::keys(['a'], ['b'])
+            ->package('yiisoft/auth'),
+        
+        // Remove elements `c` and `d` from groups `params` and `web` in package `yiisoft/yii-web`
+        RemoveFromVendor::keys(['c'], ['d'])
+            ->package('yiisoft/yii-web', 'params', 'web'),
+        
+        // Remove elements `e` and `f` from all groups in package `yiisoft/auth` and
+        // from groups `params` and `web` in package `yiisoft/yii-web`
+        RemoveFromVendor::keys(['e'], ['f'])
+            ->package('yiisoft/auth')
+            ->package('yiisoft/yii-web', 'params', 'web'),
     ],
 );
 
