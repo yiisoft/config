@@ -509,6 +509,88 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
+    public function testRemoveFromVendorFromPackage(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor-packages', 'config'),
+            Options::DEFAULT_ENVIRONMENT,
+            [
+                RecursiveMerge::groups('params1', 'params2'),
+                RemoveFromVendor::keys(
+                    ['nested']
+                )->package('package/b'),
+            ]
+        );
+
+        $this->assertSame([
+            'nested' => [
+                'nested-a' => 1,
+                'nested-app' => 0,
+            ],
+        ], $config->get('params1'));
+        $this->assertSame([
+            'nested' => [
+                'nested-a' => 1,
+                'nested-app' => 0,
+            ],
+        ], $config->get('params2'));
+    }
+
+    public function testRemoveFromVendorFromPackageGroup(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor-packages', 'config'),
+            Options::DEFAULT_ENVIRONMENT,
+            [
+                RecursiveMerge::groups('params1', 'params2'),
+                RemoveFromVendor::keys(
+                    ['nested']
+                )->package('package/b', 'params1'),
+            ]
+        );
+
+        $this->assertSame([
+            'nested' => [
+                'nested-a' => 1,
+                'nested-app' => 0,
+            ],
+        ], $config->get('params1'));
+        $this->assertSame([
+            'nested' => [
+                'nested-a' => 1,
+                'nested-b' => 2,
+                'nested-app' => 0,
+            ],
+        ], $config->get('params2'));
+    }
+
+    public function testRemoveFromVendorFromPackageGroup2(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/remove-from-vendor-packages', 'config'),
+            Options::DEFAULT_ENVIRONMENT,
+            [
+                RecursiveMerge::groups('params1', 'params2'),
+                RemoveFromVendor::keys(
+                    ['nested']
+                )->package('package/b', 'params1', 'params2'),
+            ]
+        );
+
+        $this->assertSame([
+            'nested' => [
+                'nested-a' => 1,
+                'nested-app' => 0,
+            ],
+        ], $config->get('params1'));
+        $this->assertSame([
+            'nested' => [
+                'nested-a' => 1,
+                'nested-app' => 0,
+            ],
+        ], $config->get('params2'));
+    }
+
     public function testReverseAndRecursive(): void
     {
         $config = new Config(

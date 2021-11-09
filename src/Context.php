@@ -14,6 +14,7 @@ final class Context
     private const ENVIRONMENT = 3;
 
     private string $group;
+    private string $package;
     private int $level;
     private string $file;
     private bool $isVariable;
@@ -21,6 +22,7 @@ final class Context
     public function __construct(string $environment, string $group, string $package, string $file, bool $isVariable)
     {
         $this->group = $group;
+        $this->package = $package;
         $this->level = $this->detectLevel($environment, $package);
         $this->file = $file;
         $this->isVariable = $isVariable;
@@ -29,6 +31,11 @@ final class Context
     public function group(): string
     {
         return $this->group;
+    }
+
+    public function package(): string
+    {
+        return $this->package;
     }
 
     public function level(): int

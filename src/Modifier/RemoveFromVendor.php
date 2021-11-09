@@ -74,31 +74,10 @@ namespace Yiisoft\Config\Modifier;
 final class RemoveFromVendor
 {
     /**
-     * @var string[][]
-     */
-    private array $keys;
-
-    /**
-     * @param string[][] $keys
-     */
-    private function __construct(array $keys)
-    {
-        $this->keys = $keys;
-    }
-
-    /**
      * @param string[] ...$keys
      */
-    public static function keys(array ...$keys): self
+    public static function keys(array ...$keys): RemoveKeysFromVendor
     {
-        return new self($keys);
-    }
-
-    /**
-     * @return string[][]
-     */
-    public function getKeys(): array
-    {
-        return $this->keys;
+        return new RemoveKeysFromVendor(...$keys);
     }
 }
