@@ -234,7 +234,7 @@ final class Merger
                 continue;
             }
 
-            if ($this->isRemoveKeyFromVendor($context, array_merge($recursiveKeyPath, [$key]))) {
+            if ($this->shouldRemoveKeyFromVendor($context, array_merge($recursiveKeyPath, [$key]))) {
                 continue;
             }
 
@@ -287,7 +287,7 @@ final class Merger
      */
     private function setValue(Context $context, array $keyPath, array &$array, string $key, $value): bool
     {
-        if ($this->isRemoveKeyFromVendor($context, $keyPath)) {
+        if ($this->shouldRemoveKeyFromVendor($context, $keyPath)) {
             return false;
         }
 
@@ -300,7 +300,7 @@ final class Merger
     /**
      * @psalm-param non-empty-array<array-key, string> $keyPath
      */
-    private function isRemoveKeyFromVendor(Context $context, array $keyPath): bool
+    private function shouldRemoveKeyFromVendor(Context $context, array $keyPath): bool
     {
         if (!$context->isVendor()) {
             return false;
