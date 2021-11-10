@@ -7,7 +7,7 @@ namespace Yiisoft\Config;
 use ErrorException;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Config\Modifier\RecursiveMerge;
-use Yiisoft\Config\Modifier\RemoveFromVendor;
+use Yiisoft\Config\Modifier\RemoveKeysFromVendor;
 use Yiisoft\Config\Modifier\ReverseMerge;
 
 use function array_key_exists;
@@ -29,6 +29,10 @@ final class Merger
     private ConfigPaths $paths;
     private array $recursiveMergeGroupsIndex;
     private array $reverseMergeGroupsIndex;
+
+    /**
+     * @psalm-var array<string,array<string, mixed>>
+     */
     private array $removeFromVendorKeysIndex;
 
     /**
@@ -37,12 +41,12 @@ final class Merger
     private array $cacheKeys = [];
 
     /**
-     * @param ConfigPaths $paths The config paths instance.
-     * @param object[] $modifiers Names of config groups that should be merged recursively.
+     * @param ConfigPaths $configPaths The config paths instance.
+     * @param object[] $modifiers Modifiers that affect merge process.
      */
-    public function __construct(ConfigPaths $paths, array $modifiers = [])
+    public function __construct(ConfigPaths $configPaths, array $modifiers = [])
     {
-        $this->paths = $paths;
+        $this->paths = $configPaths;
 
         $reverseMergeGroups = [];
         $recursiveMergeGroups = [];
@@ -57,9 +61,27 @@ final class Merger
                 $recursiveMergeGroups = array_merge($recursiveMergeGroups, $modifier->getGroups());
             }
 
-            if ($modifier instanceof RemoveFromVendor) {
-                foreach ($modifier->getKeys() as $path) {
-                    ArrayHelper::setValue($this->removeFromVendorKeysIndex, $path, true);
+            if ($modifier instanceof RemoveKeysFromVendor) {
+                $configPaths = [];
+                if ($modifier->getPackages() === []) {
+                    $configPaths[] = '*';
+                } else {
+                    foreach ($modifier->getPackages() as $configPath) {
+                        $package = array_shift($configPath);
+                        if ($configPath === []) {
+                            $configPaths[] = $package . '~*';
+                        } else {
+                            foreach ($configPath as $group) {
+                                $configPaths[] = $package . '~' . $group;
+                            }
+                        }
+                    }
+                }
+                foreach ($modifier->getKeys() as $keyPath) {
+                    foreach ($configPaths as $configPath) {
+                        $this->removeFromVendorKeysIndex[$configPath] ??= [];
+                        ArrayHelper::setValue($this->removeFromVendorKeysIndex[$configPath], $keyPath, true);
+                    }
                 }
             }
         }
@@ -115,7 +137,7 @@ final class Merger
      *
      * @return array The merged array.
      */
-    public function performMerge(
+    private function performMerge(
         Context $context,
         array $recursiveKeyPath,
         array $arrayA,
@@ -212,13 +234,7 @@ final class Merger
                 continue;
             }
 
-            if (
-                $context->isVendor()
-                && ArrayHelper::getValue(
-                    $this->removeFromVendorKeysIndex,
-                    array_merge($recursiveKeyPath, [$key])
-                ) === true
-            ) {
+            if ($this->shouldRemoveKeyFromVendor($context, array_merge($recursiveKeyPath, [$key]))) {
                 continue;
             }
 
@@ -271,10 +287,7 @@ final class Merger
      */
     private function setValue(Context $context, array $keyPath, array &$array, string $key, $value): bool
     {
-        if (
-            $context->isVendor()
-            && ArrayHelper::getValue($this->removeFromVendorKeysIndex, $keyPath) === true
-        ) {
+        if ($this->shouldRemoveKeyFromVendor($context, $keyPath)) {
             return false;
         }
 
@@ -282,6 +295,30 @@ final class Merger
         $array[$key] = $value;
 
         return true;
+    }
+
+    /**
+     * @psalm-param non-empty-array<array-key, string> $keyPath
+     */
+    private function shouldRemoveKeyFromVendor(Context $context, array $keyPath): bool
+    {
+        if (!$context->isVendor()) {
+            return false;
+        }
+
+        $configPaths = [
+            '*',
+            $context->package() . '~*',
+            $context->package() . '~' . $context->group(),
+        ];
+
+        foreach ($configPaths as $configPath) {
+            if (ArrayHelper::getValue($this->removeFromVendorKeysIndex[$configPath] ?? [], $keyPath) === true) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

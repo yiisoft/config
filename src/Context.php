@@ -9,19 +9,21 @@ namespace Yiisoft\Config;
  */
 final class Context
 {
-    private const VENDOR = 1;
-    private const APPLICATION = 2;
-    private const ENVIRONMENT = 3;
+    public const VENDOR = 1;
+    public const APPLICATION = 2;
+    public const ENVIRONMENT = 3;
 
     private string $group;
+    private string $package;
     private int $level;
     private string $file;
     private bool $isVariable;
 
-    public function __construct(string $environment, string $group, string $package, string $file, bool $isVariable)
+    public function __construct(string $group, string $package, int $level, string $file, bool $isVariable)
     {
         $this->group = $group;
-        $this->level = $this->detectLevel($environment, $package);
+        $this->package = $package;
+        $this->level = $level;
         $this->file = $file;
         $this->isVariable = $isVariable;
     }
@@ -29,6 +31,11 @@ final class Context
     public function group(): string
     {
         return $this->group;
+    }
+
+    public function package(): string
+    {
+        return $this->package;
     }
 
     public function level(): int
@@ -49,18 +56,5 @@ final class Context
     public function isVariable(): bool
     {
         return $this->isVariable;
-    }
-
-    private function detectLevel(string $environment, string $package): int
-    {
-        if ($package !== Options::ROOT_PACKAGE_NAME) {
-            return self::VENDOR;
-        }
-
-        if ($environment === Options::DEFAULT_ENVIRONMENT) {
-            return self::APPLICATION;
-        }
-
-        return self::ENVIRONMENT;
     }
 }

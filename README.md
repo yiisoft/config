@@ -318,7 +318,9 @@ $events = $config->get('events-console'); // merged reversed
 ### Remove elements from vendor package configuration
 
 Sometimes it is necessary to remove some elements of vendor packages configuration. To do this,
-pass `RemoveFromVendor` modifier with specified key paths to the `Config` constructor:
+pass `RemoveFromVendor` modifier to the `Config` constructor.
+
+Remove specified key paths:
 
 ```php
 use Yiisoft\Config\Config;
@@ -329,14 +331,60 @@ $config = new Config(
     new ConfigPaths(dirname(__DIR__)),
     'dev',
     [
+        // Remove elements `key-for-remove` and `nested→key→for-remove` from all groups in all vendor packages
         RemoveFromVendor::keys(
             ['key-for-remove'],
             ['nested', 'key', 'for-remove'],
         ),
+        
+        // Remove elements `a` and `b` from all groups in package `yiisoft/auth`
+        RemoveFromVendor::keys(['a'], ['b'])
+            ->package('yiisoft/auth'),
+        
+        // Remove elements `c` and `d` from groups `params` and `web` in package `yiisoft/yii-web`
+        RemoveFromVendor::keys(['c'], ['d'])
+            ->package('yiisoft/yii-web', 'params', 'web'),
+        
+        // Remove elements `e` and `f` from all groups in package `yiisoft/auth` and
+        // from groups `params` and `web` in package `yiisoft/yii-web`
+        RemoveFromVendor::keys(['e'], ['f'])
+            ->package('yiisoft/auth')
+            ->package('yiisoft/yii-web', 'params', 'web'),
     ],
 );
 
 $params = $config->get('params');
+```
+
+Remove specified configuration groups:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Modifier\RemoveFromVendor;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+    'dev',
+    [
+        RemoveFromVendor::groups([
+            // Remove group `params` from all vendor packages
+            '*' => 'params',
+            
+            // Remove groups `common` and `web` from all vendor packages
+            '*' => ['common', 'web'],
+            
+            // Remove all groups from package `yiisoft/auth`
+            'yiisoft/auth' => '*',
+            
+            // Remove groups `params` from package `yiisoft/http`
+            'yiisoft/http' => 'params',
+            
+            // Remove groups `params` and `common` from package `yii-web`
+            'yiisoft/yii-web' => ['params', 'common'],
+        ]),
+    ],
+);
 ```
 
 ### Combine modifiers
