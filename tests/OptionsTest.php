@@ -9,6 +9,58 @@ use Yiisoft\Config\Options;
 
 final class OptionsTest extends TestCase
 {
+    public function buildMergePlanDataProvider(): array
+    {
+        return [
+            'true' => [true],
+            'int' => [1],
+            'string' => ['yes'],
+            'string-int' => ['1'],
+            'array' => [['']],
+        ];
+    }
+
+    /**
+     * @dataProvider buildMergePlanDataProvider
+     *
+     * @param mixed $value
+     */
+    public function testBuildMergePlanTrue($value): void
+    {
+        $options = new Options([
+            'config-plugin-options' => [
+                'build-merge-plan' => $value,
+            ],
+        ]);
+        $this->assertTrue($options->buildMergePlan());
+    }
+
+    public function noBuildMergePlanDataProvider(): array
+    {
+        return [
+            'false' => [false],
+            'int' => [0],
+            'string-int' => ['0'],
+            'empty-string' => [''],
+            'empty-array' => [[]],
+        ];
+    }
+
+    /**
+     * @dataProvider noBuildMergePlanDataProvider
+     *
+     * @param mixed $value
+     */
+    public function testBuildMergePlanFalse($value): void
+    {
+        $options = new Options([
+            'config-plugin-options' => [
+                'build-merge-plan' => $value,
+            ],
+        ]);
+        $this->assertFalse($options->buildMergePlan());
+    }
+
     public function directoryDataProvider(): array
     {
         return [
@@ -37,9 +89,10 @@ final class OptionsTest extends TestCase
         $this->assertSame($expected, $options->sourceDirectory());
     }
 
-    public function testDefaultSourceDirectory(): void
+    public function testDefaultOptions(): void
     {
         $options = new Options([]);
+        $this->assertTrue($options->buildMergePlan());
         $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
 
@@ -48,6 +101,7 @@ final class OptionsTest extends TestCase
         $options = new Options([
             'config-plugin-options' => true,
         ]);
+        $this->assertTrue($options->buildMergePlan());
         $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
 }

@@ -166,10 +166,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * @param array $extraEnvironments
+     * @param bool $buildMergePlan
      *
      * @return Composer|MockObject
      */
-    protected function createComposerMock(array $extraEnvironments = [])
+    protected function createComposerMock(array $extraEnvironments = [], bool $buildMergePlan = true)
     {
         $sourcePath = $this->sourceDirectory;
         $targetPath = "$this->tempDirectory/vendor";
@@ -177,6 +178,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $extra = array_merge([
             'config-plugin-options' => [
                 'source-directory' => 'config',
+                'build-merge-plan' => $buildMergePlan,
             ],
             'config-plugin' => [
                 'common' => 'common/*.php',
