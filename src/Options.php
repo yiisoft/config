@@ -20,6 +20,7 @@ final class Options
     public const DEFAULT_ENVIRONMENT = '/';
     public const ROOT_PACKAGE_NAME = '/';
 
+    private bool $buildMergePlan = true;
     private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;
 
     public function __construct(array $extra)
@@ -29,6 +30,10 @@ final class Options
         }
 
         $options = $extra['config-plugin-options'];
+
+        if (isset($options['build-merge-plan'])) {
+            $this->buildMergePlan = (bool) $options['build-merge-plan'];
+        }
 
         if (isset($options['source-directory'])) {
             $this->sourceDirectory = $this->normalizePath((string) $options['source-directory']);
@@ -48,6 +53,11 @@ final class Options
     public static function isVariable(string $file): bool
     {
         return strpos($file, '$') === 0;
+    }
+
+    public function buildMergePlan(): bool
+    {
+        return $this->buildMergePlan;
     }
 
     public function sourceDirectory(): string

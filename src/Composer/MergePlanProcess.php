@@ -28,21 +28,22 @@ final class MergePlanProcess
 
     /**
      * @param Composer $composer The composer instance.
-     * @param bool $updateMergePlan Whether it is necessary to update a merger plan file.
      */
-    public function __construct(Composer $composer, bool $updateMergePlan = true)
+    public function __construct(Composer $composer)
     {
         $this->mergePlan = new MergePlan();
         $this->helper = new ProcessHelper($composer);
         $rootPackage = $composer->getPackage();
+        $rootOptions = new Options($composer->getPackage()->getExtra());
+
+        if (!$rootOptions->buildMergePlan()) {
+            return;
+        }
 
         $this->addPackagesConfigsToMergePlan();
         $this->addRootPackageConfigToMergePlan($rootPackage);
         $this->addEnvironmentsConfigsToMergePlan($rootPackage);
-
-        if ($updateMergePlan) {
-            $this->updateMergePlan();
-        }
+        $this->updateMergePlan();
     }
 
     private function addPackagesConfigsToMergePlan(): void
