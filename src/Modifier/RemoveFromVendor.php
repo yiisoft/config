@@ -23,15 +23,15 @@ final class RemoveFromVendor
      * RemoveFromVendor::keys(['a'], ['b'])
      *   ->package('yiisoft/auth'),
      *
-     * // Remove elements `c` and `d` from groups `params` and `web` in package `yiisoft/yii-web`
+     * // Remove elements `c` and `d` from groups `params` and `web` in package `yiisoft/view`
      * RemoveFromVendor::keys(['c'], ['d'])
-     *   ->package('yiisoft/yii-web', 'params', 'web'),
+     *   ->package('yiisoft/view', 'params', 'web'),
      *
-     * // Remove elements `e` and `f` from all groups in package `yiisoft/auth` and
-     * // from groups `params` and `web` in package `yiisoft/yii-web`
+     * // Remove elements `e` and `f` from all groups in package `yiisoft/auth`
+     * // and from groups `params` and `web` in package `yiisoft/view`
      * RemoveFromVendor::keys(['e'], ['f'])
      *   ->package('yiisoft/auth')
-     *   ->package('yiisoft/yii-web', 'params', 'web'),
+     *   ->package('yiisoft/view', 'params', 'web'),
      * ```
      *
      * For example:
@@ -114,8 +114,8 @@ final class RemoveFromVendor
      *   // Remove groups `params` from package `yiisoft/http`
      *   'yiisoft/http' => 'params',
      *
-     *   // Remove groups `params` and `common` from package `yii-web`
-     *   'yiisoft/yii-web' => ['params', 'common'],
+     *   // Remove groups `params` and `common` from package `yiisoft/view`
+     *   'yiisoft/view' => ['params', 'common'],
      *   ]),
      * ```
      *
