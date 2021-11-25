@@ -27,11 +27,11 @@ final class ConfigPaths
     {
         $this->rootPath = $rootPath;
 
-        $configDirectory = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
-        $this->configPath = $rootPath . ($configDirectory === '' ? '' : "/$configDirectory");
+        $configDirectory = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, DIRECTORY_SEPARATOR);
+        $this->configPath = $rootPath . ($configDirectory === '' ? '' : DIRECTORY_SEPARATOR . "$configDirectory");
 
-        $vendorDirectory = trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, '/');
-        $this->vendorPath = $rootPath . ($vendorDirectory === '' ? '' : "/$vendorDirectory");
+        $vendorDirectory = trim($vendorDirectory ?? Options::DEFAULT_VENDOR_DIRECTORY, DIRECTORY_SEPARATOR);
+        $this->vendorPath = $rootPath . ($vendorDirectory === '' ? '' : DIRECTORY_SEPARATOR . "$vendorDirectory");
     }
 
     /**
@@ -45,10 +45,10 @@ final class ConfigPaths
     public function absolute(string $file, string $package = Options::ROOT_PACKAGE_NAME): string
     {
         if ($package === Options::ROOT_PACKAGE_NAME) {
-            return "$this->configPath/$file";
+            return $this->configPath . DIRECTORY_SEPARATOR . $file;
         }
 
-        return "$this->vendorPath/$package/$file";
+        return $this->vendorPath . DIRECTORY_SEPARATOR . $package . DIRECTORY_SEPARATOR . $file;
     }
 
     /**
@@ -60,8 +60,8 @@ final class ConfigPaths
      */
     public function relative(string $file): string
     {
-        return strpos($file, "$this->rootPath/") === 0
-            ? substr($file, strlen("$this->rootPath/"))
+        return strpos($file, $this->rootPath . DIRECTORY_SEPARATOR) === 0
+            ? substr($file, strlen($this->rootPath . DIRECTORY_SEPARATOR))
             : $file;
     }
 }
