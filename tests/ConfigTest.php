@@ -19,6 +19,9 @@ final class ConfigTest extends TestCase
     {
         $config = $this->createConfig();
 
+        $this->assertSame([], $config->get('empty'));
+        $this->assertSame([], $config->get('emptyVariable'));
+
         $this->assertSame([
             'a-common-key' => 'a-common-value',
             'a-common-root-override-key' => 'common-root-override-value',
@@ -57,6 +60,9 @@ final class ConfigTest extends TestCase
     public function testGetWithEnvironment(): void
     {
         $config = $this->createConfig('alfa');
+
+        $this->assertSame([], $config->get('empty'));
+        $this->assertSame([], $config->get('emptyVariable'));
 
         $this->assertSame($config->get('common'), [
             'a-common-key' => 'a-common-value',
@@ -119,6 +125,9 @@ final class ConfigTest extends TestCase
     {
         $config = $this->createConfig('beta');
 
+        $this->assertSame([], $config->get('empty'));
+        $this->assertSame([], $config->get('emptyVariable'));
+
         $this->assertSame([
             'a-params-key' => 'a-params-value',
             'b-params-key' => 'b-params-value',
@@ -152,6 +161,9 @@ final class ConfigTest extends TestCase
     public function testGetWithEnvironmentVariableExistAndRootVariableNotExist(): void
     {
         $config = $this->createConfig('beta');
+
+        $this->assertSame([], $config->get('empty'));
+        $this->assertSame([], $config->get('emptyVariable'));
 
         $this->assertSame([
             'root-events-key' => 'root-events-value',

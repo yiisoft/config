@@ -133,6 +133,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                             'custom-dir/events-web.php',
                         ],
                     ],
+                    'empty' => [
+                        Options::ROOT_PACKAGE_NAME => [],
+                    ],
                 ],
             ], $environments),
         );
@@ -181,6 +184,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'build-merge-plan' => $buildMergePlan,
             ],
             'config-plugin' => [
+                'empty' => [],
                 'common' => 'common/*.php',
                 'params' => [
                     'params.php',

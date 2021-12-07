@@ -5,6 +5,12 @@ declare(strict_types=1);
 // Do not edit. Content will be replaced.
 return [
     '/' => [
+        'empty' => [],
+        'emptyVariable' => [
+            '/' => [
+                '$empty',
+            ],
+        ],
         'events' => [
             '/' => [
                 'events.php',
