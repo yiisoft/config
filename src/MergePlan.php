@@ -57,6 +57,16 @@ final class MergePlan
     }
 
     /**
+     * Adds an empty environment item to the merge plan.
+     *
+     * @param string $environment The environment name.
+     */
+    public function addEnvironmentWithoutConfigs(string $environment): void
+    {
+        $this->mergePlan[$environment] = [];
+    }
+
+    /**
      * Returns the merge plan group.
      *
      * @param string $group The group name.
