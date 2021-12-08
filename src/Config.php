@@ -79,6 +79,18 @@ final class Config
     }
 
     /**
+     * Checks whether the configuration group exists.
+     *
+     * @param string $group The group name.
+     *
+     * @return bool Whether the configuration group exists.
+     */
+    public function has(string $group): bool
+    {
+        return $this->filesExtractor->hasGroup($group);
+    }
+
+    /**
      * @throws ErrorException If an error occurred during the build.
      */
     private function runBuildParams(): void
