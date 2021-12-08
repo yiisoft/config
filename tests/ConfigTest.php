@@ -15,6 +15,34 @@ use Yiisoft\Config\Options;
 
 final class ConfigTest extends TestCase
 {
+    public function testHas(): void
+    {
+        $config = $this->createConfig();
+
+        $this->assertTrue($config->has('web'));
+        $this->assertTrue($config->has('empty'));
+        $this->assertFalse($config->has('not-exist'));
+    }
+
+    public function testHasWithEmptyEnvironment(): void
+    {
+        $config = $this->createConfig('empty');
+
+        $this->assertTrue($config->has('web'));
+        $this->assertTrue($config->has('empty'));
+        $this->assertFalse($config->has('not-exist'));
+    }
+
+    public function testHasWithEnvironment(): void
+    {
+        $config = $this->createConfig('alfa');
+
+        $this->assertTrue($config->has('web'));
+        $this->assertTrue($config->has('empty'));
+        $this->assertTrue($config->has('common'));
+        $this->assertFalse($config->has('not-exist'));
+    }
+
     public function testGet(): void
     {
         $config = $this->createConfig();

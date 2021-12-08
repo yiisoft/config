@@ -84,6 +84,21 @@ final class FilesExtractor
     }
 
     /**
+     * Checks whether the group exists in the merge plan.
+     *
+     * @param string $group The group name.
+     *
+     * @return bool Whether the group exists in the merge plan.
+     */
+    public function hasGroup(string $group): bool
+    {
+        return $this->mergePlan->hasGroup($group, $this->environment) || (
+            $this->environment !== Options::DEFAULT_ENVIRONMENT &&
+            $this->mergePlan->hasGroup($group, Options::DEFAULT_ENVIRONMENT)
+        );
+    }
+
+    /**
      * @psalm-param array<string, string[]> $data
      *
      * @throws ErrorException If an error occurred during the process.

@@ -52,7 +52,7 @@ $config = new Config(
     new ConfigPaths(dirname(__DIR__)),
 );
 
-$webConfig = $config->get('web');
+$web = $config->get('web');
 ```
 
 The `web` in the above is a config group. The config loader obtains it runtime according to the merge plan.
@@ -63,6 +63,22 @@ The configuration consists of three layers that are loaded as follows:
 - Environment specific configurations from `config`. These may override root and vendor configurations.
 
 > Please note that same named keys are not allowed within a configuration layer.
+
+When calling the `get()` method, if the configuration group does not exist, an `\ErrorException` will be thrown.
+If you are not sure that the configuration group exists, then use the `has()` method:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__)),
+);
+
+if ($config->has('web')) {
+    $web = $config->get('web');
+}
+```
 
 ## Config groups
 
@@ -166,8 +182,6 @@ In order to access a sub-config, use the following in your config:
 'routes' => $config->get('routes');
 ```
 
-### Override `$params`
-
 ## Options
 
 A number of options is available both for Composer plugin and a config loader. Composer options are specified in
@@ -200,7 +214,7 @@ $config = new Config(
     new ConfigPaths(dirname(__DIR__), 'path/to/config/directory'),
 );
 
-$webConfig = $config->get('web');
+$web = $config->get('web');
 ```
 
 ## Environments
@@ -262,7 +276,7 @@ $config = new Config(
     'dev',
 );
 
-$appConfig = $config->get('app');
+$app = $config->get('app');
 ```
 
 If defined in an environment, `params` will be merged with `params` from the main configuration,
