@@ -43,9 +43,7 @@ final class Config
         array $modifiers = [],
         string $paramsGroup = 'params'
     ) {
-        if (empty($environment)) {
-            $environment = Options::DEFAULT_ENVIRONMENT;
-        }
+        $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
         $this->paramsGroup = $paramsGroup;
 
         /** @psalm-suppress UnresolvableInclude, MixedArgument */

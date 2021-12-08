@@ -122,6 +122,11 @@ final class MergePlanProcess
                 continue;
             }
 
+            if (empty($groups)) {
+                $this->mergePlan->addEnvironmentWithoutConfigs($environment);
+                continue;
+            }
+
             foreach ($groups as $group => $files) {
                 $this->mergePlan->addMultiple(
                     (array) $files,

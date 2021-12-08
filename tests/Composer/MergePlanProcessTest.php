@@ -40,6 +40,7 @@ final class MergePlanProcessTest extends TestCase
                     'beta/main.php',
                 ],
             ],
+            'empty' => [],
         ]));
 
         $this->assertMergePlan([
@@ -79,6 +80,7 @@ final class MergePlanProcessTest extends TestCase
                     ],
                 ],
             ],
+            'empty' => [],
         ]);
     }
 

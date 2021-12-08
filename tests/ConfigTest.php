@@ -57,6 +57,48 @@ final class ConfigTest extends TestCase
         ], $config->get('web'));
     }
 
+    public function testGetWithEmptyEnvironment(): void
+    {
+        $config = $this->createConfig('empty');
+
+        $this->assertSame([], $config->get('empty'));
+        $this->assertSame([], $config->get('emptyVariable'));
+
+        $this->assertSame([
+            'a-common-key' => 'a-common-value',
+            'a-common-root-override-key' => 'common-root-override-value',
+            'b-common-key' => 'b-common-value',
+            'b-common-root-override-key' => 'common-root-override-value',
+            'root-common-key-1' => 'root-common-value-1',
+            'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
+        ], $config->get('common'));
+
+        $this->assertSame([
+            'a-params-key' => 'a-params-value',
+            'b-params-key' => 'b-params-value',
+            'root-params-key' => 'root-params-value',
+            'root-params-local-key' => 'root-params-local-value',
+        ], $config->get('params'));
+
+        $this->assertSame([
+            'a-web-key' => 'a-web-value',
+            'a-web-environment-override-key' => 'a-web-override-value',
+            'b-web-key' => 'b-web-value',
+            'b-web-environment-override-key' => 'b-web-override-value',
+            'a-common-key' => 'a-common-value',
+            'a-common-root-override-key' => 'common-root-override-value',
+            'b-common-key' => 'b-common-value',
+            'b-common-root-override-key' => 'common-root-override-value',
+            'root-common-key-1' => 'root-common-value-1',
+            'root-common-key-2' => 'root-common-value-2',
+            'root-common-nested-key-1' => 'root-common-nested-value-1',
+            'root-common-nested-key-2' => 'root-common-nested-value-2',
+            'root-web-key' => 'root-web-value',
+        ], $config->get('web'));
+    }
+
     public function testGetWithEnvironment(): void
     {
         $config = $this->createConfig('alfa');
