@@ -6,6 +6,9 @@ namespace Yiisoft\Config\Tests\Composer;
 
 use Yiisoft\Config\Composer\MergePlanProcess;
 use Yiisoft\Config\Options;
+use Yiisoft\VarDumper\VarDumper;
+
+use function file_put_contents;
 
 final class MergePlanProcessTest extends TestCase
 {
@@ -125,5 +128,49 @@ final class MergePlanProcessTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    public function testProcessWithSpecifyConfigurationFiles(): void
+    {
+        $generateContent = static function (array $configuration): string {
+            return "<?php\n\nreturn " . VarDumper::create($configuration)->export(true) . ";\n";
+        };
+
+        file_put_contents($this->getTempPath('root.php'), $generateContent([
+            'empty' => [],
+            'common' => 'common/*.php',
+            'params' => [
+                'params.php',
+                '?params-local.php',
+            ],
+            'web' => [
+                '$common',
+                'web.php',
+            ],
+        ]));
+
+        file_put_contents($this->getTempPath('env.php'), $generateContent([
+            'env' => [
+                'main' => [
+                    '$web',
+                    'main.php',
+                ],
+            ],
+        ]));
+
+        new MergePlanProcess($this->createComposerMock([], true, 'root.php', 'env.php'));
+
+        $this->assertMergePlan(
+            [
+                'env' => [
+                    'main' => [
+                        Options::ROOT_PACKAGE_NAME => [
+                            '$web',
+                            'main.php',
+                        ],
+                    ],
+                ],
+            ],
+        );
     }
 }

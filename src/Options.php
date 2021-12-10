@@ -22,6 +22,8 @@ final class Options
 
     private bool $buildMergePlan = true;
     private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;
+    private ?string $rootConfigurationFile = null;
+    private ?string $environmentConfigurationFile = null;
 
     public function __construct(array $extra)
     {
@@ -37,6 +39,14 @@ final class Options
 
         if (isset($options['source-directory'])) {
             $this->sourceDirectory = $this->normalizePath((string) $options['source-directory']);
+        }
+
+        if (isset($options['root-configuration-file'])) {
+            $this->rootConfigurationFile = $this->normalizePath((string) $options['root-configuration-file']);
+        }
+
+        if (isset($options['environment-configuration-file'])) {
+            $this->environmentConfigurationFile = $this->normalizePath((string) $options['environment-configuration-file']);
         }
     }
 
@@ -63,6 +73,16 @@ final class Options
     public function sourceDirectory(): string
     {
         return $this->sourceDirectory;
+    }
+
+    public function rootConfigurationFile(): ?string
+    {
+        return $this->rootConfigurationFile;
+    }
+
+    public function environmentConfigurationFile(): ?string
+    {
+        return $this->environmentConfigurationFile;
     }
 
     private function normalizePath(string $value): string

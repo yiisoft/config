@@ -8,6 +8,7 @@ use Composer\Composer;
 use Composer\Factory;
 use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
+use Composer\Package\RootPackageInterface;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
 
@@ -96,7 +97,7 @@ final class ProcessHelper
      *
      * @param PackageInterface $package The package instance.
      *
-     * @return array The package instance.
+     * @return array The package configuration.
      *
      * @psalm-return array<string, string|list<string>>
      * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
@@ -104,6 +105,50 @@ final class ProcessHelper
     public function getPackageConfig(PackageInterface $package): array
     {
         return $package->getExtra()['config-plugin'] ?? [];
+    }
+
+    /**
+     * Returns the root package configuration.
+     *
+     * @param RootPackageInterface $package The root package instance.
+     *
+     * @return array The root package configuration.
+     *
+     * @psalm-return array<string, string|list<string>>
+     * @psalm-suppress MixedReturnTypeCoercion
+     */
+    public function getRootPackageConfig(RootPackageInterface $package, Options $options): array
+    {
+        $rootPackageConfigFile = $options->rootConfigurationFile();
+
+        if ($rootPackageConfigFile === null) {
+            return (array) ($package->getExtra()['config-plugin'] ?? []);
+        }
+
+        /** @psalm-suppress UnresolvableInclude */
+        return (array) require_once "{$this->getPackageSourceDirectoryPath($package, $options)}/$rootPackageConfigFile";
+    }
+
+    /**
+     * Returns the environment configuration.
+     *
+     * @param RootPackageInterface $package The root package instance.
+     *
+     * @return array The environment configuration.
+     *
+     * @psalm-return array<string, array<string, string|string[]>>
+     * @psalm-suppress MixedReturnTypeCoercion
+     */
+    public function getEnvironmentConfig(RootPackageInterface $package, Options $options): array
+    {
+        $environmentConfigFile = $options->environmentConfigurationFile();
+
+        if ($environmentConfigFile === null) {
+            return (array) ($package->getExtra()['config-plugin-environments'] ?? []);
+        }
+
+        /** @psalm-suppress UnresolvableInclude */
+        return (array) require_once "{$this->getPackageSourceDirectoryPath($package, $options)}/$environmentConfigFile";
     }
 
     /**

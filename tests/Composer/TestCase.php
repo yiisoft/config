@@ -75,7 +75,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         $this->assertSame(
             require $this->getTempPath(Options::MERGE_PLAN_FILENAME),
-            array_merge([
+            array_merge( [
                 Options::DEFAULT_ENVIRONMENT => [
                     'params' => [
                         'test/a' => [
@@ -168,13 +168,15 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param array $extraEnvironments
-     * @param bool $buildMergePlan
-     *
      * @return Composer|MockObject
      */
-    protected function createComposerMock(array $extraEnvironments = [], bool $buildMergePlan = true)
-    {
+    protected function createComposerMock(
+        array $extraEnvironments = [],
+        bool $buildMergePlan = true,
+        string $rootPackageConfigFile = null,
+        string $environmentConfigFile = null
+    ) {
+        $rootPath = $this->tempDirectory;
         $sourcePath = $this->sourceDirectory;
         $targetPath = "$this->tempDirectory/vendor";
 
@@ -182,6 +184,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'config-plugin-options' => [
                 'source-directory' => 'config',
                 'build-merge-plan' => $buildMergePlan,
+                'root-configuration-file' => $rootPackageConfigFile,
+                'environment-configuration-file' => $environmentConfigFile,
             ],
             'config-plugin' => [
                 'empty' => [],
@@ -248,7 +252,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ->getMock()
         ;
         $installationManager->method('getInstallPath')->willReturnCallback(
-            static function (PackageInterface $package) use ($sourcePath) {
+            static function (PackageInterface $package) use ($sourcePath, $rootPath) {
+                if ($package instanceof RootPackageInterface) {
+                    return $rootPath;
+                }
                 return str_replace('test/', '', "$sourcePath/{$package->getName()}");
             }
         );

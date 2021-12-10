@@ -41,8 +41,8 @@ final class MergePlanProcess
         }
 
         $this->addPackagesConfigsToMergePlan();
-        $this->addRootPackageConfigToMergePlan($rootPackage);
-        $this->addEnvironmentsConfigsToMergePlan($rootPackage);
+        $this->addRootPackageConfigToMergePlan($rootPackage, $rootOptions);
+        $this->addEnvironmentsConfigsToMergePlan($rootPackage, $rootOptions);
         $this->updateMergePlan();
     }
 
@@ -101,9 +101,9 @@ final class MergePlanProcess
         }
     }
 
-    private function addRootPackageConfigToMergePlan(RootPackageInterface $package): void
+    private function addRootPackageConfigToMergePlan(RootPackageInterface $package, Options $options): void
     {
-        foreach ($this->helper->getPackageConfig($package) as $group => $files) {
+        foreach ($this->helper->getRootPackageConfig($package, $options) as $group => $files) {
             $this->mergePlan->addMultiple(
                 (array) $files,
                 Options::ROOT_PACKAGE_NAME,
@@ -112,12 +112,9 @@ final class MergePlanProcess
         }
     }
 
-    private function addEnvironmentsConfigsToMergePlan(RootPackageInterface $package): void
+    private function addEnvironmentsConfigsToMergePlan(RootPackageInterface $package, Options $options): void
     {
-        /** @psalm-var array<string, array<string, string|string[]>> $environments */
-        $environments = (array) ($package->getExtra()['config-plugin-environments'] ?? []);
-
-        foreach ($environments as $environment => $groups) {
+        foreach ($this->helper->getEnvironmentConfig($package, $options) as $environment => $groups) {
             if ($environment === Options::DEFAULT_ENVIRONMENT) {
                 continue;
             }
