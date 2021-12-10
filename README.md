@@ -323,7 +323,7 @@ return [
 
 If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored
 and configurations will be read from the specified PHP file. The path to the PHP configuration
-file is considered relative to where the composer.json `file is located.`
+file is considered relative to where the `composer.json` file is located.
 
 ## Configuration modifiers
 
