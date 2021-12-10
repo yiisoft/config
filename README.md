@@ -200,7 +200,7 @@ A number of options is available both for Composer plugin and a config loader. C
 
 The `source-directory` option specifies where to read the configs from for a package the option is specified for.
 It is available for all packages, including the root package, which is typically an application.
-The value is a path relative to where the `composer.json` file is located. The default value is empty string.
+The value is a path relative to where the `composer.json` file is located. The default value is an empty string.
 
 If you change the source directory for the root package, don't forget to adjust configs path when creating
 an instance of `Config`. Usually that is `index.php`:
@@ -283,8 +283,7 @@ and could be used as `$params` in all configurations.
 
 ## Configuration in a PHP file
 
-You can define the configuration in a PHP file, in the `extra` section of the `composer.json`,
-specify only the path to the PHP file:
+You can define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of the `composer.json`:
 
 ```json
 "extra": {
@@ -292,7 +291,7 @@ specify only the path to the PHP file:
 },
 ```
 
-Configurations are specified in the same way only in PHP format:
+Configurations are specified in the same way, only in PHP format:
 
 ```php
 return [
@@ -322,8 +321,7 @@ return [
 ```
 
 If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored
-and configurations will be read from the specified PHP file. The path to the PHP configuration
-file is considered relative to where the `composer.json` file is located.
+and configurations will be read from the PHP file specified. The path is relative to where the `composer.json` file is located.
 
 ## Configuration modifiers
 

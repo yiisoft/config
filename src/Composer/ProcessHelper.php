@@ -150,9 +150,9 @@ final class ProcessHelper
     }
 
     /**
-     * Checks whether to build a merger plan.
+     * Checks whether to build a merge plan.
      *
-     * @return bool Whether to build a merger plan.
+     * @return bool Whether to build a merge plan.
      */
     public function shouldBuildMergePlan(): bool
     {
