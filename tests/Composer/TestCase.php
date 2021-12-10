@@ -75,7 +75,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         $this->assertSame(
             require $this->getTempPath(Options::MERGE_PLAN_FILENAME),
-            array_merge( [
+            array_merge([
                 Options::DEFAULT_ENVIRONMENT => [
                     'params' => [
                         'test/a' => [
