@@ -190,18 +190,17 @@ A number of options is available both for Composer plugin and a config loader. C
 ```json
 "extra": {
     "config-plugin-options": {
-      "source-directory": "config",
+      "source-directory": "config"
     },
     "config-plugin": {
         // ...
-    },
-
+    }
 },
 ```
 
 The `source-directory` option specifies where to read the configs from for a package the option is specified for.
 It is available for all packages, including the root package, which is typically an application.
-The value is a path relative to where the `composer.json` file is located. The default value is `config`.
+The value is a path relative to where the `composer.json` file is located. The default value is an empty string.
 
 If you change the source directory for the root package, don't forget to adjust configs path when creating
 an instance of `Config`. Usually that is `index.php`:
@@ -227,11 +226,11 @@ The environments are specified in the `composer.json` file of your application:
 ```json
 "extra": {
     "config-plugin-options": {
-        "source-directory": "config",
+        "source-directory": "config"
     },
     "config-plugin": {
         "params": "params.php",
-        "web": "web.php",
+        "web": "web.php"
     },
     "config-plugin-environments": {
         "dev": {
@@ -281,6 +280,48 @@ $app = $config->get('app');
 
 If defined in an environment, `params` will be merged with `params` from the main configuration,
 and could be used as `$params` in all configurations.
+
+## Configuration in a PHP file
+
+You can define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of the `composer.json`:
+
+```json
+"extra": {
+    "config-plugin-file": "path/to/configuration/file.php"
+},
+```
+
+Configurations are specified in the same way, only in PHP format:
+
+```php
+return [
+    'config-plugin-options' => [
+        'source-directory' => 'config',  
+    ],
+    'config-plugin' => [
+        'params' => [
+            'params.php',
+            '?params-local.php',
+        ],
+        'web' => 'web.php', 
+    ],
+    'config-plugin-environments' => [
+        'dev' => [
+            'params' => 'dev/params.php',
+            'app' => [
+                '$web',
+                'dev/app.php',
+            ],
+        ],
+        'prod' => [
+            'app' => 'prod/app.php',
+        ],
+    ],
+];
+```
+
+If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored
+and configurations will be read from the PHP file specified. The path is relative to where the `composer.json` file is located.
 
 ## Configuration modifiers
 

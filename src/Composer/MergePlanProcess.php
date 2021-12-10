@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
-use Composer\Package\RootPackageInterface;
 use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 use Yiisoft\VarDumper\VarDumper;
@@ -33,16 +32,14 @@ final class MergePlanProcess
     {
         $this->mergePlan = new MergePlan();
         $this->helper = new ProcessHelper($composer);
-        $rootPackage = $composer->getPackage();
-        $rootOptions = new Options($composer->getPackage()->getExtra());
 
-        if (!$rootOptions->buildMergePlan()) {
+        if (!$this->helper->shouldBuildMergePlan()) {
             return;
         }
 
         $this->addPackagesConfigsToMergePlan();
-        $this->addRootPackageConfigToMergePlan($rootPackage);
-        $this->addEnvironmentsConfigsToMergePlan($rootPackage);
+        $this->addRootPackageConfigToMergePlan();
+        $this->addEnvironmentsConfigsToMergePlan();
         $this->updateMergePlan();
     }
 
@@ -101,9 +98,9 @@ final class MergePlanProcess
         }
     }
 
-    private function addRootPackageConfigToMergePlan(RootPackageInterface $package): void
+    private function addRootPackageConfigToMergePlan(): void
     {
-        foreach ($this->helper->getPackageConfig($package) as $group => $files) {
+        foreach ($this->helper->getRootPackageConfig() as $group => $files) {
             $this->mergePlan->addMultiple(
                 (array) $files,
                 Options::ROOT_PACKAGE_NAME,
@@ -112,12 +109,9 @@ final class MergePlanProcess
         }
     }
 
-    private function addEnvironmentsConfigsToMergePlan(RootPackageInterface $package): void
+    private function addEnvironmentsConfigsToMergePlan(): void
     {
-        /** @psalm-var array<string, array<string, string|string[]>> $environments */
-        $environments = (array) ($package->getExtra()['config-plugin-environments'] ?? []);
-
-        foreach ($environments as $environment => $groups) {
+        foreach ($this->helper->getEnvironmentConfig() as $environment => $groups) {
             if ($environment === Options::DEFAULT_ENVIRONMENT) {
                 continue;
             }

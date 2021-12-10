@@ -168,17 +168,19 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param array $extraEnvironments
-     * @param bool $buildMergePlan
-     *
      * @return Composer|MockObject
      */
-    protected function createComposerMock(array $extraEnvironments = [], bool $buildMergePlan = true)
-    {
+    protected function createComposerMock(
+        array $extraEnvironments = [],
+        bool $buildMergePlan = true,
+        string $extraConfigFile = null
+    ) {
+        $rootPath = $this->tempDirectory;
         $sourcePath = $this->sourceDirectory;
         $targetPath = "$this->tempDirectory/vendor";
 
         $extra = array_merge([
+            'config-plugin-file' => $extraConfigFile,
             'config-plugin-options' => [
                 'source-directory' => 'config',
                 'build-merge-plan' => $buildMergePlan,
@@ -201,7 +203,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $config->method('get')->willReturn(dirname(__DIR__, 2) . '/vendor');
 
         $rootPackage = $this->getMockBuilder(RootPackageInterface::class)
-            ->onlyMethods(['getRequires', 'getDevRequires'])
+            ->onlyMethods(['getRequires', 'getDevRequires', 'getExtra'])
             ->getMockForAbstractClass()
         ;
         $rootPackage->method('getRequires')->willReturn([
@@ -248,7 +250,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ->getMock()
         ;
         $installationManager->method('getInstallPath')->willReturnCallback(
-            static function (PackageInterface $package) use ($sourcePath) {
+            static function (PackageInterface $package) use ($sourcePath, $rootPath) {
+                if ($package instanceof RootPackageInterface) {
+                    return $rootPath;
+                }
                 return str_replace('test/', '', "$sourcePath/{$package->getName()}");
             }
         );

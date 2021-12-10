@@ -22,22 +22,29 @@ final class ProcessHelper
 {
     private Composer $composer;
     private ConfigPaths $paths;
+    private Options $rootPackageOptions;
+    private array $rootPackageExtra;
 
     /**
      * @param Composer $composer The composer instance.
      */
     public function __construct(Composer $composer)
     {
-        $this->composer = $composer;
-
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
-        require_once $this->composer->getConfig()->get('vendor-dir') . '/autoload.php';
-
+        require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
         /** @psalm-suppress MixedArgument */
-        $this->paths = new ConfigPaths(
-            realpath(dirname(Factory::getComposerFile())),
-            (new Options($this->composer->getPackage()->getExtra()))->sourceDirectory(),
-        );
+        $rootPath = realpath(dirname(Factory::getComposerFile()));
+
+        $rootPackageExtra = $composer->getPackage()->getExtra();
+        /** @psalm-suppress UnresolvableInclude */
+        $this->rootPackageExtra = isset($rootPackageExtra['config-plugin-file'])
+            ? (array) (require_once "$rootPath/{$rootPackageExtra['config-plugin-file']}")
+            : $rootPackageExtra
+        ;
+
+        $this->composer = $composer;
+        $this->rootPackageOptions = new Options($this->rootPackageExtra);
+        $this->paths = new ConfigPaths($rootPath, $this->rootPackageOptions->sourceDirectory());
     }
 
     /**
@@ -96,14 +103,40 @@ final class ProcessHelper
      *
      * @param PackageInterface $package The package instance.
      *
-     * @return array The package instance.
+     * @return array The package configuration.
      *
      * @psalm-return array<string, string|list<string>>
-     * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     public function getPackageConfig(PackageInterface $package): array
     {
-        return $package->getExtra()['config-plugin'] ?? [];
+        return (array) ($package->getExtra()['config-plugin'] ?? []);
+    }
+
+    /**
+     * Returns the root package configuration.
+     *
+     * @return array The root package configuration.
+     *
+     * @psalm-return array<string, string|list<string>>
+     * @psalm-suppress MixedReturnTypeCoercion
+     */
+    public function getRootPackageConfig(): array
+    {
+        return (array) ($this->rootPackageExtra['config-plugin'] ?? []);
+    }
+
+    /**
+     * Returns the environment configuration.
+     *
+     * @return array The environment configuration.
+     *
+     * @psalm-return array<string, array<string, string|string[]>>
+     * @psalm-suppress MixedReturnTypeCoercion
+     */
+    public function getEnvironmentConfig(): array
+    {
+        return (array) ($this->rootPackageExtra['config-plugin-environments'] ?? []);
     }
 
     /**
@@ -114,6 +147,16 @@ final class ProcessHelper
     public function getPaths(): ConfigPaths
     {
         return $this->paths;
+    }
+
+    /**
+     * Checks whether to build a merge plan.
+     *
+     * @return bool Whether to build a merge plan.
+     */
+    public function shouldBuildMergePlan(): bool
+    {
+        return $this->rootPackageOptions->buildMergePlan();
     }
 
     /**
