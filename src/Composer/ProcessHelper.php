@@ -8,7 +8,6 @@ use Composer\Composer;
 use Composer\Factory;
 use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
-use Composer\Package\RootPackageInterface;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
 
@@ -23,22 +22,29 @@ final class ProcessHelper
 {
     private Composer $composer;
     private ConfigPaths $paths;
+    private Options $rootPackageOptions;
+    private array $rootPackageExtra;
 
     /**
      * @param Composer $composer The composer instance.
      */
     public function __construct(Composer $composer)
     {
-        $this->composer = $composer;
-
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
-        require_once $this->composer->getConfig()->get('vendor-dir') . '/autoload.php';
-
+        require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
         /** @psalm-suppress MixedArgument */
-        $this->paths = new ConfigPaths(
-            realpath(dirname(Factory::getComposerFile())),
-            (new Options($this->composer->getPackage()->getExtra()))->sourceDirectory(),
-        );
+        $rootPath = realpath(dirname(Factory::getComposerFile()));
+
+        $rootPackageExtra = $composer->getPackage()->getExtra();
+        /** @psalm-suppress UnresolvableInclude */
+        $this->rootPackageExtra = isset($rootPackageExtra['config-plugin-file'])
+            ? (array) (require_once "$rootPath/{$rootPackageExtra['config-plugin-file']}")
+            : $rootPackageExtra
+        ;
+
+        $this->composer = $composer;
+        $this->rootPackageOptions = new Options($this->rootPackageExtra);
+        $this->paths = new ConfigPaths($rootPath, $this->rootPackageOptions->sourceDirectory());
     }
 
     /**
@@ -100,55 +106,37 @@ final class ProcessHelper
      * @return array The package configuration.
      *
      * @psalm-return array<string, string|list<string>>
-     * @psalm-suppress MixedInferredReturnType, MixedReturnStatement
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     public function getPackageConfig(PackageInterface $package): array
     {
-        return $package->getExtra()['config-plugin'] ?? [];
+        return (array) ($package->getExtra()['config-plugin'] ?? []);
     }
 
     /**
      * Returns the root package configuration.
-     *
-     * @param RootPackageInterface $package The root package instance.
      *
      * @return array The root package configuration.
      *
      * @psalm-return array<string, string|list<string>>
      * @psalm-suppress MixedReturnTypeCoercion
      */
-    public function getRootPackageConfig(RootPackageInterface $package, Options $options): array
+    public function getRootPackageConfig(): array
     {
-        $rootPackageConfigFile = $options->rootConfigurationFile();
-
-        if ($rootPackageConfigFile === null) {
-            return (array) ($package->getExtra()['config-plugin'] ?? []);
-        }
-
-        /** @psalm-suppress UnresolvableInclude */
-        return (array) require_once "{$this->getPackageSourceDirectoryPath($package, $options)}/$rootPackageConfigFile";
+        return (array) ($this->rootPackageExtra['config-plugin'] ?? []);
     }
 
     /**
      * Returns the environment configuration.
-     *
-     * @param RootPackageInterface $package The root package instance.
      *
      * @return array The environment configuration.
      *
      * @psalm-return array<string, array<string, string|string[]>>
      * @psalm-suppress MixedReturnTypeCoercion
      */
-    public function getEnvironmentConfig(RootPackageInterface $package, Options $options): array
+    public function getEnvironmentConfig(): array
     {
-        $environmentConfigFile = $options->environmentConfigurationFile();
-
-        if ($environmentConfigFile === null) {
-            return (array) ($package->getExtra()['config-plugin-environments'] ?? []);
-        }
-
-        /** @psalm-suppress UnresolvableInclude */
-        return (array) require_once "{$this->getPackageSourceDirectoryPath($package, $options)}/$environmentConfigFile";
+        return (array) ($this->rootPackageExtra['config-plugin-environments'] ?? []);
     }
 
     /**
@@ -159,6 +147,16 @@ final class ProcessHelper
     public function getPaths(): ConfigPaths
     {
         return $this->paths;
+    }
+
+    /**
+     * Checks whether to build a merger plan.
+     *
+     * @return bool Whether to build a merger plan.
+     */
+    public function shouldBuildMergePlan(): bool
+    {
+        return $this->rootPackageOptions->buildMergePlan();
     }
 
     /**

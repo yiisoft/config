@@ -182,6 +182,40 @@ In order to access a sub-config, use the following in your config:
 'routes' => $config->get('routes');
 ```
 
+## Options
+
+A number of options is available both for Composer plugin and a config loader. Composer options are specified in
+`composer.json`:
+
+```json
+"extra": {
+    "config-plugin-options": {
+      "source-directory": "config"
+    },
+    "config-plugin": {
+        // ...
+    }
+},
+```
+
+The `source-directory` option specifies where to read the configs from for a package the option is specified for.
+It is available for all packages, including the root package, which is typically an application.
+The value is a path relative to where the `composer.json` file is located. The default value is empty string.
+
+If you change the source directory for the root package, don't forget to adjust configs path when creating
+an instance of `Config`. Usually that is `index.php`:
+
+```php
+use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
+
+$config = new Config(
+    new ConfigPaths(dirname(__DIR__), 'path/to/config/directory'),
+);
+
+$web = $config->get('web');
+```
+
 ## Environments
 
 The plugin supports creating additional environments added to the base configuration. This allows you to create
@@ -191,9 +225,12 @@ The environments are specified in the `composer.json` file of your application:
 
 ```json
 "extra": {
+    "config-plugin-options": {
+        "source-directory": "config"
+    },
     "config-plugin": {
         "params": "params.php",
-        "web": "web.php",
+        "web": "web.php"
     },
     "config-plugin-environments": {
         "dev": {
@@ -244,60 +281,49 @@ $app = $config->get('app');
 If defined in an environment, `params` will be merged with `params` from the main configuration,
 and could be used as `$params` in all configurations.
 
-## Options
+## Configuration in a PHP file
 
-A number of options is available both for Composer plugin and a config loader. Composer options are specified in
-`composer.json`:
+You can define the configuration in a PHP file, in the `extra` section of the `composer.json`,
+specify only the path to the PHP file:
 
 ```json
 "extra": {
-    "config-plugin-options": {
-      "source-directory": "config"
-    },
-    "config-plugin": {
-        // ...
-    },
-    "config-plugin-environments": {
-        // ...
-    }
+    "config-plugin-file": "path/to/configuration/file.php"
 },
 ```
 
-The `source-directory` option specifies where to read the configs from for a package the option is specified for.
-It is available for all packages, including the root package, which is typically an application.
-The value is a path relative to where the `composer.json` file is located. The default value is empty string.
-
-If you change the source directory for the root package, don't forget to adjust configs path when creating
-an instance of `Config`. Usually that is `index.php`:
+Configurations are specified in the same way only in PHP format:
 
 ```php
-use Yiisoft\Config\Config;
-use Yiisoft\Config\ConfigPaths;
-
-$config = new Config(
-    new ConfigPaths(dirname(__DIR__), 'path/to/config/directory'),
-);
-
-$web = $config->get('web');
+return [
+    'config-plugin-options' => [
+        'source-directory' => 'config',  
+    ],
+    'config-plugin' => [
+        'params' => [
+            'params.php',
+            '?params-local.php',
+        ],
+        'web' => 'web.php', 
+    ],
+    'config-plugin-environments' => [
+        'dev' => [
+            'params' => 'dev/params.php',
+            'app' => [
+                '$web',
+                'dev/app.php',
+            ],
+        ],
+        'prod' => [
+            'app' => 'prod/app.php',
+        ],
+    ],
+];
 ```
 
-The `root-configuration-file` and `environment-configuration-file` are an alternative to defining configurations
-in the `composer.json`. In these options, you can specify the paths to PHP files in which to describe
-the configurations from sections `config-plugin` and `config-plugin-environments` in PHP format.
-
-```json
-"extra": {
-    "config-plugin-options": {
-      "source-directory": "config",
-      "root-configuration-file": "path/to/root/configuration/file.php",
-      "environment-configuration-file": "path/to/environment/configuration/file.php"
-    }
-},
-```
-
-If you specify the file path in these options, then sections `config-plugin` and `config-plugin-environments`
-in `composer.json` will be ignored and configurations will be read from the specified files. The file paths
-specified in these options are considered relative to the `source-directory`.
+If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored
+and configurations will be read from the specified PHP file. The path to the PHP configuration
+file is considered relative to where the composer.json `file is located.`
 
 ## Configuration modifiers
 

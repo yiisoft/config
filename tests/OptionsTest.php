@@ -89,51 +89,10 @@ final class OptionsTest extends TestCase
         $this->assertSame($expected, $options->sourceDirectory());
     }
 
-    public function configurationFileDataProvider(): array
-    {
-        return [
-            ['file.php', '/file.php'],
-            ['file.php', '//file.php'],
-            ['file.php', '\\file.php'],
-            ['dir/file.php', 'dir/file.php'],
-            ['dir/file.php', '/dir/file.php'],
-            ['dir/file.php', '//dir/file.php'],
-            ['dir/file.php', '\\dir\\file.php'],
-        ];
-    }
-
-    /**
-     * @dataProvider configurationFileDataProvider
-     */
-    public function testRootConfigurationFile(string $expected, string $path): void
-    {
-        $options = new Options([
-            'config-plugin-options' => [
-                'root-configuration-file' => $path,
-            ],
-        ]);
-        $this->assertSame($expected, $options->rootConfigurationFile());
-    }
-
-    /**
-     * @dataProvider configurationFileDataProvider
-     */
-    public function testEnvironmentConfigurationFile(string $expected, string $path): void
-    {
-        $options = new Options([
-            'config-plugin-options' => [
-                'environment-configuration-file' => $path,
-            ],
-        ]);
-        $this->assertSame($expected, $options->environmentConfigurationFile());
-    }
-
     public function testDefaultOptions(): void
     {
         $options = new Options([]);
         $this->assertTrue($options->buildMergePlan());
-        $this->assertNull($options->rootConfigurationFile());
-        $this->assertNull($options->environmentConfigurationFile());
         $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
 

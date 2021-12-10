@@ -173,19 +173,17 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function createComposerMock(
         array $extraEnvironments = [],
         bool $buildMergePlan = true,
-        string $rootPackageConfigFile = null,
-        string $environmentConfigFile = null
+        string $extraConfigFile = null
     ) {
         $rootPath = $this->tempDirectory;
         $sourcePath = $this->sourceDirectory;
         $targetPath = "$this->tempDirectory/vendor";
 
         $extra = array_merge([
+            'config-plugin-file' => $extraConfigFile,
             'config-plugin-options' => [
                 'source-directory' => 'config',
                 'build-merge-plan' => $buildMergePlan,
-                'root-configuration-file' => $rootPackageConfigFile,
-                'environment-configuration-file' => $environmentConfigFile,
             ],
             'config-plugin' => [
                 'empty' => [],
@@ -205,7 +203,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $config->method('get')->willReturn(dirname(__DIR__, 2) . '/vendor');
 
         $rootPackage = $this->getMockBuilder(RootPackageInterface::class)
-            ->onlyMethods(['getRequires', 'getDevRequires'])
+            ->onlyMethods(['getRequires', 'getDevRequires', 'getExtra'])
             ->getMockForAbstractClass()
         ;
         $rootPackage->method('getRequires')->willReturn([

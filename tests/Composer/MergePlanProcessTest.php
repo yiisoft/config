@@ -130,39 +130,44 @@ final class MergePlanProcessTest extends TestCase
         ]);
     }
 
-    public function testProcessWithSpecifyConfigurationFiles(): void
+    public function testProcessWithSpecifyPhpConfigurationFile(): void
     {
-        $generateContent = static function (array $configuration): string {
-            return "<?php\n\nreturn " . VarDumper::create($configuration)->export(true) . ";\n";
-        };
-
-        file_put_contents($this->getTempPath('root.php'), $generateContent([
-            'empty' => [],
-            'common' => 'common/*.php',
-            'params' => [
-                'params.php',
-                '?params-local.php',
+        $configuration = [
+            'config-plugin-options' => [
+                'source-directory' => 'config',
             ],
-            'web' => [
-                '$common',
-                'web.php',
-            ],
-        ]));
-
-        file_put_contents($this->getTempPath('env.php'), $generateContent([
-            'env' => [
-                'main' => [
-                    '$web',
-                    'main.php',
+            'config-plugin' => [
+                'empty' => [],
+                'common' => 'common/*.php',
+                'params' => [
+                    'params.php',
+                    '?params-local.php',
+                ],
+                'web' => [
+                    '$common',
+                    'web.php',
                 ],
             ],
-        ]));
+            'config-plugin-environments' => [
+                'environment' => [
+                    'main' => [
+                        '$web',
+                        'main.php',
+                    ],
+                ],
+            ],
+        ];
 
-        new MergePlanProcess($this->createComposerMock([], true, 'root.php', 'env.php'));
+        file_put_contents(
+            $this->getTempPath('configuration-file.php'),
+            "<?php\n\nreturn " . VarDumper::create($configuration)->export(true) . ";\n",
+        );
+
+        new MergePlanProcess($this->createComposerMock([], true, 'config/configuration-file.php'));
 
         $this->assertMergePlan(
             [
-                'env' => [
+                'environment' => [
                     'main' => [
                         Options::ROOT_PACKAGE_NAME => [
                             '$web',
