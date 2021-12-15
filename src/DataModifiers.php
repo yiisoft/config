@@ -21,12 +21,12 @@ use function array_shift;
 final class DataModifiers
 {
     /**
-     * @var array<string, array-key>
+     * @psalm-var array<string, array-key>
      */
     private array $recursiveMergeGroupsIndex;
 
     /**
-     * @var array<string, array-key>
+     * @psalm-var array<string, array-key>
      */
     private array $reverseMergeGroupsIndex;
 
