@@ -190,8 +190,7 @@ A number of options is available both for Composer plugin and a config loader. C
 ```json
 "extra": {
     "config-plugin-options": {
-      "source-directory": "config",
-      "over-vendor-layer": "vendor-name/config"
+      "source-directory": "config"
     },
     "config-plugin": {
         // ...
