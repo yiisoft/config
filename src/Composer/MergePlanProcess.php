@@ -47,13 +47,13 @@ final class MergePlanProcess
         $this->updateMergePlan();
     }
 
-    private function addPackagesConfigsToMergePlan(bool $isOverVendorLayer): void
+    private function addPackagesConfigsToMergePlan(bool $isVendorOverrideLayer): void
     {
-        $packages = $isOverVendorLayer ? $this->helper->getOverVendorPackages() : $this->helper->getVendorPackages();
+        $packages = $isVendorOverrideLayer ? $this->helper->getVendorOverridePackages() : $this->helper->getVendorPackages();
 
         foreach ($packages as $name => $package) {
             $options = new Options($package->getExtra());
-            $packageName = $isOverVendorLayer ? Options::OVER_VENDOR_PACKAGE_NAME : $name;
+            $packageName = $isVendorOverrideLayer ? Options::VENDOR_OVERRIDE_PACKAGE_NAME : $name;
 
             foreach ($this->helper->getPackageConfig($package) as $group => $files) {
                 $files = (array) $files;
@@ -82,7 +82,7 @@ final class MergePlanProcess
 
                         foreach ($matches as $match) {
                             $this->mergePlan->add(
-                                $this->normalizePackageFilePath($package, $match, $isOverVendorLayer),
+                                $this->normalizePackageFilePath($package, $match, $isVendorOverrideLayer),
                                 $packageName,
                                 $group,
                             );
@@ -96,7 +96,7 @@ final class MergePlanProcess
                     }
 
                     $this->mergePlan->add(
-                        $this->normalizePackageFilePath($package, $absoluteFilePath, $isOverVendorLayer),
+                        $this->normalizePackageFilePath($package, $absoluteFilePath, $isVendorOverrideLayer),
                         $packageName,
                         $group,
                     );
@@ -169,9 +169,9 @@ final class MergePlanProcess
     private function normalizePackageFilePath(
         PackageInterface $package,
         string $absoluteFilePath,
-        bool $isOverVendorLayer
+        bool $isVendorOverrideLayer
     ): string {
-        if ($isOverVendorLayer) {
+        if ($isVendorOverrideLayer) {
             return $this->helper->getRelativePackageFilePathWithPackageName($package, $absoluteFilePath);
         }
 

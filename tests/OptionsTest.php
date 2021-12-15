@@ -74,15 +74,15 @@ final class OptionsTest extends TestCase
      *
      * @param array|string $packages
      */
-    public function testOverVendorPackages($packages): void
+    public function testVendorOverrideLayerPackages($packages): void
     {
         $options = new Options([
             'config-plugin-options' => [
-                'over-vendor-layer' => $packages,
+                'vendor-override-layer' => $packages,
             ],
         ]);
 
-        $this->assertSame((array) $packages, $options->overVendorPackages());
+        $this->assertSame((array) $packages, $options->vendorOverrideLayerPackages());
     }
 
     public function directoryDataProvider(): array
@@ -117,7 +117,7 @@ final class OptionsTest extends TestCase
     {
         $options = new Options([]);
         $this->assertTrue($options->buildMergePlan());
-        $this->assertSame([], $options->overVendorPackages());
+        $this->assertSame([], $options->vendorOverrideLayerPackages());
         $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
 
@@ -127,7 +127,7 @@ final class OptionsTest extends TestCase
             'config-plugin-options' => true,
         ]);
         $this->assertTrue($options->buildMergePlan());
-        $this->assertSame([], $options->overVendorPackages());
+        $this->assertSame([], $options->vendorOverrideLayerPackages());
         $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
 }

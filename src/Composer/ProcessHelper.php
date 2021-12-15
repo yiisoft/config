@@ -66,7 +66,7 @@ final class ProcessHelper
     }
 
     /**
-     * Returns vendor packages without packages from the sublayer over the vendor.
+     * Returns vendor packages without packages from the vendor override sublayer.
      *
      * @psalm-return array<string, CompletePackage>
      */
@@ -75,7 +75,7 @@ final class ProcessHelper
         $vendorPackages = [];
 
         foreach ($this->packages as $name => $package) {
-            if (!$this->isOverVendorPackage($name)) {
+            if (!$this->isVendorOverridePackage($name)) {
                 $vendorPackages[$name] = $package;
             }
         }
@@ -84,21 +84,21 @@ final class ProcessHelper
     }
 
     /**
-     * Returns vendor packages only from the sublayer over the vendor.
+     * Returns vendor packages only from the vendor override sublayer.
      *
      * @psalm-return array<string, CompletePackage>
      */
-    public function getOverVendorPackages(): array
+    public function getVendorOverridePackages(): array
     {
-        $overVendorPackages = [];
+        $vendorOverridePackages = [];
 
         foreach ($this->packages as $name => $package) {
-            if ($this->isOverVendorPackage($name)) {
-                $overVendorPackages[$name] = $package;
+            if ($this->isVendorOverridePackage($name)) {
+                $vendorOverridePackages[$name] = $package;
             }
         }
 
-        return $overVendorPackages;
+        return $vendorOverridePackages;
     }
 
     /**
@@ -243,15 +243,15 @@ final class ProcessHelper
     }
 
     /**
-     * Checks whether the package is in the sublayer over the vendor.
+     * Checks whether the package is in the vendor override sublayer.
      *
      * @param string $package The package name.
      *
-     * @return bool Whether the package is in the sublayer over the vendor.
+     * @return bool Whether the package is in the vendor override sublayer.
      */
-    private function isOverVendorPackage(string $package): bool
+    private function isVendorOverridePackage(string $package): bool
     {
-        foreach ($this->rootPackageOptions->overVendorPackages() as $pattern) {
+        foreach ($this->rootPackageOptions->vendorOverrideLayerPackages() as $pattern) {
             if (!is_string($pattern)) {
                 continue;
             }

@@ -218,13 +218,13 @@ $config = new Config(
 $web = $config->get('web');
 ```
 
-### `over-vendor-layer`
+### `vendor-override-layer`
 
-The `over-vendor-layer` option adds a sublayer to the vendor, which allocates packages that will override
+The `vendor-override-layer` option adds a sublayer to the vendor, which allocates packages that will override
 the vendor's default configurations. This sublayer is located between the vendor and application layers.
 
 This can be useful if you need to redefine default configurations even before the application layer. To do this,
-you need to have to create your own package and store configurations in it that override the default ones:
+you need to create your own package with configurations meant to override the default ones:
 
 ```json
 "name": "vendor-name/package-name",
@@ -235,7 +235,7 @@ you need to have to create your own package and store configurations in it that 
 }
 ```
 
-And in the root file `composer.json` of your application, specify this package in the `over-vendor-layer` option:
+And in the root file `composer.json` of your application, specify this package in the `vendor-override-layer` option:
 
 ```json
 "require": {
@@ -244,7 +244,7 @@ And in the root file `composer.json` of your application, specify this package i
 },
 "extra": {
     "config-plugin-options": {
-        "over-vendor-layer": "vendor-name/package-name"
+        "vendor-override-layer": "vendor-name/package-name"
     },
     "config-plugin": {
         // ...
@@ -257,7 +257,7 @@ In the same way, several packages can be added to this sublayer:
 ```json
 "extra": {
     "config-plugin-options": {
-        "over-vendor-layer": [
+        "vendor-override-layer": [
             "vendor-name/package-1",
             "vendor-name/package-2"
         ]
@@ -265,12 +265,12 @@ In the same way, several packages can be added to this sublayer:
 }
 ```
 
-If there are a lot of packages, so as not to prescribe all the packages, you can use a wildcard pattern:
+You can use wildcard pattern if there are too many packages:
 
 ```json
 "extra": {
     "config-plugin-options": {
-        "over-vendor-layer": [
+        "vendor-override-layer": [
             "vendor-1/*",
             "vendor-2/config-*"
         ]
@@ -278,9 +278,9 @@ If there are a lot of packages, so as not to prescribe all the packages, you can
 }
 ```
 
-For more information about the substitution template, see the [yiisoft/strings](https://github.com/yiisoft/strings).
+For more information about the wildcard syntax, see the [yiisoft/strings](https://github.com/yiisoft/strings).
 
-> Please note that in this sublayer keys with the same names are not allowed in the same way as in the main layers.
+> Please note that in this sublayer keys with the same names are not allowed similar to other layers.
 
 ## Environments
 

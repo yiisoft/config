@@ -130,7 +130,7 @@ final class MergePlanProcessTest extends TestCase
         ]);
     }
 
-    public function overVendorLayerPackagesDataProvider(): array
+    public function vendorOverrideLayerPackagesDataProvider(): array
     {
         return [
             ['*/over'],
@@ -142,15 +142,15 @@ final class MergePlanProcessTest extends TestCase
     }
 
     /**
-     * @dataProvider overVendorLayerPackagesDataProvider
+     * @dataProvider vendorOverrideLayerPackagesDataProvider
      */
-    public function testProcessWithSpecifyOverVendorLayerPackages(string $package): void
+    public function testProcessWithSpecifyVendorOverrideLayerPackages(string $package): void
     {
         new MergePlanProcess($this->createComposerMock([], (array) $package));
         $this->assertMergePlan();
     }
 
-    public function testProcessWithSpecifyOverVendorLayerIncorrectPackageNames(): void
+    public function testProcessWithSpecifyVendorOverrideLayerIncorrectPackageNames(): void
     {
         new MergePlanProcess($this->createComposerMock([], ['', '/', 1, [], 'test/over']));
         $this->assertMergePlan();
@@ -161,7 +161,7 @@ final class MergePlanProcessTest extends TestCase
         $configuration = [
             'config-plugin-options' => [
                 'source-directory' => 'config',
-                'over-vendor-layer' => 'test/over',
+                'vendor-override-layer' => 'test/over',
             ],
             'config-plugin' => [
                 'empty' => [],

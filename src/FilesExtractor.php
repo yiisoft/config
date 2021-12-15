@@ -135,7 +135,7 @@ final class FilesExtractor
     private function detectLayer(string $environment, string $package): int
     {
         if ($package !== Options::ROOT_PACKAGE_NAME) {
-            return $package === Options::OVER_VENDOR_PACKAGE_NAME ? Context::OVER_VENDOR : Context::VENDOR;
+            return $package === Options::VENDOR_OVERRIDE_PACKAGE_NAME ? Context::VENDOR_OVERRIDE : Context::VENDOR;
         }
 
         if ($environment === Options::DEFAULT_ENVIRONMENT) {

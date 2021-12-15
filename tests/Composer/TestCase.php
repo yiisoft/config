@@ -87,7 +87,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                         'test/custom-source' => [
                             'custom-dir/params.php',
                         ],
-                        Options::OVER_VENDOR_PACKAGE_NAME => [
+                        Options::VENDOR_OVERRIDE_PACKAGE_NAME => [
                             'test/over/params.php',
                         ],
                         Options::ROOT_PACKAGE_NAME => [
@@ -111,7 +111,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                         'test/d-dev-c' => [
                             'config/web.php',
                         ],
-                        Options::OVER_VENDOR_PACKAGE_NAME => [
+                        Options::VENDOR_OVERRIDE_PACKAGE_NAME => [
                             'test/over/web.php',
                         ],
                         Options::ROOT_PACKAGE_NAME => [
@@ -190,7 +190,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'config-plugin-file' => $extraConfigFile,
             'config-plugin-options' => [
                 'source-directory' => 'config',
-                'over-vendor-layer' => $overVendorPackages ?? 'test/over',
+                'vendor-override-layer' => $overVendorPackages ?? 'test/over',
                 'build-merge-plan' => $buildMergePlan,
             ],
             'config-plugin' => [

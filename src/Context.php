@@ -10,7 +10,7 @@ namespace Yiisoft\Config;
 final class Context
 {
     public const VENDOR = 1;
-    public const OVER_VENDOR = 2;
+    public const VENDOR_OVERRIDE = 2;
     public const APPLICATION = 3;
     public const ENVIRONMENT = 4;
 
