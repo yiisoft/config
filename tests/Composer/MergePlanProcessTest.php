@@ -20,7 +20,7 @@ final class MergePlanProcessTest extends TestCase
 
     public function testProcessWithoutMergePlanBuild(): void
     {
-        new MergePlanProcess($this->createComposerMock(['alfa' => ['params' => 'alfa/params.php']], null,false));
+        new MergePlanProcess($this->createComposerMock(['alfa' => ['params' => 'alfa/params.php']], null, false));
         $this->assertFileDoesNotExist($this->getTempPath(Options::MERGE_PLAN_FILENAME));
     }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config;
 
-use function array_filter;
 use function is_array;
 use function str_replace;
 use function strpos;
