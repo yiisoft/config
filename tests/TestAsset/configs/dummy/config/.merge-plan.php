@@ -33,6 +33,9 @@ return [
             'package/b' => [
                 'common.php',
             ],
+            '//' => [
+                'package/c/common.php',
+            ],
             '/' => [
                 'common/*.php',
                 'common/*/*.php',
@@ -45,6 +48,9 @@ return [
             'package/b' => [
                 'params.php',
             ],
+            '//' => [
+                'package/c/params.php',
+            ],
             '/' => [
                 'params.php',
                 '?params-local.php',
@@ -56,6 +62,9 @@ return [
             ],
             'package/b' => [
                 'web.php',
+            ],
+            '//' => [
+                'package/c/web.php',
             ],
             '/' => [
                 '$common',

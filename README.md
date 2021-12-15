@@ -190,13 +190,16 @@ A number of options is available both for Composer plugin and a config loader. C
 ```json
 "extra": {
     "config-plugin-options": {
-      "source-directory": "config"
+      "source-directory": "config",
+      "over-vendor-layer": "vendor-name/config"
     },
     "config-plugin": {
         // ...
     }
 },
 ```
+
+### `source-directory`
 
 The `source-directory` option specifies where to read the configs from for a package the option is specified for.
 It is available for all packages, including the root package, which is typically an application.
@@ -215,6 +218,70 @@ $config = new Config(
 
 $web = $config->get('web');
 ```
+
+### `over-vendor-layer`
+
+The `over-vendor-layer` option adds a sublayer to the vendor, which allocates packages that will override
+the vendor's default configurations. This sublayer is located between the vendor and application layers.
+
+This can be useful if you need to redefine default configurations even before the application layer. To do this,
+you need to have to create your own package and store configurations in it that override the default ones:
+
+```json
+"name": "vendor-name/package-name",
+"extra": {
+    "config-plugin": {
+        // ...
+    }
+}
+```
+
+And in the root file `composer.json` of your application, specify this package in the `over-vendor-layer` option:
+
+```json
+"require": {
+    "vendor-name/package-name": "version",
+    "yiisoft/config": "version"
+},
+"extra": {
+    "config-plugin-options": {
+        "over-vendor-layer": "vendor-name/package-name"
+    },
+    "config-plugin": {
+        // ...
+    }
+},
+```
+
+In the same way, several packages can be added to this sublayer:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "over-vendor-layer": [
+            "vendor-name/package-1",
+            "vendor-name/package-2"
+        ]
+    }
+}
+```
+
+If there are a lot of packages, so as not to prescribe all the packages, you can use a wildcard pattern:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "over-vendor-layer": [
+            "vendor-1/*",
+            "vendor-2/config-*"
+        ]
+    }
+}
+```
+
+For more information about the substitution template, see the [yiisoft/strings](https://github.com/yiisoft/strings).
+
+> Please note that in this sublayer keys with the same names are not allowed in the same way as in the main layers.
 
 ## Environments
 

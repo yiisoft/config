@@ -39,7 +39,7 @@ final class Config
      */
     public function __construct(
         ConfigPaths $paths,
-        ?string $environment = null,
+        string $environment = null,
         array $modifiers = [],
         string $paramsGroup = 'params'
     ) {
@@ -53,8 +53,9 @@ final class Config
             $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));
         }
 
-        $this->merger = new Merger($paths, $modifiers);
-        $this->filesExtractor = new FilesExtractor($paths, $mergePlan, $environment, $modifiers);
+        $dataModifiers = new DataModifiers($modifiers);
+        $this->merger = new Merger($paths, $dataModifiers);
+        $this->filesExtractor = new FilesExtractor($paths, $mergePlan, $dataModifiers, $environment);
     }
 
     /**

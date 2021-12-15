@@ -52,7 +52,7 @@ final class PackageFilesProcessTest extends TestCase
         $process = new PackageFilesProcess($this->createComposerMock());
 
         $this->assertInstanceOf(ConfigPaths::class, $process->paths());
-        $this->assertCount(12, $process->files());
+        $this->assertCount(14, $process->files());
 
         $this->assertSameIgnoringSlash('params.php', $process->files()[0]->filename());
         $this->assertSameIgnoringSlash('params.php', $process->files()[0]->relativePath());
@@ -131,11 +131,25 @@ final class PackageFilesProcessTest extends TestCase
             $process->files()[10]->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[11]->filename());
-        $this->assertSame('config/web.php', $process->files()[11]->relativePath());
+        $this->assertSameIgnoringSlash('params.php', $process->files()[11]->filename());
+        $this->assertSameIgnoringSlash('params.php', $process->files()[11]->relativePath());
+        $this->assertSameIgnoringSlash(
+            $this->getSourcePath('over/params.php'),
+            $process->files()[11]->absolutePath(),
+        );
+
+        $this->assertSame('web.php', $process->files()[12]->filename());
+        $this->assertSame('web.php', $process->files()[12]->relativePath());
+        $this->assertSameIgnoringSlash(
+            $this->getSourcePath('over/web.php'),
+            $process->files()[12]->absolutePath(),
+        );
+
+        $this->assertSame('web.php', $process->files()[13]->filename());
+        $this->assertSame('config/web.php', $process->files()[13]->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('d-dev-c/config/web.php'),
-            $process->files()[11]->absolutePath(),
+            $process->files()[13]->absolutePath(),
         );
     }
 }

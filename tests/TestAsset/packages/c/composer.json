@@ -1,11 +1,6 @@
 {
     "name": "test/c",
     "version": "1.0.0",
-    "autoload": {
-        "psr-4": {
-            "Test\\Yii\\View\\": "src"
-        }
-    },
     "extra": {
         "config-plugin-options": {
             "source-directory": "config"

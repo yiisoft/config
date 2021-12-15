@@ -6,9 +6,6 @@ namespace Yiisoft\Config;
 
 use ErrorException;
 
-use Yiisoft\Config\Modifier\RemoveGroupsFromVendor;
-
-use function array_key_exists;
 use function array_merge;
 use function glob;
 use function is_file;
@@ -22,36 +19,19 @@ final class FilesExtractor
 {
     private ConfigPaths $paths;
     private MergePlan $mergePlan;
+    private DataModifiers $dataModifiers;
     private string $environment;
 
-    /**
-     * @psalm-var array<string,true>
-     */
-    private array $removeFromVendorGroupsIndex;
-
-    /**
-     * @param object[] $modifiers Modifiers that affect merge process.
-     */
     public function __construct(
         ConfigPaths $paths,
         MergePlan $mergePlan,
-        string $environment,
-        array $modifiers
+        DataModifiers $dataModifiers,
+        string $environment
     ) {
         $this->paths = $paths;
         $this->mergePlan = $mergePlan;
+        $this->dataModifiers = $dataModifiers;
         $this->environment = $environment;
-
-        $this->removeFromVendorGroupsIndex = [];
-        foreach ($modifiers as $modifier) {
-            if ($modifier instanceof RemoveGroupsFromVendor) {
-                foreach ($modifier->getGroups() as $package => $groupNames) {
-                    foreach ($groupNames as $groupName) {
-                        $this->removeFromVendorGroupsIndex[$package . '~' . $groupName] = true;
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -110,23 +90,15 @@ final class FilesExtractor
         $result = [];
 
         foreach ($data as $package => $items) {
-            $level = $this->detectLevel($environment, $package);
+            $layer = $this->detectLayer($environment, $package);
 
-            if (
-                $level === Context::VENDOR
-                && (
-                    array_key_exists('*~*', $this->removeFromVendorGroupsIndex)
-                    || array_key_exists('*~' . $group, $this->removeFromVendorGroupsIndex)
-                    || array_key_exists($package . '~*', $this->removeFromVendorGroupsIndex)
-                    || array_key_exists($package . '~' . $group, $this->removeFromVendorGroupsIndex)
-                )
-            ) {
+            if ($this->dataModifiers->shouldRemoveGroupFromVendor($package, $group, $layer)) {
                 continue;
             }
 
             foreach ($items as $item) {
                 if (Options::isVariable($item)) {
-                    $result[$item] = new Context($group, $package, $level, $item, true);
+                    $result[$item] = new Context($group, $package, $layer, $item, true);
                     continue;
                 }
 
@@ -141,7 +113,7 @@ final class FilesExtractor
 
                 foreach ($files as $file) {
                     if (is_file($file)) {
-                        $result[$file] = new Context($group, $package, $level, $file, false);
+                        $result[$file] = new Context($group, $package, $layer, $file, false);
                     } elseif (!$isOptional) {
                         $this->throwException(sprintf('The "%s" file does not found.', $file));
                     }
@@ -152,10 +124,18 @@ final class FilesExtractor
         return $result;
     }
 
-    private function detectLevel(string $environment, string $package): int
+    /**
+     * Calculates the layer for the context.
+     *
+     * @param string $environment The environment name.
+     * @param string $package The package name.
+     *
+     * @return int The layer for the context.
+     */
+    private function detectLayer(string $environment, string $package): int
     {
         if ($package !== Options::ROOT_PACKAGE_NAME) {
-            return Context::VENDOR;
+            return $package === Options::OVER_VENDOR_PACKAGE_NAME ? Context::OVER_VENDOR : Context::VENDOR;
         }
 
         if ($environment === Options::DEFAULT_ENVIRONMENT) {

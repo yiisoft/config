@@ -87,6 +87,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                         'test/custom-source' => [
                             'custom-dir/params.php',
                         ],
+                        Options::OVER_VENDOR_PACKAGE_NAME => [
+                            'test/over/params.php',
+                        ],
                         Options::ROOT_PACKAGE_NAME => [
                             'params.php',
                             '?params-local.php',
@@ -107,6 +110,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                         ],
                         'test/d-dev-c' => [
                             'config/web.php',
+                        ],
+                        Options::OVER_VENDOR_PACKAGE_NAME => [
+                            'test/over/web.php',
                         ],
                         Options::ROOT_PACKAGE_NAME => [
                             '$common',
@@ -172,6 +178,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function createComposerMock(
         array $extraEnvironments = [],
+        array $overVendorPackages = null,
         bool $buildMergePlan = true,
         string $extraConfigFile = null
     ) {
@@ -183,6 +190,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'config-plugin-file' => $extraConfigFile,
             'config-plugin-options' => [
                 'source-directory' => 'config',
+                'over-vendor-layer' => $overVendorPackages ?? 'test/over',
                 'build-merge-plan' => $buildMergePlan,
             ],
             'config-plugin' => [
@@ -211,6 +219,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'test/ba' => new Link("$sourcePath/ba", "$targetPath/test/ba", new Constraint('>=', '1.0.0')),
             'test/c' => new Link("$sourcePath/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
             'test/custom-source' => new Link("$sourcePath/custom-source", "$targetPath/test/custom-source", new Constraint('>=', '1.0.0')),
+            'test/over' => new Link("$sourcePath/over", "$targetPath/test/over", new Constraint('>=', '1.0.0')),
         ]);
         $rootPackage->method('getDevRequires')->willReturn([
             'test/d-dev-c' => new Link("$sourcePath/d-dev-c", "$targetPath/test/d-dev-c", new Constraint('>=', '1.0.0')),
@@ -223,6 +232,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             new CompletePackage('test/c', '1.0.0', '1.0.0'),
             new CompletePackage('test/custom-source', '1.0.0', '1.0.0'),
             new CompletePackage('test/d-dev-c', '1.0.0', '1.0.0'),
+            new CompletePackage('test/over', '1.0.0', '1.0.0'),
             new Package('test/e', '1.0.0', '1.0.0'),
         ];
 

@@ -86,6 +86,9 @@ final class ReverseMerge
         return new self($groups);
     }
 
+    /**
+     * @return string[]
+     */
     public function getGroups(): array
     {
         return $this->groups;

@@ -20,7 +20,7 @@ final class MergePlanProcessTest extends TestCase
 
     public function testProcessWithoutMergePlanBuild(): void
     {
-        new MergePlanProcess($this->createComposerMock(['alfa' => ['params' => 'alfa/params.php']], false));
+        new MergePlanProcess($this->createComposerMock(['alfa' => ['params' => 'alfa/params.php']], null,false));
         $this->assertFileDoesNotExist($this->getTempPath(Options::MERGE_PLAN_FILENAME));
     }
 
@@ -130,11 +130,38 @@ final class MergePlanProcessTest extends TestCase
         ]);
     }
 
+    public function overVendorLayerPackagesDataProvider(): array
+    {
+        return [
+            ['*/over'],
+            ['t*t/over'],
+            ['test/ov*'],
+            ['test/ov*r'],
+            ['test/over'],
+        ];
+    }
+
+    /**
+     * @dataProvider overVendorLayerPackagesDataProvider
+     */
+    public function testProcessWithSpecifyOverVendorLayerPackages(string $package): void
+    {
+        new MergePlanProcess($this->createComposerMock([], (array) $package));
+        $this->assertMergePlan();
+    }
+
+    public function testProcessWithSpecifyOverVendorLayerIncorrectPackageNames(): void
+    {
+        new MergePlanProcess($this->createComposerMock([], ['', '/', 1, [], 'test/over']));
+        $this->assertMergePlan();
+    }
+
     public function testProcessWithSpecifyPhpConfigurationFile(): void
     {
         $configuration = [
             'config-plugin-options' => [
                 'source-directory' => 'config',
+                'over-vendor-layer' => 'test/over',
             ],
             'config-plugin' => [
                 'empty' => [],
@@ -163,7 +190,7 @@ final class MergePlanProcessTest extends TestCase
             "<?php\n\nreturn " . VarDumper::create($configuration)->export(true) . ";\n",
         );
 
-        new MergePlanProcess($this->createComposerMock([], true, 'config/configuration-file.php'));
+        new MergePlanProcess($this->createComposerMock([], null, true, 'config/configuration-file.php'));
 
         $this->assertMergePlan(
             [

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
+use Composer\Package\PackageInterface;
 use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 use Yiisoft\VarDumper\VarDumper;
@@ -37,16 +38,22 @@ final class MergePlanProcess
             return;
         }
 
-        $this->addPackagesConfigsToMergePlan();
+        $this->addPackagesConfigsToMergePlan(false);
+        $this->addPackagesConfigsToMergePlan(true);
+
         $this->addRootPackageConfigToMergePlan();
         $this->addEnvironmentsConfigsToMergePlan();
+
         $this->updateMergePlan();
     }
 
-    private function addPackagesConfigsToMergePlan(): void
+    private function addPackagesConfigsToMergePlan(bool $isOverVendorLayer): void
     {
-        foreach ($this->helper->buildPackages() as $package) {
+        $packages = $isOverVendorLayer ? $this->helper->getOverVendorPackages() : $this->helper->getVendorPackages();
+
+        foreach ($packages as $name => $package) {
             $options = new Options($package->getExtra());
+            $packageName = $isOverVendorLayer ? Options::OVER_VENDOR_PACKAGE_NAME : $name;
 
             foreach ($this->helper->getPackageConfig($package) as $group => $files) {
                 $files = (array) $files;
@@ -60,7 +67,7 @@ final class MergePlanProcess
                     }
 
                     if (Options::isVariable($file)) {
-                        $this->mergePlan->add($file, $package->getPrettyName(), $group);
+                        $this->mergePlan->add($file, $packageName, $group);
                         continue;
                     }
 
@@ -75,8 +82,8 @@ final class MergePlanProcess
 
                         foreach ($matches as $match) {
                             $this->mergePlan->add(
-                                $this->helper->getRelativePackageFilePath($package, $match),
-                                $package->getPrettyName(),
+                                $this->normalizePackageFilePath($package, $match, $isOverVendorLayer),
+                                $packageName,
                                 $group,
                             );
                         }
@@ -89,8 +96,8 @@ final class MergePlanProcess
                     }
 
                     $this->mergePlan->add(
-                        $this->helper->getRelativePackageFilePath($package, $absoluteFilePath),
-                        $package->getPrettyName(),
+                        $this->normalizePackageFilePath($package, $absoluteFilePath, $isOverVendorLayer),
+                        $packageName,
                         $group,
                     );
                 }
@@ -157,5 +164,17 @@ final class MergePlanProcess
             "\r\n" => "\n",
             "\r" => "\n",
         ]);
+    }
+
+    private function normalizePackageFilePath(
+        PackageInterface $package,
+        string $absoluteFilePath,
+        bool $isOverVendorLayer
+    ): string {
+        if ($isOverVendorLayer) {
+            return $this->helper->getRelativePackageFilePathWithPackageName($package, $absoluteFilePath);
+        }
+
+        return $this->helper->getRelativePackageFilePath($package, $absoluteFilePath);
     }
 }

@@ -48,6 +48,10 @@ final class ConfigPaths
             return "$this->configPath/$file";
         }
 
+        if ($package === Options::OVER_VENDOR_PACKAGE_NAME) {
+            return "$this->vendorPath/$file";
+        }
+
         return "$this->vendorPath/$package/$file";
     }
 
