@@ -32,7 +32,7 @@ final class RemoveKeysFromVendor
     public function package(string ...$package): self
     {
         if ($package === []) {
-            throw new InvalidArgumentException('Package should be format "packageName[, group][, group]".');
+            throw new InvalidArgumentException('Package should be in format "packageName[, group][, group]".');
         }
         $this->packages[] = $package;
         return $this;

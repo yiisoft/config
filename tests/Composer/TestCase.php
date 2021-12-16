@@ -177,9 +177,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * @return Composer|MockObject
      */
     protected function createComposerMock(
-        array $extraEnvironments = [],
-        array $overVendorPackages = null,
-        bool $buildMergePlan = true,
+        array  $extraEnvironments = [],
+        array  $vendorOverridePackage = null,
+        bool   $buildMergePlan = true,
         string $extraConfigFile = null
     ) {
         $rootPath = $this->tempDirectory;
@@ -190,7 +190,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'config-plugin-file' => $extraConfigFile,
             'config-plugin-options' => [
                 'source-directory' => 'config',
-                'vendor-override-layer' => $overVendorPackages ?? 'test/over',
+                'vendor-override-layer' => $vendorOverridePackage ?? 'test/over',
                 'build-merge-plan' => $buildMergePlan,
             ],
             'config-plugin' => [
@@ -238,7 +238,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         foreach ($packages as $package) {
             $path = str_replace('test/', '', "$sourcePath/{$package->getName()}") . '/composer.json';
-            $package->setExtra(json_decode(file_get_contents($path), true)['extra']);
+            $package->setExtra(json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR)['extra']);
         }
 
         $repository = $this->getMockBuilder(InstalledRepositoryInterface::class)

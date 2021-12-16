@@ -74,7 +74,7 @@ final class MergePlanProcess
                     $absoluteFilePath = $this->helper->getAbsolutePackageFilePath($package, $options, $file);
 
                     if (Options::containsWildcard($file)) {
-                        $matches = glob($absoluteFilePath);
+                        $matches = glob($absoluteFilePath, GLOB_NOSORT);
 
                         if (empty($matches)) {
                             continue;
@@ -154,7 +154,7 @@ final class MergePlanProcess
         ;
 
         if ($this->normalizeLineEndings($oldContent) !== $this->normalizeLineEndings($content)) {
-            file_put_contents($filePath, $content);
+            file_put_contents($filePath, $content, LOCK_EX);
         }
     }
 

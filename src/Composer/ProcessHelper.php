@@ -45,7 +45,7 @@ final class ProcessHelper
         $rootPackageExtra = $composer->getPackage()->getExtra();
         /** @psalm-suppress UnresolvableInclude */
         $this->rootPackageExtra = isset($rootPackageExtra['config-plugin-file'])
-            ? (array) (require_once "$rootPath/{$rootPackageExtra['config-plugin-file']}")
+            ? (array) (require "$rootPath/{$rootPackageExtra['config-plugin-file']}")
             : $rootPackageExtra
         ;
 

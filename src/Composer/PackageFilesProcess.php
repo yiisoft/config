@@ -86,7 +86,7 @@ final class PackageFilesProcess
                     $absoluteFilePath = $this->helper->getAbsolutePackageFilePath($package, $options, $file);
 
                     if (Options::containsWildcard($file)) {
-                        $matches = glob($absoluteFilePath);
+                        $matches = glob($absoluteFilePath, GLOB_NOSORT);
 
                         if (empty($matches)) {
                             continue;

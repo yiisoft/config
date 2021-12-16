@@ -13,7 +13,7 @@ final class RemoveKeysFromVendorTest extends TestCase
     public function testInvalidPackage(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Package should be format "packageName[, group][, group]".');
+        $this->expectExceptionMessage('Package should be in format "packageName[, group][, group]".');
         RemoveFromVendor::keys(['app'])->package();
     }
 }
