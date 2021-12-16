@@ -198,6 +198,8 @@ A number of options is available both for Composer plugin and a config loader. C
 },
 ```
 
+### `source-directory`
+
 The `source-directory` option specifies where to read the configs from for a package the option is specified for.
 It is available for all packages, including the root package, which is typically an application.
 The value is a path relative to where the `composer.json` file is located. The default value is an empty string.
@@ -215,6 +217,70 @@ $config = new Config(
 
 $web = $config->get('web');
 ```
+
+### `vendor-override-layer`
+
+The `vendor-override-layer` option adds a sublayer to the vendor, which allocates packages that will override
+the vendor's default configurations. This sublayer is located between the vendor and application layers.
+
+This can be useful if you need to redefine default configurations even before the application layer. To do this,
+you need to create your own package with configurations meant to override the default ones:
+
+```json
+"name": "vendor-name/package-name",
+"extra": {
+    "config-plugin": {
+        // ...
+    }
+}
+```
+
+And in the root file `composer.json` of your application, specify this package in the `vendor-override-layer` option:
+
+```json
+"require": {
+    "vendor-name/package-name": "version",
+    "yiisoft/config": "version"
+},
+"extra": {
+    "config-plugin-options": {
+        "vendor-override-layer": "vendor-name/package-name"
+    },
+    "config-plugin": {
+        // ...
+    }
+},
+```
+
+In the same way, several packages can be added to this sublayer:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "vendor-override-layer": [
+            "vendor-name/package-1",
+            "vendor-name/package-2"
+        ]
+    }
+}
+```
+
+You can use wildcard pattern if there are too many packages:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "vendor-override-layer": [
+            "vendor-1/*",
+            "vendor-2/config-*"
+        ]
+    }
+}
+```
+
+For more information about the wildcard syntax, see the [yiisoft/strings](https://github.com/yiisoft/strings).
+
+> Please note that in this sublayer keys with the same names are not allowed similar to other layers.
 
 ## Environments
 

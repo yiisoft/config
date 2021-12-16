@@ -10,20 +10,21 @@ namespace Yiisoft\Config;
 final class Context
 {
     public const VENDOR = 1;
-    public const APPLICATION = 2;
-    public const ENVIRONMENT = 3;
+    public const VENDOR_OVERRIDE = 2;
+    public const APPLICATION = 3;
+    public const ENVIRONMENT = 4;
 
     private string $group;
     private string $package;
-    private int $level;
+    private int $layer;
     private string $file;
     private bool $isVariable;
 
-    public function __construct(string $group, string $package, int $level, string $file, bool $isVariable)
+    public function __construct(string $group, string $package, int $layer, string $file, bool $isVariable)
     {
         $this->group = $group;
         $this->package = $package;
-        $this->level = $level;
+        $this->layer = $layer;
         $this->file = $file;
         $this->isVariable = $isVariable;
     }
@@ -38,14 +39,9 @@ final class Context
         return $this->package;
     }
 
-    public function level(): int
+    public function layer(): int
     {
-        return $this->level;
-    }
-
-    public function isVendor(): bool
-    {
-        return $this->level === self::VENDOR;
+        return $this->layer;
     }
 
     public function file(): string

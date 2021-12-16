@@ -19,8 +19,10 @@ final class Options
     public const DEFAULT_VENDOR_DIRECTORY = 'vendor';
     public const DEFAULT_ENVIRONMENT = '/';
     public const ROOT_PACKAGE_NAME = '/';
+    public const VENDOR_OVERRIDE_PACKAGE_NAME = '//';
 
     private bool $buildMergePlan = true;
+    private array $vendorOverrideLayerPackages = [];
     private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;
 
     public function __construct(array $extra)
@@ -33,6 +35,10 @@ final class Options
 
         if (isset($options['build-merge-plan'])) {
             $this->buildMergePlan = (bool) $options['build-merge-plan'];
+        }
+
+        if (isset($options['vendor-override-layer'])) {
+            $this->vendorOverrideLayerPackages = (array) $options['vendor-override-layer'];
         }
 
         if (isset($options['source-directory'])) {
@@ -58,6 +64,11 @@ final class Options
     public function buildMergePlan(): bool
     {
         return $this->buildMergePlan;
+    }
+
+    public function vendorOverrideLayerPackages(): array
+    {
+        return $this->vendorOverrideLayerPackages;
     }
 
     public function sourceDirectory(): string

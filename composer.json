@@ -30,6 +30,7 @@
     "require": {
         "php": "^7.4|^8.0",
         "composer-plugin-api": "^2.0",
+        "yiisoft/strings": "^2.0",
         "yiisoft/var-dumper": "^1.1"
     },
     "require-dev": {

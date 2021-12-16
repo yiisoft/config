@@ -96,6 +96,9 @@ final class RecursiveMerge
         return new self($groups);
     }
 
+    /**
+     * @return string[]
+     */
     public function getGroups(): array
     {
         return $this->groups;

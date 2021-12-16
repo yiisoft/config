@@ -62,7 +62,7 @@ final class PackageFilesProcess
      */
     private function process(array $packageNames): void
     {
-        foreach ($this->helper->buildPackages() as $package) {
+        foreach ($this->helper->getPackages() as $package) {
             $options = new Options($package->getExtra());
 
             foreach ($this->helper->getPackageConfig($package) as $files) {

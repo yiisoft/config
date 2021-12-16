@@ -8,4 +8,5 @@ return [
     'beta-web-isset-params' => isset($params),
     'a-web-environment-override-key' => 'beta-web-override-value',
     'b-web-environment-override-key' => 'beta-web-override-value',
+    'c-web-environment-override-key' => 'beta-web-override-value',
 ];

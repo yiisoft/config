@@ -10,8 +10,10 @@ use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
+use Yiisoft\Strings\WildcardPattern;
 
 use function dirname;
+use function is_string;
 use function realpath;
 use function str_replace;
 
@@ -24,6 +26,11 @@ final class ProcessHelper
     private ConfigPaths $paths;
     private Options $rootPackageOptions;
     private array $rootPackageExtra;
+
+    /**
+     * @psalm-var array<string, CompletePackage>
+     */
+    private array $packages;
 
     /**
      * @param Composer $composer The composer instance.
@@ -45,16 +52,53 @@ final class ProcessHelper
         $this->composer = $composer;
         $this->rootPackageOptions = new Options($this->rootPackageExtra);
         $this->paths = new ConfigPaths($rootPath, $this->rootPackageOptions->sourceDirectory());
+        $this->packages = (new PackagesListBuilder($this->composer))->build();
     }
 
     /**
-     * Builds and returns packages.
+     * Returns all vendor packages.
      *
-     * @return array<string, CompletePackage>
+     * @psalm-return array<string, CompletePackage>
      */
-    public function buildPackages(): array
+    public function getPackages(): array
     {
-        return (new PackagesListBuilder($this->composer))->build();
+        return $this->packages;
+    }
+
+    /**
+     * Returns vendor packages without packages from the vendor override sublayer.
+     *
+     * @psalm-return array<string, CompletePackage>
+     */
+    public function getVendorPackages(): array
+    {
+        $vendorPackages = [];
+
+        foreach ($this->packages as $name => $package) {
+            if (!$this->isVendorOverridePackage($name)) {
+                $vendorPackages[$name] = $package;
+            }
+        }
+
+        return $vendorPackages;
+    }
+
+    /**
+     * Returns vendor packages only from the vendor override sublayer.
+     *
+     * @psalm-return array<string, CompletePackage>
+     */
+    public function getVendorOverridePackages(): array
+    {
+        $vendorOverridePackages = [];
+
+        foreach ($this->packages as $name => $package) {
+            if ($this->isVendorOverridePackage($name)) {
+                $vendorOverridePackages[$name] = $package;
+            }
+        }
+
+        return $vendorOverridePackages;
     }
 
     /**
@@ -82,6 +126,19 @@ final class ProcessHelper
     public function getRelativePackageFilePath(PackageInterface $package, string $filePath): string
     {
         return str_replace("{$this->getPackageRootDirectoryPath($package)}/", '', $filePath);
+    }
+
+    /**
+     * Returns the relative path to the package file including the package name.
+     *
+     * @param PackageInterface $package The package instance.
+     * @param string $filePath The absolute path to the package file.
+     *
+     * @return string The relative path to the package file including the package name.
+     */
+    public function getRelativePackageFilePathWithPackageName(PackageInterface $package, string $filePath): string
+    {
+        return "{$package->getPrettyName()}/{$this->getRelativePackageFilePath($package, $filePath)}";
     }
 
     /**
@@ -183,5 +240,27 @@ final class ProcessHelper
     private function getPackageRootDirectoryPath(PackageInterface $package): string
     {
         return $this->composer->getInstallationManager()->getInstallPath($package);
+    }
+
+    /**
+     * Checks whether the package is in the vendor override sublayer.
+     *
+     * @param string $package The package name.
+     *
+     * @return bool Whether the package is in the vendor override sublayer.
+     */
+    private function isVendorOverridePackage(string $package): bool
+    {
+        foreach ($this->rootPackageOptions->vendorOverrideLayerPackages() as $pattern) {
+            if (!is_string($pattern)) {
+                continue;
+            }
+
+            if ($package === $pattern || (new WildcardPattern($pattern))->match($package)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

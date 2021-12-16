@@ -1,11 +1,6 @@
 {
     "name": "test/e",
     "version": "1.0.0",
-    "autoload": {
-        "psr-4": {
-            "Test\\Yii\\Config\\E\\": "src"
-        }
-    },
     "extra": {
         "config-plugin": {
             "params": "params.php"
