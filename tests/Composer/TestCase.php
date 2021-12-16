@@ -177,9 +177,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * @return Composer|MockObject
      */
     protected function createComposerMock(
-        array  $extraEnvironments = [],
-        array  $vendorOverridePackage = null,
-        bool   $buildMergePlan = true,
+        array $extraEnvironments = [],
+        array $vendorOverridePackage = null,
+        bool $buildMergePlan = true,
         string $extraConfigFile = null
     ) {
         $rootPath = $this->tempDirectory;
