@@ -55,10 +55,7 @@
         }
     },
     "extra": {
-        "class": "Yiisoft\\Config\\Composer\\EventHandler",
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
-        }
+        "class": "Yiisoft\\Config\\Composer\\EventHandler"
     },
     "scripts": {
         "test": "phpunit --testdox --no-interaction",
