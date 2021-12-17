@@ -109,7 +109,7 @@ final class FilesExtractor
                 }
 
                 $filePath = $this->paths->absolute($item, $package);
-                $files = Options::containsWildcard($item) ? glob($filePath, GLOB_NOSORT) : [$filePath];
+                $files = Options::containsWildcard($item) ? glob($filePath) : [$filePath];
 
                 foreach ($files as $file) {
                     if (is_file($file)) {
