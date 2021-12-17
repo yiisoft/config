@@ -100,7 +100,7 @@ each package `composer.json`:
         ],
         "other": "other.php"
     }
-},
+}
 ```
 
 ### Markers 
@@ -195,7 +195,7 @@ A number of options is available both for Composer plugin and a config loader. C
     "config-plugin": {
         // ...
     }
-},
+}
 ```
 
 ### `source-directory`
@@ -249,7 +249,7 @@ And in the root file `composer.json` of your application, specify this package i
     "config-plugin": {
         // ...
     }
-},
+}
 ```
 
 In the same way, several packages can be added to this sublayer:
@@ -282,6 +282,19 @@ For more information about the wildcard syntax, see the [yiisoft/strings](https:
 
 > Please note that in this sublayer keys with the same names are not allowed similar to other layers.
 
+### `build-merge-plan`
+
+The `build-merge-plan` option allows you to disable creation/updating of the `config/.merge-plan.php`.
+Enabled by default, to disable it, set the value to `false`:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "build-merge-plan": false
+    }
+}
+```
+
 ## Environments
 
 The plugin supports creating additional environments added to the base configuration. This allows you to create
@@ -310,7 +323,7 @@ The environments are specified in the `composer.json` file of your application:
             "app": "prod/app.php"
         }
     }
-},
+}
 ```
 
 Configuration defines the merge process. One of the environments from `config-plugin-environments`
@@ -354,7 +367,7 @@ You can define configuration in a PHP file. To do it, specify a PHP file path in
 ```json
 "extra": {
     "config-plugin-file": "path/to/configuration/file.php"
-},
+}
 ```
 
 Configurations are specified in the same way, only in PHP format:
@@ -535,7 +548,7 @@ $config = new Config(
 
 ## Commands
 
-### yii-config-copy
+### `yii-config-copy`
 
 The plugin adds extra `yii-config-copy` command to Composer. It copies the package config files from the vendor
 to the config directory of the root package:
@@ -567,7 +580,7 @@ composer yii-config-copy yiisoft/view my/path params web
 In order to avoid conflicts with file names, a prefix is added to the names of the copied files:
 `yiisoft-view-params.php`, `yiisoft-view-web.php`.
 
-### yii-config-rebuild
+### `yii-config-rebuild`
 
 The `yii-config-rebuild` command updates merge plan file. This command may be used if you have added files or directories
 to the application configuration file structure and these were not specified in `composer.json` of the root package.
