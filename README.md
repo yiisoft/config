@@ -295,6 +295,10 @@ Enabled by default, to disable it, set the value to `false`:
 }
 ```
 
+This can be useful when developing. If the config package is a dependency of your package,
+and you do not need to create a merge plan file when developing your package.
+For example, this is implemented in [yiisoft/yii-runner](https://github.com/yiisoft/yii-runner).
+
 ## Environments
 
 The plugin supports creating additional environments added to the base configuration. This allows you to create
