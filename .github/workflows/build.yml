@@ -1,6 +1,24 @@
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
   push:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
   schedule:
     - cron: '0 0 * * *'
 
@@ -22,8 +40,8 @@ jobs:
           - windows-latest
 
         php:
-          - "7.4"
-          - "8.0"
+          - 7.4
+          - 8.0
 
     steps:
       - name: Checkout
@@ -31,6 +49,8 @@ jobs:
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
+        env:
+          update: true
         with:
           php-version: ${{ matrix.php }}
           ini-values: date.timezone='UTC'
