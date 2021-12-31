@@ -17,7 +17,7 @@ use function substr;
  * Config takes merge plan prepared by {@see \Yiisoft\Config\Composer\EventHandler}
  * and executes actual merge for the config group specified.
  */
-final class Config
+final class Config implements ConfigInterface
 {
     private Merger $merger;
     private FilesExtractor $filesExtractor;
@@ -59,13 +59,9 @@ final class Config
     }
 
     /**
-     * Builds and returns the configuration of the group.
-     *
-     * @param string $group The group name.
+     * {@inheritDoc}
      *
      * @throws ErrorException If the group does not exist or an error occurred during the build.
-     *
-     * @return array The configuration of the group.
      */
     public function get(string $group): array
     {
@@ -79,13 +75,6 @@ final class Config
         return $this->build[$group];
     }
 
-    /**
-     * Checks whether the configuration group exists.
-     *
-     * @param string $group The group name.
-     *
-     * @return bool Whether the configuration group exists.
-     */
     public function has(string $group): bool
     {
         return $this->filesExtractor->hasGroup($group);
