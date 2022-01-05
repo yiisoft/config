@@ -1,5 +1,9 @@
 # Yii Config Change Log
 
+## 1.1.2 under development
+
+- no changes in this release.
+
 ## 1.1.1 January 05, 2022
 
 - Enh #110: Improve the error message by displaying a name of the group where the error occurred when merging (devanych)
