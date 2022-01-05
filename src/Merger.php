@@ -142,7 +142,7 @@ final class Merger
                 );
 
                 if ($file !== null) {
-                    $this->throwDuplicateKeyErrorException($fullKeyPath, [$file, $context->file()]);
+                    $this->throwDuplicateKeyErrorException($context->group(), $fullKeyPath, [$file, $context->file()]);
                 }
             }
 
@@ -213,7 +213,7 @@ final class Merger
             );
 
             if ($file !== null) {
-                $this->throwDuplicateKeyErrorException($recursiveKeyPath, [$file, $context->file()]);
+                $this->throwDuplicateKeyErrorException($context->group(), $recursiveKeyPath, [$file, $context->file()]);
             }
 
             /** @var mixed */
@@ -250,13 +250,17 @@ final class Merger
     /**
      * Generates a duplicate key error message and throws an exception.
      *
+     * @param string $currentGroupName The name of the group that the error occurred when merging.
      * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
      * @param string[] $absoluteFilePaths The absolute paths to the files in which duplicates are found.
      *
      * @throws ErrorException With a duplicate key error message.
      */
-    private function throwDuplicateKeyErrorException(array $recursiveKeyPath, array $absoluteFilePaths): void
-    {
+    private function throwDuplicateKeyErrorException(
+        string $currentGroupName,
+        array $recursiveKeyPath,
+        array $absoluteFilePaths
+    ): void {
         $filePaths = array_map(
             fn (string $filePath) => ' - ' . $this->paths->relative($filePath),
             $absoluteFilePaths,
@@ -269,8 +273,9 @@ final class Merger
         });
 
         $message = sprintf(
-            "Duplicate key \"%s\" in configs:\n%s",
+            "Duplicate key \"%s\" in the following configs while building \"%s\" group:\n%s",
             implode(' => ', $recursiveKeyPath),
+            $currentGroupName,
             implode("\n", $filePaths),
         );
 

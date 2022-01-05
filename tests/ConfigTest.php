@@ -344,7 +344,7 @@ final class ConfigTest extends TestCase
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
-            'Duplicate key "age" in configs:' . "\n" .
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/params/a.php' . "\n" .
             ' - config/params/b.php'
         );
@@ -362,7 +362,7 @@ final class ConfigTest extends TestCase
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
-            'Duplicate key "age" in configs:' . "\n" .
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/params/a.php' . "\n" .
             ' - config/params/b.php'
         );
@@ -378,7 +378,7 @@ final class ConfigTest extends TestCase
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
-            'Duplicate key "age" in configs:' . "\n" .
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/environment/params/a.php' . "\n" .
             ' - config/environment/params/b.php'
         );
@@ -396,7 +396,7 @@ final class ConfigTest extends TestCase
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
-            'Duplicate key "age" in configs:' . "\n" .
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/environment/params/a.php' . "\n" .
             ' - config/environment/params/b.php'
         );
@@ -409,7 +409,7 @@ final class ConfigTest extends TestCase
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
-            'Duplicate key "age" in configs:' . "\n" .
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - vendor/package/a/params.php' . "\n" .
             ' - vendor/package/b/params.php'
         );
@@ -427,7 +427,7 @@ final class ConfigTest extends TestCase
 
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage(
-            'Duplicate key "age" in configs:' . "\n" .
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - vendor/package/a/params.php' . "\n" .
             ' - vendor/package/b/params.php'
         );
@@ -444,7 +444,9 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessageMatches('~^Duplicate key "name => first-name" in~');
+        $this->expectErrorMessageMatches(
+            '~^Duplicate key "name => first-name" in the following configs while building "params" group~',
+        );
         $config->get('params');
     }
 
