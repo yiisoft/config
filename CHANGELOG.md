@@ -2,7 +2,7 @@
 
 ## 1.1.1 under development
 
-- no changes in this release.
+- Enh #110: Improve the error message by displaying the group name that the error occurred when merging (devanych)
 
 ## 1.1.0 December 31, 2021
 
