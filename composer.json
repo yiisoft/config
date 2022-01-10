@@ -36,7 +36,7 @@
     "require-dev": {
         "composer/composer": "^2.0",
         "phpunit/phpunit": "^9.5",
-        "roave/infection-static-analysis-plugin": "^1.9",
+        "roave/infection-static-analysis-plugin": "^1.14",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.9",
         "ext-json": "*"
