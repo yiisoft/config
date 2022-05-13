@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Command;
 
+use Composer\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Yiisoft\Config\Command\RebuildCommand;
 use Yiisoft\Config\Options;
@@ -83,6 +84,7 @@ final class RebuildCommandTest extends TestCase
         $command = new RebuildCommand();
         $command->setComposer($this->createComposerMock($extraEnvironments));
         $command->setIO($this->createIoMock());
+        $command->setApplication($this->createMock(Application::class));
         (new CommandTester($command))->execute([]);
     }
 }
