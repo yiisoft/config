@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Command;
 
 use Composer\Console\Application;
+use Symfony\Component\Console\Helper\DebugFormatterHelper;
+use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\ProcessHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Tester\CommandTester;
 use Yiisoft\Config\Command\RebuildCommand;
 use Yiisoft\Config\Options;
@@ -84,7 +90,22 @@ final class RebuildCommandTest extends TestCase
         $command = new RebuildCommand();
         $command->setComposer($this->createComposerMock($extraEnvironments));
         $command->setIO($this->createIoMock());
-        $command->setApplication($this->createMock(Application::class));
+        $application = $this->createMock(Application::class);
+        $inputDefinition = $this->createMock(InputDefinition::class);
+        $inputDefinition->method('getOptions')->willReturn([]);
+        $inputDefinition->method('getArguments')->willReturn([]);
+        $application->method('getDefinition')->willReturn($inputDefinition);
+        $application->method('getHelperSet')->willReturn(
+            new HelperSet(
+                [
+                    new FormatterHelper(),
+                    new DebugFormatterHelper(),
+                    new ProcessHelper(),
+                    new QuestionHelper(),
+                ]
+            )
+        );
+        $command->setApplication($application);
         (new CommandTester($command))->execute([]);
     }
 }
