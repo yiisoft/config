@@ -47,7 +47,7 @@ final class CopyCommand extends BaseCommand
         $selectedFileNames = $input->getArgument('files');
 
         /** @psalm-suppress PossiblyNullArgument */
-        $builder = new PackageFilesProcess($this->getComposer(), [$package]);
+        $builder = new PackageFilesProcess($this->requireComposer(), [$package]);
 
         $filesystem = new Filesystem();
         $targetPath = $builder->paths()->absolute(trim($target, '\/'));
