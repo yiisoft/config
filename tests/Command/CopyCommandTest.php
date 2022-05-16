@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Command;
 
+use Composer\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Yiisoft\Config\Command\CopyCommand;
 use Yiisoft\Config\Tests\Composer\TestCase;
@@ -140,6 +141,7 @@ final class CopyCommandTest extends TestCase
         $command = new CopyCommand();
         $command->setComposer($this->createComposerMock());
         $command->setIO($this->createIoMock());
+        (new Application())->addCommands([$command]);
         (new CommandTester($command))->execute([
             'package' => $package,
             'target' => '',

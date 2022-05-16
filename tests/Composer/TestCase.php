@@ -74,7 +74,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function assertMergePlan(array $environments = []): void
     {
         $this->assertSame(
-            require $this->getTempPath(Options::MERGE_PLAN_FILENAME),
             array_merge([
                 Options::DEFAULT_ENVIRONMENT => [
                     'params' => [
@@ -144,6 +143,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     ],
                 ],
             ], $environments),
+            require $this->getTempPath(Options::MERGE_PLAN_FILENAME),
         );
     }
 

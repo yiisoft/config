@@ -25,7 +25,10 @@ final class RebuildCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @psalm-suppress PossiblyNullArgument */
+        /**
+         * @psalm-suppress PossiblyNullArgument
+         * @psalm-suppress DeprecatedMethod
+         */
         new MergePlanProcess($this->getComposer());
         return 0;
     }
