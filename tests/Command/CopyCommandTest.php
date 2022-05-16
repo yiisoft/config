@@ -147,22 +147,7 @@ final class CopyCommandTest extends TestCase
         $command = new CopyCommand();
         $command->setComposer($this->createComposerMock());
         $command->setIO($this->createIoMock());
-        $application = $this->createMock(Application::class);
-        $inputDefinition = $this->createMock(InputDefinition::class);
-        $inputDefinition->method('getOptions')->willReturn([]);
-        $inputDefinition->method('getArguments')->willReturn([]);
-        $application->method('getDefinition')->willReturn($inputDefinition);
-        $application->method('getHelperSet')->willReturn(
-            new HelperSet(
-                [
-                    new FormatterHelper(),
-                    new DebugFormatterHelper(),
-                    new ProcessHelper(),
-                    new QuestionHelper(),
-                ]
-            )
-        );
-        $command->setApplication($application);
+       (new Application())->addCommands([$command]);
         (new CommandTester($command))->execute([
             'package' => $package,
             'target' => '',
