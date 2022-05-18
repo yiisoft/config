@@ -37,12 +37,15 @@ final class EventHandlerTest extends TestCase
 
     public function testOnCommand(): void
     {
-        $event = $this->getMockBuilder(CommandEvent::class)
+        $event = $this
+            ->getMockBuilder(CommandEvent::class)
             ->onlyMethods(['getCommandName'])
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $event->method('getCommandName')->willReturn('dump-autoload');
+        $event
+            ->method('getCommandName')
+            ->willReturn('dump-autoload');
 
         $handler = new EventHandler();
         $handler->onCommand($event);

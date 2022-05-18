@@ -293,7 +293,9 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "not-exist" configuration environment does not exist.');
-        $this->createConfig('not-exist')->get('web');
+        $this
+            ->createConfig('not-exist')
+            ->get('web');
     }
 
     public function testGetThrowExceptionForGroupNotExist(): void
@@ -307,7 +309,9 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "not-exist" configuration group does not exist.');
-        $this->createConfig('alfa')->get('not-exist');
+        $this
+            ->createConfig('alfa')
+            ->get('not-exist');
     }
 
     public function testGetThrowExceptionForVariableGroupEqual(): void
@@ -321,7 +325,9 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
-        $this->createConfig('alfa')->get('failVariableGroupEqual');
+        $this
+            ->createConfig('alfa')
+            ->get('failVariableGroupEqual');
     }
 
     public function testGetThrowExceptionForVariableGroupNotExist(): void
@@ -335,7 +341,9 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
-        $this->createConfig('alfa')->get('failVariableNotExist');
+        $this
+            ->createConfig('alfa')
+            ->get('failVariableNotExist');
     }
 
     public function testDuplicateRootKeysErrorMessage(): void
