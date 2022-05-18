@@ -53,7 +53,9 @@ final class CopyCommand extends BaseCommand
         $builder = new PackageFilesProcess($this->getComposer(), [$package]);
 
         $filesystem = new Filesystem();
-        $targetPath = $builder->paths()->absolute(trim($target, '\/'));
+        $targetPath = $builder
+            ->paths()
+            ->absolute(trim($target, '\/'));
         $filesystem->ensureDirectoryExists($targetPath);
         $prefix = str_replace('/', '-', $package);
 

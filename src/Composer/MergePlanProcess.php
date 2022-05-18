@@ -144,7 +144,9 @@ final class MergePlanProcess
         $mergePlan = $this->mergePlan->toArray();
         ksort($mergePlan);
 
-        $filePath = $this->helper->getPaths()->absolute(Options::MERGE_PLAN_FILENAME);
+        $filePath = $this->helper
+            ->getPaths()
+            ->absolute(Options::MERGE_PLAN_FILENAME);
         $oldContent = is_file($filePath) ? file_get_contents($filePath) : '';
 
         $content = '<?php'

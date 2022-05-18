@@ -110,7 +110,10 @@ final class PackagesListBuilder
      */
     private function getAllPackages(): array
     {
-        $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getPackages();
+        $packages = $this->composer
+            ->getRepositoryManager()
+            ->getLocalRepository()
+            ->getPackages();
 
         $result = [];
         foreach ($packages as $package) {

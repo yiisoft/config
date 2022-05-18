@@ -34,7 +34,12 @@ final class ConfigPathsTest extends TestCase
      */
     public function testAbsolute(string $file, string $package, string $expected): void
     {
-        $this->assertSameIgnoringSlash($expected, $this->createConfigPaths()->absolute($file, $package));
+        $this->assertSameIgnoringSlash(
+            $expected,
+            $this
+                ->createConfigPaths()
+                ->absolute($file, $package),
+        );
     }
 
     private function createConfigPaths(): ConfigPaths
