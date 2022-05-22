@@ -170,7 +170,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function createIoMock()
     {
-        return $this->getMockBuilder(IOInterface::class)->getMockForAbstractClass();
+        return $this
+            ->getMockBuilder(IOInterface::class)
+            ->getMockForAbstractClass();
     }
 
     /**
@@ -208,23 +210,32 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         ], ['config-plugin-environments' => $extraEnvironments]);
 
         $config = $this->createMock(Config::class);
-        $config->method('get')->willReturn(dirname(__DIR__, 2) . '/vendor');
+        $config
+            ->method('get')
+            ->willReturn(dirname(__DIR__, 2) . '/vendor');
 
-        $rootPackage = $this->getMockBuilder(RootPackageInterface::class)
+        $rootPackage = $this
+            ->getMockBuilder(RootPackageInterface::class)
             ->onlyMethods(['getRequires', 'getDevRequires', 'getExtra'])
             ->getMockForAbstractClass()
         ;
-        $rootPackage->method('getRequires')->willReturn([
-            'test/a' => new Link("$sourcePath/a", "$targetPath/test/a", new Constraint('>=', '1.0.0')),
-            'test/ba' => new Link("$sourcePath/ba", "$targetPath/test/ba", new Constraint('>=', '1.0.0')),
-            'test/c' => new Link("$sourcePath/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
-            'test/custom-source' => new Link("$sourcePath/custom-source", "$targetPath/test/custom-source", new Constraint('>=', '1.0.0')),
-            'test/over' => new Link("$sourcePath/over", "$targetPath/test/over", new Constraint('>=', '1.0.0')),
-        ]);
-        $rootPackage->method('getDevRequires')->willReturn([
-            'test/d-dev-c' => new Link("$sourcePath/d-dev-c", "$targetPath/test/d-dev-c", new Constraint('>=', '1.0.0')),
-        ]);
-        $rootPackage->method('getExtra')->willReturn($extra);
+        $rootPackage
+            ->method('getRequires')
+            ->willReturn([
+                'test/a' => new Link("$sourcePath/a", "$targetPath/test/a", new Constraint('>=', '1.0.0')),
+                'test/ba' => new Link("$sourcePath/ba", "$targetPath/test/ba", new Constraint('>=', '1.0.0')),
+                'test/c' => new Link("$sourcePath/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
+                'test/custom-source' => new Link("$sourcePath/custom-source", "$targetPath/test/custom-source", new Constraint('>=', '1.0.0')),
+                'test/over' => new Link("$sourcePath/over", "$targetPath/test/over", new Constraint('>=', '1.0.0')),
+            ]);
+        $rootPackage
+            ->method('getDevRequires')
+            ->willReturn([
+                'test/d-dev-c' => new Link("$sourcePath/d-dev-c", "$targetPath/test/d-dev-c", new Constraint('>=', '1.0.0')),
+            ]);
+        $rootPackage
+            ->method('getExtra')
+            ->willReturn($extra);
 
         $packages = [
             new CompletePackage('test/a', '1.0.0', '1.0.0'),
@@ -241,25 +252,34 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             $package->setExtra(json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR)['extra']);
         }
 
-        $repository = $this->getMockBuilder(InstalledRepositoryInterface::class)
+        $repository = $this
+            ->getMockBuilder(InstalledRepositoryInterface::class)
             ->onlyMethods(['getPackages'])
             ->getMockForAbstractClass()
         ;
-        $repository->method('getPackages')->willReturn($packages);
+        $repository
+            ->method('getPackages')
+            ->willReturn($packages);
 
-        $repositoryManager = $this->getMockBuilder(RepositoryManager::class)
+        $repositoryManager = $this
+            ->getMockBuilder(RepositoryManager::class)
             ->onlyMethods(['getLocalRepository'])
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $repositoryManager->method('getLocalRepository')->willReturn($repository);
+        $repositoryManager
+            ->method('getLocalRepository')
+            ->willReturn($repository);
 
-        $installationManager = $this->getMockBuilder(InstallationManager::class)
+        $installationManager = $this
+            ->getMockBuilder(InstallationManager::class)
             ->onlyMethods(['getInstallPath'])
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $installationManager->method('getInstallPath')->willReturnCallback(
+        $installationManager
+            ->method('getInstallPath')
+            ->willReturnCallback(
             static function (PackageInterface $package) use ($sourcePath, $rootPath) {
                 if ($package instanceof RootPackageInterface) {
                     return $rootPath;
@@ -268,14 +288,18 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             }
         );
 
-        $eventDispatcher = $this->getMockBuilder(EventDispatcher::class)
+        $eventDispatcher = $this
+            ->getMockBuilder(EventDispatcher::class)
             ->onlyMethods(['dispatch'])
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $eventDispatcher->method('dispatch')->willReturn(0);
+        $eventDispatcher
+            ->method('dispatch')
+            ->willReturn(0);
 
-        $composer = $this->getMockBuilder(Composer::class)
+        $composer = $this
+            ->getMockBuilder(Composer::class)
             ->onlyMethods([
                 'getConfig',
                 'getPackage',
@@ -286,11 +310,21 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ->getMock()
         ;
 
-        $composer->method('getConfig')->willReturn($config);
-        $composer->method('getPackage')->willReturn($rootPackage);
-        $composer->method('getRepositoryManager')->willReturn($repositoryManager);
-        $composer->method('getInstallationManager')->willReturn($installationManager);
-        $composer->method('getEventDispatcher')->willReturn($eventDispatcher);
+        $composer
+            ->method('getConfig')
+            ->willReturn($config);
+        $composer
+            ->method('getPackage')
+            ->willReturn($rootPackage);
+        $composer
+            ->method('getRepositoryManager')
+            ->willReturn($repositoryManager);
+        $composer
+            ->method('getInstallationManager')
+            ->willReturn($installationManager);
+        $composer
+            ->method('getEventDispatcher')
+            ->willReturn($eventDispatcher);
 
         return $composer;
     }

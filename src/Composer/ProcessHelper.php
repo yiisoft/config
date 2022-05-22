@@ -38,11 +38,15 @@ final class ProcessHelper
     public function __construct(Composer $composer)
     {
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
-        require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
+        require_once $composer
+                ->getConfig()
+                ->get('vendor-dir') . '/autoload.php';
         /** @psalm-suppress MixedArgument */
         $rootPath = realpath(dirname(Factory::getComposerFile()));
 
-        $rootPackageExtra = $composer->getPackage()->getExtra();
+        $rootPackageExtra = $composer
+            ->getPackage()
+            ->getExtra();
         /** @psalm-suppress UnresolvableInclude */
         $this->rootPackageExtra = isset($rootPackageExtra['config-plugin-file'])
             ? (array) (require "$rootPath/{$rootPackageExtra['config-plugin-file']}")
@@ -239,7 +243,9 @@ final class ProcessHelper
      */
     private function getPackageRootDirectoryPath(PackageInterface $package): string
     {
-        return $this->composer->getInstallationManager()->getInstallPath($package);
+        return $this->composer
+            ->getInstallationManager()
+            ->getInstallPath($package);
     }
 
     /**
