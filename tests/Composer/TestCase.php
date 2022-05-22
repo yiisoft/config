@@ -280,13 +280,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $installationManager
             ->method('getInstallPath')
             ->willReturnCallback(
-            static function (PackageInterface $package) use ($sourcePath, $rootPath) {
+                static function (PackageInterface $package) use ($sourcePath, $rootPath) {
                 if ($package instanceof RootPackageInterface) {
                     return $rootPath;
                 }
                 return str_replace('test/', '', "$sourcePath/{$package->getName()}");
             }
-        );
+            );
 
         $eventDispatcher = $this
             ->getMockBuilder(EventDispatcher::class)
