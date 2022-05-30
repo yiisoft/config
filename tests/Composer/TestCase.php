@@ -281,11 +281,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ->method('getInstallPath')
             ->willReturnCallback(
                 static function (PackageInterface $package) use ($sourcePath, $rootPath) {
-                if ($package instanceof RootPackageInterface) {
-                    return $rootPath;
+                    if ($package instanceof RootPackageInterface) {
+                        return $rootPath;
+                    }
+                    return str_replace('test/', '', "$sourcePath/{$package->getName()}");
                 }
-                return str_replace('test/', '', "$sourcePath/{$package->getName()}");
-            }
             );
 
         $eventDispatcher = $this
