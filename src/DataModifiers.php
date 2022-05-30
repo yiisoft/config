@@ -53,12 +53,12 @@ final class DataModifiers
 
         foreach ($modifiers as $modifier) {
             if ($modifier instanceof ReverseMerge) {
-                $reverseMergeGroups = array_merge($reverseMergeGroups, $modifier->getGroups());
+                array_unshift($reverseMergeGroups, $modifier->getGroups());
                 continue;
             }
 
             if ($modifier instanceof RecursiveMerge) {
-                $recursiveMergeGroups = array_merge($recursiveMergeGroups, $modifier->getGroups());
+                array_unshift($recursiveMergeGroups, $modifier->getGroups());
                 continue;
             }
 
@@ -99,8 +99,8 @@ final class DataModifiers
             }
         }
 
-        $this->reverseMergeGroupsIndex = array_flip($reverseMergeGroups);
-        $this->recursiveMergeGroupsIndex = array_flip($recursiveMergeGroups);
+        $this->reverseMergeGroupsIndex = array_flip(array_merge(...$reverseMergeGroups));
+        $this->recursiveMergeGroupsIndex = array_flip(array_merge(...$recursiveMergeGroups));
     }
 
     public function isRecursiveMergeGroup(string $group): bool
