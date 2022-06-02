@@ -18,11 +18,17 @@ final class PackageFilesProcessTest extends TestCase
 
         $this->assertCount(1, $process->files());
 
-        $this->assertSame('web.php', $process->files()[0]->filename());
-        $this->assertSame('config/web.php', $process->files()[0]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[0]
+            ->filename());
+        $this->assertSame('config/web.php', $process
+            ->files()[0]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('ba/config/web.php'),
-            $process->files()[0]->absolutePath(),
+            $process
+                ->files()[0]
+                ->absolutePath(),
         );
     }
 
@@ -32,18 +38,30 @@ final class PackageFilesProcessTest extends TestCase
 
         $this->assertCount(2, $process->files());
 
-        $this->assertSame('web.php', $process->files()[0]->filename());
-        $this->assertSame('config/web.php', $process->files()[0]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[0]
+            ->filename());
+        $this->assertSame('config/web.php', $process
+            ->files()[0]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('ba/config/web.php'),
-            $process->files()[0]->absolutePath(),
+            $process
+                ->files()[0]
+                ->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[1]->filename());
-        $this->assertSame('config/web.php', $process->files()[1]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[1]
+            ->filename());
+        $this->assertSame('config/web.php', $process
+            ->files()[1]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('d-dev-c/config/web.php'),
-            $process->files()[1]->absolutePath(),
+            $process
+                ->files()[1]
+                ->absolutePath(),
         );
     }
 
@@ -54,102 +72,186 @@ final class PackageFilesProcessTest extends TestCase
         $this->assertInstanceOf(ConfigPaths::class, $process->paths());
         $this->assertCount(14, $process->files());
 
-        $this->assertSameIgnoringSlash('params.php', $process->files()[0]->filename());
-        $this->assertSameIgnoringSlash('params.php', $process->files()[0]->relativePath());
+        $this->assertSameIgnoringSlash('params.php', $process
+            ->files()[0]
+            ->filename());
+        $this->assertSameIgnoringSlash('params.php', $process
+            ->files()[0]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('a/params.php'),
-            $process->files()[0]->absolutePath(),
+            $process
+                ->files()[0]
+                ->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[1]->filename());
-        $this->assertSame('web.php', $process->files()[1]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[1]
+            ->filename());
+        $this->assertSame('web.php', $process
+            ->files()[1]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('a/web.php'),
-            $process->files()[1]->absolutePath(),
+            $process
+                ->files()[1]
+                ->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[2]->filename());
-        $this->assertSame('config/web.php', $process->files()[2]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[2]
+            ->filename());
+        $this->assertSame('config/web.php', $process
+            ->files()[2]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('ba/config/web.php'),
-            $process->files()[2]->absolutePath(),
+            $process
+                ->files()[2]
+                ->absolutePath(),
         );
 
-        $this->assertSame('params.php', $process->files()[3]->filename());
-        $this->assertSame('config/params.php', $process->files()[3]->relativePath());
+        $this->assertSame('params.php', $process
+            ->files()[3]
+            ->filename());
+        $this->assertSame('config/params.php', $process
+            ->files()[3]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('c/config/params.php'),
-            $process->files()[3]->absolutePath(),
+            $process
+                ->files()[3]
+                ->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[4]->filename());
-        $this->assertSame('config/web.php', $process->files()[4]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[4]
+            ->filename());
+        $this->assertSame('config/web.php', $process
+            ->files()[4]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('c/config/web.php'),
-            $process->files()[4]->absolutePath(),
+            $process
+                ->files()[4]
+                ->absolutePath(),
         );
 
-        $this->assertSame('common/a.php', $process->files()[5]->filename());
-        $this->assertSame('custom-dir/common/a.php', $process->files()[5]->relativePath());
+        $this->assertSame('common/a.php', $process
+            ->files()[5]
+            ->filename());
+        $this->assertSame('custom-dir/common/a.php', $process
+            ->files()[5]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('custom-source/custom-dir/common/a.php'),
-            $process->files()[5]->absolutePath(),
+            $process
+                ->files()[5]
+                ->absolutePath(),
         );
 
-        $this->assertSame('common/b.php', $process->files()[6]->filename());
-        $this->assertSame('custom-dir/common/b.php', $process->files()[6]->relativePath());
+        $this->assertSame('common/b.php', $process
+            ->files()[6]
+            ->filename());
+        $this->assertSame('custom-dir/common/b.php', $process
+            ->files()[6]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('custom-source/custom-dir/common/b.php'),
-            $process->files()[6]->absolutePath(),
+            $process
+                ->files()[6]
+                ->absolutePath(),
         );
 
-        $this->assertSame('events.php', $process->files()[7]->filename());
-        $this->assertSame('custom-dir/events.php', $process->files()[7]->relativePath());
+        $this->assertSame('events.php', $process
+            ->files()[7]
+            ->filename());
+        $this->assertSame('custom-dir/events.php', $process
+            ->files()[7]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('custom-source/custom-dir/events.php'),
-            $process->files()[7]->absolutePath(),
+            $process
+                ->files()[7]
+                ->absolutePath(),
         );
 
-        $this->assertSame('events-web.php', $process->files()[8]->filename());
-        $this->assertSame('custom-dir/events-web.php', $process->files()[8]->relativePath());
+        $this->assertSame('events-web.php', $process
+            ->files()[8]
+            ->filename());
+        $this->assertSame('custom-dir/events-web.php', $process
+            ->files()[8]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('custom-source/custom-dir/events-web.php'),
-            $process->files()[8]->absolutePath(),
+            $process
+                ->files()[8]
+                ->absolutePath(),
         );
 
-        $this->assertSame('params.php', $process->files()[9]->filename());
-        $this->assertSame('custom-dir/params.php', $process->files()[9]->relativePath());
+        $this->assertSame('params.php', $process
+            ->files()[9]
+            ->filename());
+        $this->assertSame('custom-dir/params.php', $process
+            ->files()[9]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('custom-source/custom-dir/params.php'),
-            $process->files()[9]->absolutePath(),
+            $process
+                ->files()[9]
+                ->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[10]->filename());
-        $this->assertSame('custom-dir/web.php', $process->files()[10]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[10]
+            ->filename());
+        $this->assertSame('custom-dir/web.php', $process
+            ->files()[10]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('custom-source/custom-dir/web.php'),
-            $process->files()[10]->absolutePath(),
+            $process
+                ->files()[10]
+                ->absolutePath(),
         );
 
-        $this->assertSameIgnoringSlash('params.php', $process->files()[11]->filename());
-        $this->assertSameIgnoringSlash('params.php', $process->files()[11]->relativePath());
+        $this->assertSameIgnoringSlash('params.php', $process
+            ->files()[11]
+            ->filename());
+        $this->assertSameIgnoringSlash('params.php', $process
+            ->files()[11]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('over/params.php'),
-            $process->files()[11]->absolutePath(),
+            $process
+                ->files()[11]
+                ->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[12]->filename());
-        $this->assertSame('web.php', $process->files()[12]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[12]
+            ->filename());
+        $this->assertSame('web.php', $process
+            ->files()[12]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('over/web.php'),
-            $process->files()[12]->absolutePath(),
+            $process
+                ->files()[12]
+                ->absolutePath(),
         );
 
-        $this->assertSame('web.php', $process->files()[13]->filename());
-        $this->assertSame('config/web.php', $process->files()[13]->relativePath());
+        $this->assertSame('web.php', $process
+            ->files()[13]
+            ->filename());
+        $this->assertSame('config/web.php', $process
+            ->files()[13]
+            ->relativePath());
         $this->assertSameIgnoringSlash(
             $this->getSourcePath('d-dev-c/config/web.php'),
-            $process->files()[13]->absolutePath(),
+            $process
+                ->files()[13]
+                ->absolutePath(),
         );
     }
 }
