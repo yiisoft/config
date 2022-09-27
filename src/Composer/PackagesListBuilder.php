@@ -15,11 +15,8 @@ use function array_key_exists;
  */
 final class PackagesListBuilder
 {
-    private Composer $composer;
-
-    public function __construct(Composer $composer)
+    public function __construct(private Composer $composer)
     {
-        $this->composer = $composer;
     }
 
     /**

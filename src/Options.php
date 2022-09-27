@@ -48,17 +48,17 @@ final class Options
 
     public static function containsWildcard(string $file): bool
     {
-        return strpos($file, '*') !== false;
+        return str_contains($file, '*');
     }
 
     public static function isOptional(string $file): bool
     {
-        return strpos($file, '?') === 0;
+        return str_starts_with($file, '?');
     }
 
     public static function isVariable(string $file): bool
     {
-        return strpos($file, '$') === 0;
+        return str_starts_with($file, '$');
     }
 
     public function buildMergePlan(): bool
