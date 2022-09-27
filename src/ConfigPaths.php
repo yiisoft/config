@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Config;
 
 use function strlen;
-use function strpos;
 use function substr;
 use function trim;
 

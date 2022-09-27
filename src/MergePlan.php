@@ -17,8 +17,7 @@ final class MergePlan
          * @psalm-var array<string, array<string, array<string, string[]>>>
          */
         private array $mergePlan = []
-    )
-    {
+    ) {
     }
 
     /**

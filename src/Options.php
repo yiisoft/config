@@ -6,7 +6,6 @@ namespace Yiisoft\Config;
 
 use function is_array;
 use function str_replace;
-use function strpos;
 use function trim;
 
 /**
