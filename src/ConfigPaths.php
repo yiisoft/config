@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Config;
 
 use function strlen;
-use function strpos;
 use function substr;
 use function trim;
 
@@ -14,7 +13,6 @@ use function trim;
  */
 final class ConfigPaths
 {
-    private string $rootPath;
     private string $configPath;
     private string $vendorPath;
 
@@ -23,10 +21,8 @@ final class ConfigPaths
      * @param string|null $configDirectory The relative path to the configuration storage location.
      * @param string|null $vendorDirectory The relative path to the vendor directory.
      */
-    public function __construct(string $rootPath, string $configDirectory = null, string $vendorDirectory = null)
+    public function __construct(private string $rootPath, string $configDirectory = null, string $vendorDirectory = null)
     {
-        $this->rootPath = $rootPath;
-
         $configDirectory = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
         $this->configPath = $rootPath . ($configDirectory === '' ? '' : "/$configDirectory");
 
@@ -64,7 +60,7 @@ final class ConfigPaths
      */
     public function relative(string $file): string
     {
-        return strpos($file, "$this->rootPath/") === 0
+        return str_starts_with($file, "$this->rootPath/")
             ? substr($file, strlen("$this->rootPath/"))
             : $file;
     }

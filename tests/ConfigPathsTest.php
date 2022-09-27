@@ -27,10 +27,6 @@ final class ConfigPathsTest extends TestCase
 
     /**
      * @dataProvider absolutePathsDataProvider
-     *
-     * @param string $file
-     * @param string $package
-     * @param string $expected
      */
     public function testAbsolute(string $file, string $package, string $expected): void
     {

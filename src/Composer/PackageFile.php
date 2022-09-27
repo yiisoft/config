@@ -9,15 +9,8 @@ namespace Yiisoft\Config\Composer;
  */
 final class PackageFile
 {
-    private string $filename;
-    private string $relativePath;
-    private string $absolutePath;
-
-    public function __construct(string $filename, string $relativePath, string $absolutePath)
+    public function __construct(private string $filename, private string $relativePath, private string $absolutePath)
     {
-        $this->filename = $filename;
-        $this->relativePath = $relativePath;
-        $this->absolutePath = $absolutePath;
     }
 
     public function filename(): string

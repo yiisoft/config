@@ -33,12 +33,12 @@ final class DataModifiers
     /**
      * @psalm-var array<string, true>
      */
-    private array $removeFromVendorGroupsIndex;
+    private array $removeFromVendorGroupsIndex = [];
 
     /**
      * @psalm-var array<string, array<string, mixed>>
      */
-    private array $removeFromVendorKeysIndex;
+    private array $removeFromVendorKeysIndex = [];
 
     /**
      * @param object[] $modifiers Modifiers that affect merge process.
@@ -47,9 +47,6 @@ final class DataModifiers
     {
         $reverseMergeGroups = [];
         $recursiveMergeGroups = [];
-
-        $this->removeFromVendorGroupsIndex = [];
-        $this->removeFromVendorKeysIndex = [];
 
         foreach ($modifiers as $modifier) {
             if ($modifier instanceof ReverseMerge) {

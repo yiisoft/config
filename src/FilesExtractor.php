@@ -17,21 +17,8 @@ use function substr;
  */
 final class FilesExtractor
 {
-    private ConfigPaths $paths;
-    private MergePlan $mergePlan;
-    private DataModifiers $dataModifiers;
-    private string $environment;
-
-    public function __construct(
-        ConfigPaths $paths,
-        MergePlan $mergePlan,
-        DataModifiers $dataModifiers,
-        string $environment
-    ) {
-        $this->paths = $paths;
-        $this->mergePlan = $mergePlan;
-        $this->dataModifiers = $dataModifiers;
-        $this->environment = $environment;
+    public function __construct(private ConfigPaths $paths, private MergePlan $mergePlan, private DataModifiers $dataModifiers, private string $environment)
+    {
     }
 
     /**
@@ -171,8 +158,6 @@ final class FilesExtractor
     }
 
     /**
-     * @param string $message
-     *
      * @throws ErrorException
      */
     private function throwException(string $message): void

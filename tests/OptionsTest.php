@@ -22,10 +22,8 @@ final class OptionsTest extends TestCase
 
     /**
      * @dataProvider buildMergePlanDataProvider
-     *
-     * @param mixed $value
      */
-    public function testBuildMergePlanTrue($value): void
+    public function testBuildMergePlanTrue(mixed $value): void
     {
         $options = new Options([
             'config-plugin-options' => [
@@ -48,10 +46,8 @@ final class OptionsTest extends TestCase
 
     /**
      * @dataProvider noBuildMergePlanDataProvider
-     *
-     * @param mixed $value
      */
-    public function testBuildMergePlanFalse($value): void
+    public function testBuildMergePlanFalse(mixed $value): void
     {
         $options = new Options([
             'config-plugin-options' => [
@@ -71,10 +67,8 @@ final class OptionsTest extends TestCase
 
     /**
      * @dataProvider packagePatternDataProvider
-     *
-     * @param array|string $packages
      */
-    public function testVendorOverrideLayerPackages($packages): void
+    public function testVendorOverrideLayerPackages(array|string $packages): void
     {
         $options = new Options([
             'config-plugin-options' => [

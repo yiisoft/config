@@ -22,22 +22,17 @@ use function usort;
  */
 final class Merger
 {
-    private ConfigPaths $paths;
-    private DataModifiers $dataModifiers;
-
     /**
      * @psalm-var array<int, array>
      */
     private array $cacheKeys = [];
 
     /**
-     * @param ConfigPaths $configPaths The config paths instance.
+     * @param ConfigPaths $paths The config paths instance.
      * @param DataModifiers $dataModifiers The data modifiers that affect merge process.
      */
-    public function __construct(ConfigPaths $configPaths, DataModifiers $dataModifiers)
+    public function __construct(private ConfigPaths $paths, private DataModifiers $dataModifiers)
     {
-        $this->paths = $configPaths;
-        $this->dataModifiers = $dataModifiers;
     }
 
     public function reset(): void
@@ -80,8 +75,6 @@ final class Merger
      * @param string[] $recursiveKeyPath The key path for recursive merging of arrays in configuration files.
      * @param array $arrayA First array to merge.
      * @param array $arrayB Second array to merge.
-     * @param bool $isRecursiveMerge
-     * @param bool $isReverseMerge
      *
      * @throws ErrorException If an error occurred during the merge.
      *
@@ -231,11 +224,9 @@ final class Merger
     }
 
     /**
-     * @param mixed $value
-     *
      * @psalm-param non-empty-array<array-key, string> $keyPath
      */
-    private function setValue(Context $context, array $keyPath, array &$array, string $key, $value): bool
+    private function setValue(Context $context, array $keyPath, array &$array, string $key, mixed $value): bool
     {
         if ($this->dataModifiers->shouldRemoveKeyFromVendor($context, $keyPath)) {
             return false;
