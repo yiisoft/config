@@ -34,12 +34,13 @@
         "yiisoft/var-dumper": "^1.1"
     },
     "require-dev": {
+        "ext-json": "*",
         "composer/composer": "^2.0",
         "phpunit/phpunit": "^9.5",
+        "rector/rector": "^0.14.3",
         "roave/infection-static-analysis-plugin": "^1.16",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.18",
-        "ext-json": "*"
+        "vimeo/psalm": "^4.18"
     },
     "config": {
         "sort-packages": true,
