@@ -2,6 +2,7 @@
 
 ## 1.1.2 under development
 
+- Enh: Add composer require checker into CI
 - Enh #119: Improve performance of collecting data for `ReverseMerge` and `RecursiveMerge` (samdark)
 
 ## 1.1.1 January 05, 2022
