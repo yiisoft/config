@@ -111,7 +111,6 @@ final class MergePlan
      */
     public function hasEnvironment(string $environment): bool
     {
-
 //        var_dump(array_keys($this->mergePlan));
 //        exit();
         return isset($this->mergePlan[$environment]);
