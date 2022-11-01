@@ -979,7 +979,7 @@ final class ConfigTest extends TestCase
         return [
             [null],
             [''],
-            ['/'],
+            ['common'],
         ];
     }
 

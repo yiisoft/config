@@ -73,7 +73,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function assertMergePlan(array $environments = []): void
     {
-        $this->assertSame(
+        $this->assertEquals(
             array_merge([
                 Options::DEFAULT_ENVIRONMENT => [
                     'params' => [
