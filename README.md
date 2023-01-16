@@ -22,7 +22,7 @@ a plugin system. The package becomes a plugin holding both the code and its conf
 
 ## Requirements
 
-- PHP 7.4 or higher.
+- PHP 8.0 or higher.
 - Composer 2.0 or higher.
 
 ## Installation
