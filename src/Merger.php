@@ -31,8 +31,10 @@ final class Merger
      * @param ConfigPaths $paths The config paths instance.
      * @param DataModifiers $dataModifiers The data modifiers that affect merge process.
      */
-    public function __construct(private ConfigPaths $paths, private DataModifiers $dataModifiers)
-    {
+    public function __construct(
+        private ConfigPaths $paths,
+        private DataModifiers $dataModifiers,
+    ) {
     }
 
     public function reset(): void

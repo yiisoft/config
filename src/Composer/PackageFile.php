@@ -9,8 +9,11 @@ namespace Yiisoft\Config\Composer;
  */
 final class PackageFile
 {
-    public function __construct(private string $filename, private string $relativePath, private string $absolutePath)
-    {
+    public function __construct(
+        private string $filename,
+        private string $relativePath,
+        private string $absolutePath,
+    ) {
     }
 
     public function filename(): string

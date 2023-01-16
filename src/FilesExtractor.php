@@ -17,8 +17,12 @@ use function substr;
  */
 final class FilesExtractor
 {
-    public function __construct(private ConfigPaths $paths, private MergePlan $mergePlan, private DataModifiers $dataModifiers, private string $environment)
-    {
+    public function __construct(
+        private ConfigPaths $paths,
+        private MergePlan $mergePlan,
+        private DataModifiers $dataModifiers,
+        private string $environment,
+    ) {
     }
 
     /**

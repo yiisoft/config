@@ -13,10 +13,7 @@ final class MergePlan
      * @psalm-param array<string, array<string, array<string, string[]>>> $mergePlan
      */
     public function __construct(
-        /**
-         * @psalm-var array<string, array<string, array<string, string[]>>>
-         */
-        private array $mergePlan = []
+        private array $mergePlan = [],
     ) {
     }
 

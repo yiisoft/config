@@ -21,8 +21,11 @@ final class ConfigPaths
      * @param string|null $configDirectory The relative path to the configuration storage location.
      * @param string|null $vendorDirectory The relative path to the vendor directory.
      */
-    public function __construct(private string $rootPath, string $configDirectory = null, string $vendorDirectory = null)
-    {
+    public function __construct(
+        private string $rootPath,
+        string $configDirectory = null,
+        string $vendorDirectory = null,
+    ) {
         $configDirectory = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
         $this->configPath = $rootPath . ($configDirectory === '' ? '' : "/$configDirectory");
 

@@ -81,8 +81,9 @@ final class RecursiveMerge
     /**
      * @param string[] $groups
      */
-    private function __construct(private array $groups)
-    {
+    private function __construct(
+        private array $groups,
+    ) {
     }
 
     public static function groups(string ...$groups): self

@@ -169,10 +169,9 @@ final class Config implements ConfigInterface
             set_error_handler(static function (int $errorNumber, string $errorString, string $errorFile, int $errorLine) {
                 throw new ErrorException($errorString, $errorNumber, 0, $errorFile, $errorLine);
             });
-            $funcGetArg = func_get_arg(1);
 
             /** @psalm-suppress MixedArgument */
-            extract($funcGetArg, EXTR_SKIP);
+            extract(func_get_arg(1), EXTR_SKIP);
 
             /**
              * @psalm-suppress UnresolvableInclude
@@ -191,7 +190,7 @@ final class Config implements ConfigInterface
         }
 
         /** @psalm-suppress TooManyArguments */
-        return $scopeRequire();
+        return $scopeRequire($filePath, $scope);
     }
 
     /**
