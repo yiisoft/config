@@ -1,6 +1,6 @@
 # Yii Config Change Log
 
-## 1.1.2 under development
+## 1.2.0 under development
 
 - Enh #119: Improve performance of collecting data for `ReverseMerge` and `RecursiveMerge` (@samdark)
 - Enh #122: Raise minimal PHP version to 8.0 (@vjik, @xepozz)
