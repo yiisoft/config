@@ -28,11 +28,11 @@ final class Merger
     private array $cacheKeys = [];
 
     /**
-     * @param ConfigPaths $paths The config paths instance.
+     * @param ConfigPaths $configPaths The config paths instance.
      * @param DataModifiers $dataModifiers The data modifiers that affect merge process.
      */
     public function __construct(
-        private ConfigPaths $paths,
+        private ConfigPaths $configPaths,
         private DataModifiers $dataModifiers,
     ) {
     }
@@ -255,7 +255,7 @@ final class Merger
         array $absoluteFilePaths
     ): void {
         $filePaths = array_map(
-            fn (string $filePath) => ' - ' . $this->paths->relative($filePath),
+            fn (string $filePath) => ' - ' . $this->configPaths->relative($filePath),
             $absoluteFilePaths,
         );
 
