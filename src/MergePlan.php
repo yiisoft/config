@@ -10,16 +10,11 @@ namespace Yiisoft\Config;
 final class MergePlan
 {
     /**
-     * @psalm-var array<string, array<string, array<string, string[]>>>
-     */
-    private array $mergePlan;
-
-    /**
      * @psalm-param array<string, array<string, array<string, string[]>>> $mergePlan
      */
-    public function __construct(array $mergePlan = [])
-    {
-        $this->mergePlan = $mergePlan;
+    public function __construct(
+        private array $mergePlan = [],
+    ) {
     }
 
     /**

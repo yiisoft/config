@@ -21,7 +21,6 @@ final class Config implements ConfigInterface
 {
     private Merger $merger;
     private FilesExtractor $filesExtractor;
-    private string $paramsGroup;
     private bool $isBuildingParams = false;
 
     /**
@@ -41,10 +40,9 @@ final class Config implements ConfigInterface
         ConfigPaths $paths,
         string $environment = null,
         array $modifiers = [],
-        string $paramsGroup = 'params'
+        private string $paramsGroup = 'params'
     ) {
         $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
-        $this->paramsGroup = $paramsGroup;
 
         /** @psalm-suppress UnresolvableInclude, MixedArgument */
         $mergePlan = new MergePlan(require $paths->absolute(Options::MERGE_PLAN_FILENAME));
@@ -196,8 +194,6 @@ final class Config implements ConfigInterface
     }
 
     /**
-     * @param string $message
-     *
      * @throws ErrorException
      */
     private function throwException(string $message): void

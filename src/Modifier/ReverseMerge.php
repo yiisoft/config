@@ -69,16 +69,11 @@ namespace Yiisoft\Config\Modifier;
 final class ReverseMerge
 {
     /**
-     * @var string[]
-     */
-    private array $groups;
-
-    /**
      * @param string[] $groups
      */
-    private function __construct(array $groups)
-    {
-        $this->groups = $groups;
+    private function __construct(
+        private array $groups,
+    ) {
     }
 
     public static function groups(string ...$groups): self
