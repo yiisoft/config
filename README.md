@@ -104,7 +104,7 @@ each package `composer.json`:
 ```
 
 In the above example the mapping keys are config group names and the values are configuration files and references to other config groups.
-The file paths are relative to the [source-directory](#source-directory), which by default is the path where composer.json is located.
+The file paths are relative to the [source-directory](#source-directory), which by default is the path where `composer.json` is located.
 
 
 ### Markers 
