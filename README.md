@@ -17,7 +17,7 @@
 [![type-coverage](https://shepherd.dev/github/yiisoft/config/coverage.svg)](https://shepherd.dev/github/yiisoft/config)
 
 This [Composer](https://getcomposer.org/) plugin provides assembling of configurations distributed with composer
-packages. It is implementing a plugin system which allows to provide the configuration needed to use a package direclty when installing it to make it run out-of-the-box.
+packages. It is implementing a plugin system which allows to provide the configuration needed to use a package directly when installing it to make it run out-of-the-box.
 The package becomes a plugin holding both the code and its default configuration.
 
 ## Requirements
