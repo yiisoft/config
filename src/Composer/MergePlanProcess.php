@@ -6,6 +6,7 @@ namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
 use Composer\Package\PackageInterface;
+use Composer\Util\Filesystem;
 use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 use Yiisoft\VarDumper\VarDumper;
@@ -144,16 +145,17 @@ final class MergePlanProcess
         $mergePlan = $this->mergePlan->toArray();
         ksort($mergePlan);
 
-        $filePath = $this->helper
-            ->getPaths()
-            ->absolute(Options::MERGE_PLAN_FILENAME);
+        $filePath = $this->helper->getPaths()->absolute(
+            $this->helper->getMergePlanFile()
+        );
+        (new Filesystem())->ensureDirectoryExists(dirname($filePath));
+
         $oldContent = is_file($filePath) ? file_get_contents($filePath) : '';
 
         $content = '<?php'
             . "\n\ndeclare(strict_types=1);"
             . "\n\n// Do not edit. Content will be replaced."
-            . "\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n"
-        ;
+            . "\nreturn " . VarDumper::create($mergePlan)->export(true) . ";\n";
 
         if ($this->normalizeLineEndings($oldContent) !== $this->normalizeLineEndings($content)) {
             file_put_contents($filePath, $content, LOCK_EX);

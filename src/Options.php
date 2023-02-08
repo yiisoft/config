@@ -13,13 +13,14 @@ use function trim;
  */
 final class Options
 {
-    public const MERGE_PLAN_FILENAME = '.merge-plan.php';
+    public const DEFAULT_MERGE_PLAN_FILE = '.merge-plan.php';
     public const DEFAULT_CONFIG_DIRECTORY = '';
     public const DEFAULT_VENDOR_DIRECTORY = 'vendor';
     public const DEFAULT_ENVIRONMENT = '/';
     public const ROOT_PACKAGE_NAME = '/';
     public const VENDOR_OVERRIDE_PACKAGE_NAME = '//';
 
+    private string $mergePlanFile = self::DEFAULT_MERGE_PLAN_FILE;
     private bool $buildMergePlan = true;
     private array $vendorOverrideLayerPackages = [];
     private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;
@@ -31,6 +32,10 @@ final class Options
         }
 
         $options = $extra['config-plugin-options'];
+
+        if (!empty($options['merge-plan-file'])) {
+            $this->mergePlanFile = (string) $options['merge-plan-file'];
+        }
 
         if (isset($options['build-merge-plan'])) {
             $this->buildMergePlan = (bool) $options['build-merge-plan'];
@@ -58,6 +63,11 @@ final class Options
     public static function isVariable(string $file): bool
     {
         return str_starts_with($file, '$');
+    }
+
+    public function mergePlanFile(): string
+    {
+        return $this->mergePlanFile;
     }
 
     public function buildMergePlan(): bool

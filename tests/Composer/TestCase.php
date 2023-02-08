@@ -28,7 +28,6 @@ use function file_get_contents;
 use function json_decode;
 use function putenv;
 use function str_replace;
-use function sys_get_temp_dir;
 use function trim;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
@@ -44,7 +43,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->filesystem = new Filesystem();
         $this->sourceDirectory = dirname(__DIR__) . '/TestAsset/packages';
-        $this->tempDirectory = sys_get_temp_dir() . '/yiisoft';
+        $this->tempDirectory = dirname(__DIR__) . '/runtime/composer';
         $this->tempConfigsDirectory = "$this->tempDirectory/config";
     }
 
@@ -143,7 +142,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     ],
                 ],
             ], $environments),
-            require $this->getTempPath(Options::MERGE_PLAN_FILENAME),
+            require $this->getTempPath(Options::DEFAULT_MERGE_PLAN_FILE),
         );
     }
 
@@ -182,18 +181,20 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         array $extraEnvironments = [],
         array $vendorOverridePackage = null,
         bool $buildMergePlan = true,
-        string $extraConfigFile = null
+        string $extraConfigFile = null,
+        ?string $mergePlanFile = null,
     ) {
         $rootPath = $this->tempDirectory;
         $sourcePath = $this->sourceDirectory;
         $targetPath = "$this->tempDirectory/vendor";
 
-        $extra = array_merge([
+        $extra = [
             'config-plugin-file' => $extraConfigFile,
             'config-plugin-options' => [
                 'source-directory' => 'config',
                 'vendor-override-layer' => $vendorOverridePackage ?? 'test/over',
                 'build-merge-plan' => $buildMergePlan,
+                'merge-plan-file' => $mergePlanFile,
             ],
             'config-plugin' => [
                 'empty' => [],
@@ -207,7 +208,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'web.php',
                 ],
             ],
-        ], ['config-plugin-environments' => $extraEnvironments]);
+            'config-plugin-environments' => $extraEnvironments,
+        ];
 
         $config = $this->createMock(Config::class);
         $config

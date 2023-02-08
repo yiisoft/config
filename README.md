@@ -286,6 +286,20 @@ For more information about the wildcard syntax, see the [yiisoft/strings](https:
 
 > Please note that in this sublayer keys with the same names are not allowed similar to other layers.
 
+### `merge-plan-file`
+
+This option allows you to override path to merge plan file. It is `.merge-plan.php` by default. To change it, set the value:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "merge-plan-file": "custom/path/my-merge-plan.php"
+    }
+}
+```
+
+This can be useful when developing. Don't forget to set same path in `Config` constructor when changing this option.
+
 ### `build-merge-plan`
 
 The `build-merge-plan` option allows you to disable creation/updating of the `config/.merge-plan.php`.
