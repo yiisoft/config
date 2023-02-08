@@ -292,7 +292,7 @@ final class ConfigTest extends TestCase
     public function testGetThrowExceptionForEnvironmentNotExist(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The "not-exist" configuration environment does not exist.');
+        $this->expectExceptionMessage('The "not-exist" configuration environment does not exist.');
         $this
             ->createConfig('not-exist')
             ->get('web');
@@ -301,7 +301,7 @@ final class ConfigTest extends TestCase
     public function testGetThrowExceptionForGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The "not-exist" configuration group does not exist.');
+        $this->expectExceptionMessage('The "not-exist" configuration group does not exist.');
         $this
             ->createConfig()
             ->get('not-exist');
@@ -310,7 +310,7 @@ final class ConfigTest extends TestCase
     public function testGetEnvironmentThrowExceptionForGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The "not-exist" configuration group does not exist.');
+        $this->expectExceptionMessage('The "not-exist" configuration group does not exist.');
         $this
             ->createConfig('alfa')
             ->get('not-exist');
@@ -319,7 +319,7 @@ final class ConfigTest extends TestCase
     public function testGetThrowExceptionForVariableGroupEqual(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
+        $this->expectExceptionMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
         $this
             ->createConfig()
             ->get('failVariableGroupEqual');
@@ -328,7 +328,7 @@ final class ConfigTest extends TestCase
     public function testGetEnvironmentThrowExceptionForVariableGroupEqual(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
+        $this->expectExceptionMessage('The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.');
         $this
             ->createConfig('alfa')
             ->get('failVariableGroupEqual');
@@ -337,7 +337,7 @@ final class ConfigTest extends TestCase
     public function testGetThrowExceptionForVariableGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
+        $this->expectExceptionMessage('The "failVariableNotExist" configuration group does not exist.');
         $this
             ->createConfig()
             ->get('failVariableNotExist');
@@ -346,7 +346,7 @@ final class ConfigTest extends TestCase
     public function testGetEnvironmentThrowExceptionForVariableGroupNotExist(): void
     {
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('The "failVariableNotExist" configuration group does not exist.');
+        $this->expectExceptionMessage('The "failVariableNotExist" configuration group does not exist.');
         $this
             ->createConfig('alfa')
             ->get('failVariableNotExist');
@@ -357,7 +357,7 @@ final class ConfigTest extends TestCase
         $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys', 'config'));
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage(
+        $this->expectExceptionMessage(
             'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/params/a.php' . "\n" .
             ' - config/params/b.php'
@@ -375,7 +375,7 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage(
+        $this->expectExceptionMessage(
             'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/params/a.php' . "\n" .
             ' - config/params/b.php'
@@ -391,7 +391,7 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage(
+        $this->expectExceptionMessage(
             'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/environment/params/a.php' . "\n" .
             ' - config/environment/params/b.php'
@@ -409,7 +409,7 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage(
+        $this->expectExceptionMessage(
             'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - config/environment/params/a.php' . "\n" .
             ' - config/environment/params/b.php'
@@ -422,7 +422,7 @@ final class ConfigTest extends TestCase
         $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys', 'config'));
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage(
+        $this->expectExceptionMessage(
             'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - vendor/package/a/params.php' . "\n" .
             ' - vendor/package/b/params.php'
@@ -440,7 +440,7 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage(
+        $this->expectExceptionMessage(
             'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
             ' - vendor/package/a/params.php' . "\n" .
             ' - vendor/package/b/params.php'
@@ -458,7 +458,7 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessageMatches(
+        $this->expectExceptionMessageMatches(
             '~^Duplicate key "name => first-name" in the following configs while building "params" group~',
         );
         $config->get('params');
@@ -492,7 +492,7 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessageMatches(
+        $this->expectExceptionMessageMatches(
             '~^The ".*/params2\.php" file does not found\.$~'
         );
         $config->get('params');
@@ -505,7 +505,7 @@ final class ConfigTest extends TestCase
         );
 
         $this->expectException(ErrorException::class);
-        $this->expectErrorMessage('test-error');
+        $this->expectExceptionMessage('test-error');
         $config->get('params');
     }
 
