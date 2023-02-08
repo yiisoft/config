@@ -298,7 +298,7 @@ This option allows you to override path to merge plan file. It is `.merge-plan.p
 }
 ```
 
-This can be useful when developing. Don't forget set same path in `Config` constructor when change this option.
+This can be useful when developing. Don't forget to set same path in `Config` constructor when changing this option.
 
 ### `build-merge-plan`
 
