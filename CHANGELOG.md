@@ -2,8 +2,6 @@
 
 ## 1.2.0 under development
 
-- Enh: Add composer require checker into CI
-- Enh #119: Improve performance of collecting data for `ReverseMerge` and `RecursiveMerge` (samdark)
 - Enh #119: Improve performance of collecting data for `ReverseMerge` and `RecursiveMerge` (@samdark)
 - Enh #122: Raise minimal PHP version to 8.0 (@vjik, @xepozz)
 
