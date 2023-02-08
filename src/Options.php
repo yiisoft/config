@@ -20,7 +20,7 @@ final class Options
     public const ROOT_PACKAGE_NAME = '/';
     public const VENDOR_OVERRIDE_PACKAGE_NAME = '//';
 
-    private string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE;
+    private string $mergePlanFile = self::DEFAULT_MERGE_PLAN_FILE;
     private bool $buildMergePlan = true;
     private array $vendorOverrideLayerPackages = [];
     private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;

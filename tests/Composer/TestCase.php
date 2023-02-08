@@ -208,7 +208,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'web.php',
                 ],
             ],
-            'config-plugin-environments' => $extraEnvironments
+            'config-plugin-environments' => $extraEnvironments,
         ];
 
         $config = $this->createMock(Config::class);
