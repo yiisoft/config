@@ -288,7 +288,7 @@ For more information about the wildcard syntax, see the [yiisoft/strings](https:
 
 ### `merge-plan-file`
 
-This option allows you to override filepath with merge plan. `.merge-plan.php` by default, to change it, set the value:
+This option allows you to override path to merge plan file. It is `.merge-plan.php` by default. To change it, set the value:
 
 ```json
 "extra": {
