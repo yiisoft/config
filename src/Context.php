@@ -14,19 +14,13 @@ final class Context
     public const APPLICATION = 3;
     public const ENVIRONMENT = 4;
 
-    private string $group;
-    private string $package;
-    private int $layer;
-    private string $file;
-    private bool $isVariable;
-
-    public function __construct(string $group, string $package, int $layer, string $file, bool $isVariable)
-    {
-        $this->group = $group;
-        $this->package = $package;
-        $this->layer = $layer;
-        $this->file = $file;
-        $this->isVariable = $isVariable;
+    public function __construct(
+        private string $group,
+        private string $package,
+        private int $layer,
+        private string $file,
+        private bool $isVariable,
+    ) {
     }
 
     public function group(): string
