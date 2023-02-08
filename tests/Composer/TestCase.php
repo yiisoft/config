@@ -57,7 +57,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        //$this->filesystem->removeDirectory($this->tempDirectory);
+        $this->filesystem->removeDirectory($this->tempDirectory);
     }
 
     protected function getSourcePath(string $path = ''): string
