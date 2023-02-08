@@ -221,6 +221,14 @@ final class ProcessHelper
     }
 
     /**
+     * @return string The merge plan filepath.
+     */
+    public function getMergePlanFile(): string
+    {
+        return $this->rootPackageOptions->mergePlanFile();
+    }
+
+    /**
      * Returns the absolute path to the package source directory {@see Options::sourceDirectory()}.
      *
      * @param PackageInterface $package The package instance.

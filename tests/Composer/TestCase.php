@@ -143,7 +143,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     ],
                 ],
             ], $environments),
-            require $this->getTempPath(Options::MERGE_PLAN_FILENAME),
+            require $this->getTempPath(Options::DEFAULT_MERGE_PLAN_FILE),
         );
     }
 

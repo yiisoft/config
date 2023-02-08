@@ -33,6 +33,7 @@ final class Config implements ConfigInterface
      * @param string|null $environment The environment name.
      * @param object[] $modifiers Modifiers that affect merge process.
      * @param string $paramsGroup Group name for $params.
+     * @param string $mergePlanFile The merge plan filepath.
      *
      * @throws ErrorException If the environment does not exist.
      */
@@ -40,12 +41,13 @@ final class Config implements ConfigInterface
         ConfigPaths $paths,
         string $environment = null,
         array $modifiers = [],
-        private string $paramsGroup = 'params'
+        private string $paramsGroup = 'params',
+        string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ) {
         $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
 
         /** @psalm-suppress UnresolvableInclude, MixedArgument */
-        $mergePlan = new MergePlan(require $paths->absolute(Options::MERGE_PLAN_FILENAME));
+        $mergePlan = new MergePlan(require $paths->absolute($mergePlanFile));
 
         if (!$mergePlan->hasEnvironment($environment)) {
             $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));

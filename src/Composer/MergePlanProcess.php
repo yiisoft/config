@@ -44,7 +44,7 @@ final class MergePlanProcess
         $this->addRootPackageConfigToMergePlan();
         $this->addEnvironmentsConfigsToMergePlan();
 
-        $this->updateMergePlan();
+        $this->updateMergePlan($this->helper->getMergePlanFile());
     }
 
     private function addPackagesConfigsToMergePlan(bool $isVendorOverrideLayer): void
@@ -139,14 +139,12 @@ final class MergePlanProcess
         }
     }
 
-    private function updateMergePlan(): void
+    private function updateMergePlan(string $mergePlanFile): void
     {
         $mergePlan = $this->mergePlan->toArray();
         ksort($mergePlan);
 
-        $filePath = $this->helper
-            ->getPaths()
-            ->absolute(Options::MERGE_PLAN_FILENAME);
+        $filePath = $this->helper->getPaths()->absolute($mergePlanFile);
         $oldContent = is_file($filePath) ? file_get_contents($filePath) : '';
 
         $content = '<?php'
