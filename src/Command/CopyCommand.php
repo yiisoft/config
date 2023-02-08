@@ -19,7 +19,7 @@ use function substr;
 use function trim;
 
 /**
- * CopyCommand copies the package configuration files from the vendor to the application.
+ * `CopyCommand` copies the package configuration files from the vendor to the application.
  */
 final class CopyCommand extends BaseCommand
 {

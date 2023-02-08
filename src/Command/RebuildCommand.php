@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Yiisoft\Config\Composer\MergePlanProcess;
 
 /**
- * RebuildCommand crawls all the configuration files and updates the merge plan file.
+ * `RebuildCommand` crawls all the configuration files and updates the merge plan file.
  */
 final class RebuildCommand extends BaseCommand
 {
