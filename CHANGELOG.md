@@ -4,7 +4,7 @@
 
 - Enh #119: Improve performance of collecting data for `ReverseMerge` and `RecursiveMerge` (@samdark)
 - Enh #122: Raise minimal PHP version to 8.0 (@vjik, @xepozz)
-- Enh #130: Add ability to change merge plan filepath (@vjik)
+- Enh #130: Add ability to change merge plan file path (@vjik)
 
 ## 1.1.1 January 05, 2022
 
