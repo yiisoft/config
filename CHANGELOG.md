@@ -1,5 +1,9 @@
 # Yii Config Change Log
 
+## 1.2.1 under development
+
+- no changes in this release.
+
 ## 1.2.0 February 08, 2023
 
 - Enh #119: Improve performance of collecting data for `ReverseMerge` and `RecursiveMerge` (@samdark)
