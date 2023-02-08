@@ -293,7 +293,7 @@ This option allows you to override filepath with merge plan. `.merge-plan.php` b
 ```json
 "extra": {
     "config-plugin-options": {
-        "merge-plan-file": 'custom/path/my-merge-plan.php'
+        "merge-plan-file": "custom/path/my-merge-plan.php"
     }
 }
 ```
