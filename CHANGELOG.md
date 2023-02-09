@@ -2,7 +2,7 @@
 
 ## 1.2.1 under development
 
-- no changes in this release.
+- Enh #131: Add ability to use `Config` without params (@vjik)
 
 ## 1.2.0 February 08, 2023
 
