@@ -32,7 +32,7 @@ final class Config implements ConfigInterface
      * @param ConfigPaths $paths The config paths instance.
      * @param string|null $environment The environment name.
      * @param object[] $modifiers Modifiers that affect merge process.
-     * @param string $paramsGroup Group name for $params.
+     * @param string|null $paramsGroup Group name for `$params`. If it is `null`, then `$params` will be empty array.
      * @param string $mergePlanFile The merge plan filepath.
      *
      * @throws ErrorException If the environment does not exist.
@@ -41,7 +41,7 @@ final class Config implements ConfigInterface
         ConfigPaths $paths,
         string $environment = null,
         array $modifiers = [],
-        private string $paramsGroup = 'params',
+        private ?string $paramsGroup = 'params',
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ) {
         $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
@@ -85,9 +85,11 @@ final class Config implements ConfigInterface
      */
     private function runBuildParams(): void
     {
-        $this->isBuildingParams = true;
-        $this->runBuildGroup($this->paramsGroup);
-        $this->isBuildingParams = false;
+        if ($this->paramsGroup !== null) {
+            $this->isBuildingParams = true;
+            $this->runBuildGroup($this->paramsGroup);
+            $this->isBuildingParams = false;
+        }
     }
 
     /**
@@ -188,7 +190,7 @@ final class Config implements ConfigInterface
 
         if (!$this->isBuildingParams) {
             $scope['config'] = $this;
-            $scope['params'] = $this->build[$this->paramsGroup];
+            $scope['params'] = $this->paramsGroup === null ? [] : $this->build[$this->paramsGroup];
         }
 
         /** @psalm-suppress TooManyArguments */

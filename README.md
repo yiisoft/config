@@ -178,6 +178,8 @@ $config = new Config(
 );
 ```
 
+You can pass `null` as `$params` group name. In this case `$params` will empty array. 
+
 ### Using sub-configs
 
 In order to access a sub-config, use the following in your config:

@@ -505,6 +505,26 @@ final class ConfigTest extends TestCase
         );
     }
 
+    public function testConfigWithoutParams(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/without-params', 'config'),
+            Options::DEFAULT_ENVIRONMENT,
+            paramsGroup: null
+        );
+
+        $this->assertSame(
+            [
+                'a-web-key' => 'a-web-value',
+                'a-web-environment-override-key' => 'a-web-override-value',
+                'b-web-key' => 'b-web-value',
+                'b-web-environment-override-key' => 'b-web-override-value',
+                'root-web-key' => 42,
+            ],
+            $config->get('web')
+        );
+    }
+
     public function testNotFoundFile(): void
     {
         $config = new Config(
