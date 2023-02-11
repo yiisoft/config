@@ -1,6 +1,6 @@
 # Yii Config Change Log
 
-## 1.2.1 under development
+## 1.3.0 February 11, 2023
 
 - Enh #131: Add ability to use `Config` without params (@vjik)
 
