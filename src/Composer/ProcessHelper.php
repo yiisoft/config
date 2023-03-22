@@ -167,6 +167,7 @@ final class ProcessHelper
      * @return array The package configuration.
      *
      * @psalm-return array<string, string|list<string>>
+     *
      * @psalm-suppress MixedReturnTypeCoercion
      */
     public function getPackageConfig(PackageInterface $package): array
@@ -180,6 +181,7 @@ final class ProcessHelper
      * @return array The root package configuration.
      *
      * @psalm-return array<string, string|list<string>>
+     *
      * @psalm-suppress MixedReturnTypeCoercion
      */
     public function getRootPackageConfig(): array
@@ -193,6 +195,7 @@ final class ProcessHelper
      * @return array The environment configuration.
      *
      * @psalm-return array<string, array<string, string|string[]>>
+     *
      * @psalm-suppress MixedReturnTypeCoercion
      */
     public function getEnvironmentConfig(): array
