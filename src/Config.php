@@ -179,7 +179,6 @@ final class Config implements ConfigInterface
 
             /**
              * @psalm-suppress UnresolvableInclude
-             *
              * @psalm-var array
              */
             $result = require func_get_arg(0);
