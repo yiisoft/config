@@ -1039,6 +1039,29 @@ final class ConfigTest extends TestCase
         ], $config->get('web'));
     }
 
+    public function testMergeIndexedArray(): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/merge-indexed-array', 'config'),
+            Options::DEFAULT_ENVIRONMENT,
+            [
+                RecursiveMerge::groups('params'),
+            ]
+        );
+
+        $this->assertSame(
+            [
+                'app' => [
+                    'vendor-package-a',
+                    'vendor-package-b',
+                    'app-1',
+                    'app-2',
+                ],
+            ],
+            $config->get('params')
+        );
+    }
+
     private function createConfig(string $environment = Options::DEFAULT_ENVIRONMENT): Config
     {
         return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy', 'config'), $environment);
