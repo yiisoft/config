@@ -652,7 +652,7 @@ Maintained by [Yii Software](https://www.yiiframework.com/).
 ## Credits
 
 The plugin is heavily inspired by [Composer config plugin](https://github.com/yiisoft/composer-config-plugin)
-originally created by HiQDev (http://hiqdev.com/) in 2016 and then adopted by Yii.
+originally created by HiQDev (https://hiqdev.com/) in 2016 and then adopted by Yii.
 
 ## Support the project
 
