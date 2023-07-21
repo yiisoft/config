@@ -324,7 +324,7 @@ For example, this is implemented in [yiisoft/yii-runner](https://github.com/yiis
 The plugin supports creating additional environments added to the base configuration. This allows you to create
 multiple configurations for the application such as `production` and `development`.
 
-> Note that environments supports on application level only and don't read from configurations of packages.
+> Note that environments are supported on application level only and are not read from configurations of packages.
 
 The environments are specified in the `composer.json` file of your application:
 
