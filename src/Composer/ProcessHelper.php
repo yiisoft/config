@@ -251,7 +251,10 @@ final class ProcessHelper
      */
     private function getPackageRootDirectoryPath(PackageInterface $package): string
     {
-        /** @var string Because we use library and composer-plugins only, which always has installation path. */
+        /**
+         * @var string Because we use library and composer-plugins only, which always has installation path).
+         * @see PackagesListBuilder::getAllPackages()
+         */
         return $this->composer
             ->getInstallationManager()
             ->getInstallPath($package);
