@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\Config\RectorConfig;
-use Rector\Php70\Rector\FuncCall\NonVariableToVariableOnFunctionCallRector;
+use Rector\Php56\Rector\FunctionLike\AddDefaultValueForUndefinedVariableRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
+use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
+use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Set\ValueObject\LevelSetList;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -24,6 +26,8 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->skip([
         RemoveExtraParametersRector::class,
-        NonVariableToVariableOnFunctionCallRector::class,
+        ClosureToArrowFunctionRector::class,
+        AddDefaultValueForUndefinedVariableRector::class,
+        JsonThrowOnErrorRector::class,
     ]);
 };
