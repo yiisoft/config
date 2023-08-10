@@ -2,7 +2,7 @@
 
 ## 1.3.1 under development
 
-- no changes in this release.
+- Bug #145: Use composer library and plugins only, instead of any packages before (@vjik)
 
 ## 1.3.0 February 11, 2023
 
