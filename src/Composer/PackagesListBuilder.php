@@ -118,6 +118,12 @@ final class PackagesListBuilder
             if (!$package instanceof CompletePackage) {
                 continue;
             }
+
+            $type = $package->getType();
+            if ($type !== 'library' && $type !== 'composer-plugin') {
+                continue;
+            }
+
             $result[$package->getPrettyName()] = $package;
         }
 
