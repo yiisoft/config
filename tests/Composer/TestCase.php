@@ -229,7 +229,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'test/c' => new Link("$sourcePath/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
                 'test/custom-source' => new Link("$sourcePath/custom-source", "$targetPath/test/custom-source", new Constraint('>=', '1.0.0')),
                 'test/over' => new Link("$sourcePath/over", "$targetPath/test/over", new Constraint('>=', '1.0.0')),
-                'test/metapack' => new Link("$sourcePath/metapack", "$targetPath/test/metapack", new Constraint('>=', '1.0.0'))
+                'test/metapack' => new Link("$sourcePath/metapack", "$targetPath/test/metapack", new Constraint('>=', '1.0.0')),
             ]);
         $rootPackage
             ->method('getDevRequires')
