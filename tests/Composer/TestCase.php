@@ -229,6 +229,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'test/c' => new Link("$sourcePath/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
                 'test/custom-source' => new Link("$sourcePath/custom-source", "$targetPath/test/custom-source", new Constraint('>=', '1.0.0')),
                 'test/over' => new Link("$sourcePath/over", "$targetPath/test/over", new Constraint('>=', '1.0.0')),
+                'test/metapack' => new Link("$sourcePath/metapack", "$targetPath/test/metapack", new Constraint('>=', '1.0.0'))
             ]);
         $rootPackage
             ->method('getDevRequires')
@@ -239,6 +240,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ->method('getExtra')
             ->willReturn($extra);
 
+        $metapackage = new CompletePackage('test/metapack', '1.0.0', '1.0.0');
+        $metapackage->setType('metapackage');
         $packages = [
             new CompletePackage('test/a', '1.0.0', '1.0.0'),
             new CompletePackage('test/ba', '1.0.0', '1.0.0'),
@@ -247,11 +250,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             new CompletePackage('test/d-dev-c', '1.0.0', '1.0.0'),
             new CompletePackage('test/over', '1.0.0', '1.0.0'),
             new Package('test/e', '1.0.0', '1.0.0'),
+            $metapackage,
         ];
 
         foreach ($packages as $package) {
             $path = str_replace('test/', '', "$sourcePath/{$package->getName()}") . '/composer.json';
-            $package->setExtra(json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR)['extra']);
+            $package->setExtra(json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR)['extra'] ?? []);
         }
 
         $repository = $this
