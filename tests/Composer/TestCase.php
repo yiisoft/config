@@ -137,6 +137,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                             'custom-dir/events-web.php',
                         ],
                     ],
+                    'widgets' => [],
                     'empty' => [
                         Options::ROOT_PACKAGE_NAME => [],
                     ],
@@ -230,6 +231,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'test/custom-source' => new Link("$sourcePath/custom-source", "$targetPath/test/custom-source", new Constraint('>=', '1.0.0')),
                 'test/over' => new Link("$sourcePath/over", "$targetPath/test/over", new Constraint('>=', '1.0.0')),
                 'test/metapack' => new Link("$sourcePath/metapack", "$targetPath/test/metapack", new Constraint('>=', '1.0.0')),
+                'test/empty-group' => new Link(
+                    "$sourcePath/empty-group",
+                    "$targetPath/test/empty-group",
+                    new Constraint('>=', '1.0.0')
+                ),
             ]);
         $rootPackage
             ->method('getDevRequires')
@@ -251,6 +257,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             new CompletePackage('test/over', '1.0.0', '1.0.0'),
             new Package('test/e', '1.0.0', '1.0.0'),
             $metapackage,
+            new CompletePackage('test/empty-group', '1.0.0', '1.0.0'),
         ];
 
         foreach ($packages as $package) {

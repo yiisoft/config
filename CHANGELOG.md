@@ -3,6 +3,7 @@
 ## 1.3.1 under development
 
 - Bug #145: Use composer library and plugins only, instead of any packages before (@vjik)
+- Bug #150: Empty configuration groups from packages were not added to merge plan (@vjik) 
 
 ## 1.3.0 February 11, 2023
 

@@ -62,6 +62,19 @@ final class MergePlan
     }
 
     /**
+     * Add empty group if it not exists.
+     *
+     * @param string $group The group name.
+     * @param string $environment The environment name.
+     */
+    public function addGroup(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): void
+    {
+        if (!isset($this->mergePlan[$environment][$group])) {
+            $this->mergePlan[$environment][$group] = [];
+        }
+    }
+
+    /**
      * Returns the merge plan group.
      *
      * @param string $group The group name.
