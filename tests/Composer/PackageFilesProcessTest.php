@@ -254,4 +254,89 @@ final class PackageFilesProcessTest extends TestCase
                 ->absolutePath(),
         );
     }
+
+    public function testProcessCustomPackageTypes(): void
+    {
+        $process = new PackageFilesProcess(
+            $this->createComposerMock(packateTypes: ['custom-type', 'library']),
+            ['test/a', 'test/custom-type']
+        );
+
+        $this->assertCount(3, $process->files());
+
+        $this->assertSame('params.php', $process
+            ->files()[0]
+            ->filename());
+        $this->assertSame('params.php', $process
+            ->files()[0]
+            ->relativePath());
+        $this->assertSameIgnoringSlash(
+            $this->getSourcePath('a/params.php'),
+            $process
+                ->files()[0]
+                ->absolutePath(),
+        );
+
+        $this->assertSame('web.php', $process
+            ->files()[1]
+            ->filename());
+        $this->assertSame('web.php', $process
+            ->files()[1]
+            ->relativePath());
+        $this->assertSameIgnoringSlash(
+            $this->getSourcePath('a/web.php'),
+            $process
+                ->files()[1]
+                ->absolutePath(),
+        );
+
+        $this->assertSame('params.php', $process
+            ->files()[2]
+            ->filename());
+        $this->assertSame('params.php', $process
+            ->files()[2]
+            ->relativePath());
+        $this->assertSameIgnoringSlash(
+            $this->getSourcePath('custom-type/params.php'),
+            $process
+                ->files()[2]
+                ->absolutePath(),
+        );
+    }
+
+    public function testProcessOnlyLibraries(): void
+    {
+        $process = new PackageFilesProcess(
+            $this->createComposerMock(packateTypes: ['library']),
+            ['test/a', 'test/custom-type']
+        );
+
+        $this->assertCount(2, $process->files());
+
+        $this->assertSame('params.php', $process
+            ->files()[0]
+            ->filename());
+        $this->assertSame('params.php', $process
+            ->files()[0]
+            ->relativePath());
+        $this->assertSameIgnoringSlash(
+            $this->getSourcePath('a/params.php'),
+            $process
+                ->files()[0]
+                ->absolutePath(),
+        );
+
+        $this->assertSame('web.php', $process
+            ->files()[1]
+            ->filename());
+        $this->assertSame('web.php', $process
+            ->files()[1]
+            ->relativePath());
+        $this->assertSameIgnoringSlash(
+            $this->getSourcePath('a/web.php'),
+            $process
+                ->files()[1]
+                ->absolutePath(),
+        );
+    }
 }

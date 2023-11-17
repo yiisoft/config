@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Composer;
 
 use Yiisoft\Config\Composer\PackagesListBuilder;
+use Yiisoft\Config\Options;
 
 final class PackagesListBuilderTest extends TestCase
 {
     public function testBuild(): void
     {
-        $packages = (new PackagesListBuilder($this->createComposerMock()))->build();
+        $packages = (new PackagesListBuilder($this->createComposerMock(), Options::DEFAULT_PACKAGE_TYPES))->build();
 
         $this->assertCount(7, $packages);
         $this->assertSame('test/a', $packages['test/a']->getPrettyName());

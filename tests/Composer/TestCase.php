@@ -184,6 +184,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         bool $buildMergePlan = true,
         string $extraConfigFile = null,
         ?string $mergePlanFile = null,
+        ?array $packateTypes = null,
     ) {
         $rootPath = $this->tempDirectory;
         $sourcePath = $this->sourceDirectory;
@@ -196,6 +197,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'vendor-override-layer' => $vendorOverridePackage ?? 'test/over',
                 'build-merge-plan' => $buildMergePlan,
                 'merge-plan-file' => $mergePlanFile,
+                'package-types' => $packateTypes,
             ],
             'config-plugin' => [
                 'empty' => [],
@@ -229,6 +231,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'test/ba' => new Link("$sourcePath/ba", "$targetPath/test/ba", new Constraint('>=', '1.0.0')),
                 'test/c' => new Link("$sourcePath/c", "$targetPath/test/c", new Constraint('>=', '1.0.0')),
                 'test/custom-source' => new Link("$sourcePath/custom-source", "$targetPath/test/custom-source", new Constraint('>=', '1.0.0')),
+                'test/custom-type' => new Link(
+                    "$sourcePath/custom-type",
+                    "$targetPath/test/custom-type",
+                    new Constraint('>=', '1.0.0')
+                ),
                 'test/over' => new Link("$sourcePath/over", "$targetPath/test/over", new Constraint('>=', '1.0.0')),
                 'test/metapack' => new Link("$sourcePath/metapack", "$targetPath/test/metapack", new Constraint('>=', '1.0.0')),
                 'test/empty-group' => new Link(
@@ -248,11 +255,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         $metapackage = new CompletePackage('test/metapack', '1.0.0', '1.0.0');
         $metapackage->setType('metapackage');
+        $customTypePacakge = new CompletePackage('test/custom-type', '1.0.0', '1.0.0');
+        $customTypePacakge->setType('custom-type');
         $packages = [
             new CompletePackage('test/a', '1.0.0', '1.0.0'),
             new CompletePackage('test/ba', '1.0.0', '1.0.0'),
             new CompletePackage('test/c', '1.0.0', '1.0.0'),
             new CompletePackage('test/custom-source', '1.0.0', '1.0.0'),
+            $customTypePacakge,
             new CompletePackage('test/d-dev-c', '1.0.0', '1.0.0'),
             new CompletePackage('test/over', '1.0.0', '1.0.0'),
             new Package('test/e', '1.0.0', '1.0.0'),

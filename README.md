@@ -319,6 +319,19 @@ This can be useful when developing. If the config package is a dependency of you
 and you do not need to create a merge plan file when developing your package.
 For example, this is implemented in [yiisoft/yii-runner](https://github.com/yiisoft/yii-runner).
 
+### `package-types`
+
+The `package-types` option define package types for process by composer plugin. By default, it is "library" and
+"composer-plugin". You can override default value by own types:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "package-types": ["library", "my-extension"]
+    }
+}
+```
+
 ## Environments
 
 The plugin supports creating additional environments added to the base configuration. This allows you to create
