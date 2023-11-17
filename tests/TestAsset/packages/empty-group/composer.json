@@ -1,0 +1,9 @@
+{
+    "name": "test/empty-group",
+    "version": "1.0.0",
+    "extra": {
+        "config-plugin": {
+            "widgets": []
+        }
+    }
+}

@@ -57,9 +57,9 @@ final class MergePlanProcess
             $packageName = $isVendorOverrideLayer ? Options::VENDOR_OVERRIDE_PACKAGE_NAME : $name;
 
             foreach ($this->helper->getPackageConfig($package) as $group => $files) {
-                $files = (array) $files;
+                $this->mergePlan->addGroup($group);
 
-                foreach ($files as $file) {
+                foreach ((array) $files as $file) {
                     $isOptional = false;
 
                     if (Options::isOptional($file)) {
