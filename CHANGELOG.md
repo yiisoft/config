@@ -2,7 +2,8 @@
 
 ## 1.3.2 under development
 
-- no changes in this release.
+- Enh #152: Add plugin option "package-types" that define package types for process, by default "library" and
+  "composer-plugin" (@vjik) 
 
 ## 1.3.1 November 17, 2023
 

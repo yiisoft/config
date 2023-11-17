@@ -19,11 +19,13 @@ final class Options
     public const DEFAULT_ENVIRONMENT = '/';
     public const ROOT_PACKAGE_NAME = '/';
     public const VENDOR_OVERRIDE_PACKAGE_NAME = '//';
+    public const DEFAULT_PACKAGE_TYPES = ['library', 'composer-plugin'];
 
     private string $mergePlanFile = self::DEFAULT_MERGE_PLAN_FILE;
     private bool $buildMergePlan = true;
     private array $vendorOverrideLayerPackages = [];
     private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;
+    private array $packageTypes = self::DEFAULT_PACKAGE_TYPES;
 
     public function __construct(array $extra)
     {
@@ -47,6 +49,10 @@ final class Options
 
         if (isset($options['source-directory'])) {
             $this->sourceDirectory = $this->normalizePath((string) $options['source-directory']);
+        }
+
+        if (isset($options['package-types'])) {
+            $this->packageTypes = (array) $options['package-types'];
         }
     }
 
@@ -83,6 +89,11 @@ final class Options
     public function sourceDirectory(): string
     {
         return $this->sourceDirectory;
+    }
+
+    public function packageTypes(): array
+    {
+        return $this->packageTypes;
     }
 
     private function normalizePath(string $value): string

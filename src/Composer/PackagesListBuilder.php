@@ -17,6 +17,7 @@ final class PackagesListBuilder
 {
     public function __construct(
         private Composer $composer,
+        private array $packageTypes,
     ) {
     }
 
@@ -119,8 +120,7 @@ final class PackagesListBuilder
                 continue;
             }
 
-            $type = $package->getType();
-            if ($type !== 'library' && $type !== 'composer-plugin') {
+            if (!in_array($package->getType(), $this->packageTypes)) {
                 continue;
             }
 

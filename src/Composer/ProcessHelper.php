@@ -56,7 +56,10 @@ final class ProcessHelper
         $this->composer = $composer;
         $this->rootPackageOptions = new Options($this->rootPackageExtra);
         $this->paths = new ConfigPaths($rootPath, $this->rootPackageOptions->sourceDirectory());
-        $this->packages = (new PackagesListBuilder($this->composer))->build();
+        $this->packages = (new PackagesListBuilder(
+            $this->composer,
+            $this->rootPackageOptions->packageTypes()
+        ))->build();
     }
 
     /**
