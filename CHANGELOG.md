@@ -1,9 +1,9 @@
 # Yii Config Change Log
 
-## 1.3.2 under development
+## 1.4.0 November 17, 2023
 
 - Enh #152: Add plugin option "package-types" that define package types for process, by default "library" and
-  "composer-plugin" (@vjik) 
+  "composer-plugin" (@vjik)
 
 ## 1.3.1 November 17, 2023
 
