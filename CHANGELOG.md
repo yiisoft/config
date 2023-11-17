@@ -1,5 +1,9 @@
 # Yii Config Change Log
 
+## 1.3.2 under development
+
+- no changes in this release.
+
 ## 1.3.1 November 17, 2023
 
 - Bug #145: Use composer library and plugins only, instead of any packages before (@vjik)
