@@ -322,7 +322,7 @@ For example, this is implemented in [yiisoft/yii-runner](https://github.com/yiis
 ### `package-types`
 
 The `package-types` option define package types for process by composer plugin. By default, it is "library" and
-"composer-plugin". You can add custom types:
+"composer-plugin". You can override default value by own types:
 
 ```json
 "extra": {
