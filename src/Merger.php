@@ -55,11 +55,11 @@ final class Merger
      */
     public function merge(Context $context, array $arrayA, array $arrayB): array
     {
-        $isRecursiveMerge = $this->dataModifiers->isRecursiveMergeGroup($context->group());
+        $recursionDepth = $this->dataModifiers->getRecursionDepth($context->group());
         $isReverseMerge = $this->dataModifiers->isReverseMergeGroup($context->group());
 
         if ($isReverseMerge) {
-            $arrayB = $this->prepareArrayForReverse($context, [], $arrayB, $isRecursiveMerge);
+            $arrayB = $this->prepareArrayForReverse($context, [], $arrayB, $recursionDepth !== false);
         }
 
         return $this->performMerge(
@@ -67,7 +67,7 @@ final class Merger
             [],
             $isReverseMerge ? $arrayB : $arrayA,
             $isReverseMerge ? $arrayA : $arrayB,
-            $isRecursiveMerge,
+            $recursionDepth,
             $isReverseMerge,
         );
     }
@@ -87,19 +87,16 @@ final class Merger
         array $recursiveKeyPath,
         array $arrayA,
         array $arrayB,
-        bool $isRecursiveMerge,
-        bool $isReverseMerge
+        int|null|false $recursionDepth,
+        bool $isReverseMerge,
+        int $depth = 0,
     ): array {
         $result = $arrayA;
-
-        /** @psalm-var mixed $v */
         foreach ($arrayB as $k => $v) {
             if (is_int($k)) {
                 if (array_key_exists($k, $result) && $result[$k] !== $v) {
-                    /** @var mixed */
                     $result[] = $v;
                 } else {
-                    /** @var mixed */
                     $result[$k] = $v;
                 }
                 continue;
@@ -108,8 +105,9 @@ final class Merger
             $fullKeyPath = array_merge($recursiveKeyPath, [$k]);
 
             if (
-                $isRecursiveMerge
+                $recursionDepth !== false
                 && is_array($v)
+                && ($recursionDepth === null || $depth < $recursionDepth)
                 && (
                     !array_key_exists($k, $result)
                     || is_array($result[$k])
@@ -122,7 +120,15 @@ final class Merger
                     $fullKeyPath,
                     $result,
                     $k,
-                    $this->performMerge($context, $fullKeyPath, $array, $v, $isRecursiveMerge, $isReverseMerge)
+                    $this->performMerge(
+                        $context,
+                        $fullKeyPath,
+                        $array,
+                        $v,
+                        $recursionDepth,
+                        $isReverseMerge,
+                        $depth + 1,
+                    )
                 );
                 continue;
             }
@@ -171,10 +177,8 @@ final class Merger
     ): array {
         $result = [];
 
-        /** @var mixed $value */
         foreach ($array as $key => $value) {
             if (is_int($key)) {
-                /** @var mixed */
                 $result[$key] = $value;
                 continue;
             }
@@ -194,7 +198,6 @@ final class Merger
             }
 
             if ($context->isVariable()) {
-                /** @var mixed */
                 $result[$key] = $value;
                 continue;
             }
@@ -211,7 +214,6 @@ final class Merger
                 $this->throwDuplicateKeyErrorException($context->group(), $recursiveKeyPath, [$file, $context->file()]);
             }
 
-            /** @var mixed */
             $result[$key] = $value;
 
             /** @psalm-suppress MixedPropertyTypeCoercion */

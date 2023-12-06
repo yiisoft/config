@@ -571,6 +571,266 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
+    public static function dataRecursionDepth(): array
+    {
+        return [
+            'unlimited' => [
+                [
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-3' => 3,
+                            'nestedA-4' => 4,
+                            'nestedZ' => [3, 4, 1, 2],
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'only-app' => 42,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'B' => 2,
+                        'A' => 1,
+                    ],
+                    'top3' => ['Z' => 3],
+                    'top0' => ['X' => 7],
+                ],
+                null,
+            ],
+            'level0' => [
+                [
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'nestedZ' => [1, 2],
+                            'only-app' => 42,
+                        ],
+                    ],
+                    'top2' => [
+                        'A' => 1,
+                    ],
+                    'top3' => ['Z' => 3],
+                    'top0' => ['X' => 7],
+                ],
+                0,
+            ],
+            'level1' => [
+                [
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'nestedZ' => [1, 2],
+                            'only-app' => 42,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'B' => 2,
+                        'A' => 1,
+                    ],
+                    'top3' => ['Z' => 3],
+                    'top0' => ['X' => 7],
+                ],
+                1,
+            ],
+            'level2' => [
+                [
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-3' => 3,
+                            'nestedA-4' => 4,
+                            'nestedZ' => [1, 2],
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'only-app' => 42,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'B' => 2,
+                        'A' => 1,
+                    ],
+                    'top3' => ['Z' => 3],
+                    'top0' => ['X' => 7],
+                ],
+                2,
+            ],
+            'level3' => [
+                [
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-3' => 3,
+                            'nestedA-4' => 4,
+                            'nestedZ' => [3, 4, 1, 2],
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'only-app' => 42,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'B' => 2,
+                        'A' => 1,
+                    ],
+                    'top3' => ['Z' => 3],
+                    'top0' => ['X' => 7],
+                ],
+                3,
+            ],
+            'unlimited-reverse' => [
+                [
+                    'top0' => ['X' => 7],
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'nestedZ' => [1, 2, 3, 4],
+                            'only-app' => 42,
+                            'nestedA-3' => 3,
+                            'nestedA-4' => 4,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'A' => 1,
+                        'B' => 2,
+                    ],
+                    'top3' => ['Z' => 3],
+                ],
+                null,
+                true,
+            ],
+            'level0-reverse' => [
+                [
+                    'top0' => ['X' => 7],
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'nestedZ' => [1, 2],
+                            'only-app' => 42,
+                        ],
+                    ],
+                    'top2' => [
+                        'A' => 1,
+                    ],
+                    'top3' => ['Z' => 3],
+                ],
+                0,
+                true,
+            ],
+            'level1-reverse' => [
+                [
+                    'top0' => ['X' => 7],
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'nestedZ' => [1, 2],
+                            'only-app' => 42,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'A' => 1,
+                        'B' => 2,
+                    ],
+                    'top3' => ['Z' => 3],
+                ],
+                1,
+                true,
+            ],
+            'level2-reverse' => [
+                [
+                    'top0' => ['X' => 7],
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'nestedZ' => [1, 2],
+                            'only-app' => 42,
+                            'nestedA-3' => 3,
+                            'nestedA-4' => 4,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'A' => 1,
+                        'B' => 2,
+                    ],
+                    'top3' => ['Z' => 3],
+                ],
+                2,
+                true,
+            ],
+            'level3-reverse' => [
+                [
+                    'top0' => ['X' => 7],
+                    'top1' => [
+                        'nestedA' => [
+                            'nestedA-1' => 1,
+                            'nestedA-2' => 2,
+                            'nestedZ' => [1, 2, 3, 4],
+                            'only-app' => 42,
+                            'nestedA-3' => 3,
+                            'nestedA-4' => 4,
+                        ],
+                        'nestedB' => [
+                            'nestedB-3' => 3,
+                            'nestedB-4' => 4,
+                        ],
+                    ],
+                    'top2' => [
+                        'A' => 1,
+                        'B' => 2,
+                    ],
+                    'top3' => ['Z' => 3],
+                ],
+                3,
+                true,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataRecursionDepth
+     */
+    public function testRecursionDepth(array $expected, ?int $depth, bool $reverse = false): void
+    {
+        $config = new Config(
+            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursion-depth', 'config'),
+            Options::DEFAULT_ENVIRONMENT,
+            [
+                RecursiveMerge::groupsWithDepth(['params'], $depth),
+                ReverseMerge::groups(...($reverse ? ['params'] : [])),
+            ]
+        );
+
+        $this->assertSame($expected, $config->get('params'));
+    }
+
     public function testConfigWithReverseMerge(): void
     {
         $config = new Config(

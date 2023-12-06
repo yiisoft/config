@@ -80,9 +80,11 @@ final class RecursiveMerge
 {
     /**
      * @param string[] $groups
+     * @psalm-param positive-int|null $depth
      */
     private function __construct(
         private array $groups,
+        private ?int $depth = null,
     ) {
     }
 
@@ -92,10 +94,27 @@ final class RecursiveMerge
     }
 
     /**
+     * @param string[] $groups
+     * @psalm-param positive-int|null $depth
+     */
+    public static function groupsWithDepth(array $groups, ?int $depth): self
+    {
+        return new self($groups, $depth);
+    }
+
+    /**
      * @return string[]
      */
     public function getGroups(): array
     {
         return $this->groups;
+    }
+
+    /**
+     * @psalm-return positive-int|null
+     */
+    public function getDepth(): ?int
+    {
+        return $this->depth;
     }
 }
