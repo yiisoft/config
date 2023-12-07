@@ -104,7 +104,7 @@ final class DataModifiers
     }
 
     /**
-     * @return int|null|false
+     * @return false|int|null
      * - `int` - depth limited by specified number.
      * - `null` - depth is not limited (infinite recursion).
      * - `false` - recursion is disabled.
