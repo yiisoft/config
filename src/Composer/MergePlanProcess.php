@@ -7,7 +7,6 @@ namespace Yiisoft\Config\Composer;
 use Composer\Composer;
 use Composer\Package\PackageInterface;
 use Composer\Util\Filesystem;
-use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 use Yiisoft\VarDumper\VarDumper;
 
@@ -24,7 +23,7 @@ use function substr;
  */
 final class MergePlanProcess
 {
-    private MergePlan $mergePlan;
+    private MergePlanCollector $mergePlan;
     private ProcessHelper $helper;
 
     /**
@@ -32,7 +31,7 @@ final class MergePlanProcess
      */
     public function __construct(Composer $composer)
     {
-        $this->mergePlan = new MergePlan();
+        $this->mergePlan = new MergePlanCollector();
         $this->helper = new ProcessHelper($composer);
 
         if (!$this->helper->shouldBuildMergePlan()) {
@@ -142,7 +141,7 @@ final class MergePlanProcess
 
     private function updateMergePlan(): void
     {
-        $mergePlan = $this->mergePlan->toArray();
+        $mergePlan = $this->mergePlan->generate();
         ksort($mergePlan);
 
         $filePath = $this->helper->getPaths()->absolute(

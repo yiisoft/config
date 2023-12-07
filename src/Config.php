@@ -46,8 +46,7 @@ final class Config implements ConfigInterface
     ) {
         $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
 
-        /** @psalm-suppress UnresolvableInclude, MixedArgument */
-        $mergePlan = new MergePlan(require $paths->absolute($mergePlanFile));
+        $mergePlan = new MergePlan($paths->absolute($mergePlanFile));
 
         if (!$mergePlan->hasEnvironment($environment)) {
             $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));
