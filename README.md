@@ -465,7 +465,7 @@ $config = new Config(
 $params = $config->get('params'); // merged recursively
 ```
 
-If you want to recursively merge arrays to a certain depth, to use the `RecursiveMerge::groupsWithDepth()` method:
+If you want to recursively merge arrays to a certain depth, use the `RecursiveMerge::groupsWithDepth()` method:
 
 ```php
 RecursiveMerge::groups(['widgets-themes', 'my-custom-group'], 1)
