@@ -103,6 +103,12 @@ final class DataModifiers
         $this->mergeGroupsRecursionDepth = array_merge(...$recursiveMergeGroups);
     }
 
+    /**
+     * @return int|null|false
+     * - `int` - depth limited by specified number.
+     * - `null` - depth is not limited (infinite recursion).
+     * - `false` - recursion is disabled.
+     */
     public function getRecursionDepth(string $group): int|null|false
     {
         if (!array_key_exists($group, $this->mergeGroupsRecursionDepth)) {
