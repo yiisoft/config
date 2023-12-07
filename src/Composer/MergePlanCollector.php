@@ -121,13 +121,28 @@ final class MergePlanCollector
     {
         if ($group !== null) {
             $groupPackages = $this->expandVariablesInPackages($groups[$group], $groups);
+            $variable = '$' . $group;
             foreach ($groupPackages as $groupPackage => $groupItems) {
-                $variable = '$' . $group;
                 $packageItems = $packages[$groupPackage] ?? [];
                 $packages[$groupPackage] = in_array($variable, $packageItems, true)
                     ? $this->replaceVariableToFiles($packageItems, $variable, $groupItems)
                     : array_merge($packageItems, $groupItems);
             }
+            foreach ($packages as $package => $items) {
+                $packages[$package] = array_filter(
+                    $items,
+                    static fn($item) => $item !== $variable,
+                );
+            }
+            uksort(
+                $packages,
+                static function ($a, $b) {
+                    if ($a === $b) {
+                        return 0;
+                    }
+                    return $a === Options::ROOT_PACKAGE_NAME ? 1 : -1;
+                }
+            );
         }
 
         foreach ($packages as $items) {
