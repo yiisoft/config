@@ -465,6 +465,12 @@ $config = new Config(
 $params = $config->get('params'); // merged recursively
 ```
 
+If you want to recursively merge arrays to a certain depth, use the `RecursiveMerge::groupsWithDepth()` method:
+
+```php
+RecursiveMerge::groups(['widgets-themes', 'my-custom-group'], 1)
+```
+
 ### Reverse merge of arrays
 
 Result of reverse merge is being ordered descending by data source. It is useful for merging module config with

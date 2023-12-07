@@ -21,9 +21,9 @@ use function array_shift;
 final class DataModifiers
 {
     /**
-     * @psalm-var array<string, array-key>
+     * @psalm-var array<string, int|null>
      */
-    private array $recursiveMergeGroupsIndex;
+    private array $mergedGroupsRecursionDepthMap;
 
     /**
      * @psalm-var array<string, array-key>
@@ -55,7 +55,10 @@ final class DataModifiers
             }
 
             if ($modifier instanceof RecursiveMerge) {
-                array_unshift($recursiveMergeGroups, $modifier->getGroups());
+                array_unshift(
+                    $recursiveMergeGroups,
+                    array_fill_keys($modifier->getGroups(), $modifier->getDepth())
+                );
                 continue;
             }
 
@@ -97,12 +100,22 @@ final class DataModifiers
         }
 
         $this->reverseMergeGroupsIndex = array_flip(array_merge(...$reverseMergeGroups));
-        $this->recursiveMergeGroupsIndex = array_flip(array_merge(...$recursiveMergeGroups));
+        $this->mergedGroupsRecursionDepthMap = array_merge(...$recursiveMergeGroups);
     }
 
-    public function isRecursiveMergeGroup(string $group): bool
+    /**
+     * @return false|int|null
+     * - `int` - depth limited by specified number.
+     * - `null` - depth is not limited (infinite recursion).
+     * - `false` - recursion is disabled.
+     */
+    public function getRecursionDepth(string $group): int|null|false
     {
-        return array_key_exists($group, $this->recursiveMergeGroupsIndex);
+        if (!array_key_exists($group, $this->mergedGroupsRecursionDepthMap)) {
+            return false;
+        }
+
+        return $this->mergedGroupsRecursionDepthMap[$group];
     }
 
     public function isReverseMergeGroup(string $group): bool

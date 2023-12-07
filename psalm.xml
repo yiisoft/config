@@ -10,4 +10,7 @@
     <projectFiles>
         <directory name="src" />
     </projectFiles>
+    <issueHandlers>
+        <MixedAssignment errorLevel="suppress" />
+    </issueHandlers>
 </psalm>
