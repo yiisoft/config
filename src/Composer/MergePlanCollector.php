@@ -157,7 +157,6 @@ final class MergePlanCollector
 
     /**
      * @param string[] $items
-     * @param string $variable
      * @param string[] $files
      * @return string[]
      */
