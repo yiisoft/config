@@ -23,7 +23,7 @@ final class DataModifiers
     /**
      * @psalm-var array<string, int|null>
      */
-    private array $mergeGroupsRecursionDepth;
+    private array $mergedGroupsRecursionDepthMap;
 
     /**
      * @psalm-var array<string, array-key>
@@ -100,7 +100,7 @@ final class DataModifiers
         }
 
         $this->reverseMergeGroupsIndex = array_flip(array_merge(...$reverseMergeGroups));
-        $this->mergeGroupsRecursionDepth = array_merge(...$recursiveMergeGroups);
+        $this->mergedGroupsRecursionDepthMap = array_merge(...$recursiveMergeGroups);
     }
 
     /**
@@ -111,11 +111,11 @@ final class DataModifiers
      */
     public function getRecursionDepth(string $group): int|null|false
     {
-        if (!array_key_exists($group, $this->mergeGroupsRecursionDepth)) {
+        if (!array_key_exists($group, $this->mergedGroupsRecursionDepthMap)) {
             return false;
         }
 
-        return $this->mergeGroupsRecursionDepth[$group];
+        return $this->mergedGroupsRecursionDepthMap[$group];
     }
 
     public function isReverseMergeGroup(string $group): bool
