@@ -7,6 +7,8 @@ namespace Yiisoft\Config\Composer;
 use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 
+use function in_array;
+
 /**
  * @internal
  *
@@ -96,6 +98,64 @@ final class MergePlanCollector
      */
     public function generate(): array
     {
-        return $this->mergePlan;
+        $result = [];
+        foreach ($this->mergePlan as $environment => $groups) {
+            if ($environment === Options::DEFAULT_ENVIRONMENT) {
+                $result[$environment] = [];
+                foreach ($groups as $group => $packages) {
+                    $result[$environment][$group] = $this->expandVariablesInPackages($packages, $groups);
+                }
+            } else {
+                $result[$environment] = $groups;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @psalm-param array<string, string[]> $packages
+     * @psalm-param array<string, array<string, string[]>> $groups
+     * @psalm-return array<string, string[]>
+     */
+    private function expandVariablesInPackages(array $packages, array $groups, ?string $group = null): array
+    {
+        if ($group !== null) {
+            $groupPackages = $this->expandVariablesInPackages($groups[$group], $groups);
+            foreach ($groupPackages as $groupPackage => $groupItems) {
+                $variable = '$' . $group;
+                $packageItems = $packages[$groupPackage] ?? [];
+                $packages[$groupPackage] = in_array($variable, $packageItems, true)
+                    ? $this->replaceVariableToFiles($packageItems, $variable, $groupItems)
+                    : array_merge($packageItems, $groupItems);
+            }
+        }
+
+        foreach ($packages as $items) {
+            foreach ($items as $item) {
+                if (Options::isVariable($item)) {
+                    return $this->expandVariablesInPackages($packages, $groups, substr($item, 1));
+                }
+            }
+        }
+        return $packages;
+    }
+
+    /**
+     * @param string[] $items
+     * @param string $variable
+     * @param string[] $files
+     * @return string[]
+     */
+    private function replaceVariableToFiles(array $items, string $variable, array $files): array
+    {
+        $result = [];
+        foreach ($items as $item) {
+            if ($item === $variable) {
+                $result = array_merge($result, $files);
+            } else {
+                $result[] = $item;
+            }
+        }
+        return $result;
     }
 }

@@ -105,6 +105,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                         ],
                         'test/custom-source' => [
                             'custom-dir/web.php',
+                            'custom-dir/common/a.php',
+                            'custom-dir/common/b.php',
                         ],
                         'test/d-dev-c' => [
                             'config/web.php',
@@ -113,7 +115,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                             'test/over/web.php',
                         ],
                         Options::ROOT_PACKAGE_NAME => [
-                            '$common',
+                            'common/*.php',
                             'web.php',
                         ],
                     ],
@@ -133,7 +135,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     ],
                     'events-web' => [
                         'test/custom-source' => [
-                            '$events',
+                            'custom-dir/events.php',
                             'custom-dir/events-web.php',
                         ],
                     ],
