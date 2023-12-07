@@ -6,11 +6,13 @@ namespace Yiisoft\Config;
 
 /**
  * @internal
+ *
+ * @psalm-type MergePlanType = array<string, array<string, array<string, string[]>>>
  */
 final class MergePlan
 {
     /**
-     * @psalm-var array<string, array<string, array<string, string[]>>>
+     * @psalm-var MergePlanType
      */
     private array $mergePlan;
 

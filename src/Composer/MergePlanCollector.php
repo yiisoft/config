@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Composer;
 
+use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 
 /**
  * @internal
+ *
+ * @psalm-import-type MergePlanType from MergePlan
  */
 final class MergePlanCollector
 {
     /**
-     * @psalm-var array<string, array<string, array<string, string[]>>>
+     * @psalm-var MergePlanType
      */
     private array $mergePlan = [];
 
@@ -89,7 +92,7 @@ final class MergePlanCollector
     /**
      * Returns the merge plan as an array.
      *
-     * @psalm-return array<string, array<string, array<string, string[]>>>
+     * @psalm-return MergePlanType
      */
     public function generate(): array
     {
