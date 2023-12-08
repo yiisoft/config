@@ -4,7 +4,8 @@
     "extra": {
         "config-plugin": {
             "params": "params.php",
-            "web": "web.php"
+            "web": "web.php",
+            "events": "events/*"
         }
     }
 }

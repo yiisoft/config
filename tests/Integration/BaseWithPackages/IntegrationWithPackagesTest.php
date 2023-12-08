@@ -25,5 +25,6 @@ final class IntegrationWithPackagesTest extends IntegrationTestCase
 
         $this->assertSame(['a' => 1, 'b' => 2], $config->get('params'));
         $this->assertSame([], $config->get('web'));
+        $this->assertSame([], $config->get('events'));
     }
 }
