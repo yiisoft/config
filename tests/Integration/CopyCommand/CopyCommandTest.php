@@ -47,10 +47,10 @@ final class CopyCommandTest extends IntegrationTestCase
             'default-source' => [
                 [
                     __DIR__ . '/config/test-a-params.php' => __DIR__ . '/packages/a/params.php',
-                    __DIR__ . '/config/test-a-web.php' =>  __DIR__ . '/packages/a/web.php',
+                    __DIR__ . '/config/test-a-web.php' => __DIR__ . '/packages/a/web.php',
                 ],
                 ['package' => 'test/a'],
-            ]
+            ],
         ];
     }
 
