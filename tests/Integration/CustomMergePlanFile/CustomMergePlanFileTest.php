@@ -8,7 +8,19 @@ use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
 final class CustomMergePlanFileTest extends IntegrationTestCase
 {
-    public function testBase(): void
+    public static function dataBase(): array
+    {
+        return [
+            ['my-merge-plan.php'],
+            ['test/my-merge-plan.php'],
+            ['../my-merge-plan.php'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataBase
+     */
+    public function testBase(string $mergePlanFIle): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,
@@ -22,13 +34,13 @@ final class CustomMergePlanFileTest extends IntegrationTestCase
                     'web' => 'web.php',
                 ],
                 'config-plugin-options' => [
-                    'merge-plan-file' => 'custom-merge-plan.php',
+                    'merge-plan-file' => $mergePlanFIle,
                 ],
             ],
-            mergePlanFile: 'custom-merge-plan.php',
+            mergePlanFile: $mergePlanFIle,
         );
 
-        $this->assertFileExists(__DIR__ . '/custom-merge-plan.php');
+        $this->assertFileExists(__DIR__ . '/' . $mergePlanFIle);
         $this->assertSame(
             [
                 'a-params-key' => 'a-params-value',

@@ -23,7 +23,7 @@ final class VendorOverrideLayerTest extends IntegrationTestCase
     /**
      * @dataProvider dataBase
      */
-    public function testBase1(array|string $vendorOverrideLayer): void
+    public function testBase(array|string $vendorOverrideLayer): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,

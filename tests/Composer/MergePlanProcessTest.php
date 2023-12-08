@@ -18,28 +18,6 @@ final class MergePlanProcessTest extends TestCase
         $this->assertMergePlan();
     }
 
-    public function dataCustomMergePlanFile(): array
-    {
-        return [
-            ['my-merge-plan.php'],
-            ['test/my-merge-plan.php'],
-            ['../my-merge-plan.php'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataCustomMergePlanFile
-     */
-    public function testCustomMergePlanFile($filepath): void
-    {
-        $composer = $this->createComposerMock(
-            mergePlanFile: $filepath,
-        );
-        new MergePlanProcess($composer);
-
-        $this->assertFileExists($this->getTempPath($filepath));
-    }
-
     public function testProcessWithEnvironment(): void
     {
         new MergePlanProcess($this->createComposerMock([
