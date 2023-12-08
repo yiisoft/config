@@ -50,7 +50,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         $this->filesystem->ensureDirectoryExists($this->tempConfigsDirectory);
-        putenv("COMPOSER=$this->tempDirectory/composer.json");
+        throw new \LogicException('do not use');
+//        putenv("COMPOSER=$this->tempDirectory/composer.json");
         parent::setUp();
     }
 

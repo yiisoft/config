@@ -19,6 +19,12 @@ abstract class BaseTestCase extends TestCase
     protected string $mergePlanPath = '/.merge-plan.php';
     protected string $vendorPath = '/vendor';
 
+    protected function setUp(): void
+    {
+        $this->rootPath = null;
+        parent::setUp();
+    }
+
     protected function tearDown(): void
     {
         if ($this->rootPath !== null) {
