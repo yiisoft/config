@@ -15,7 +15,7 @@ final class EmptyGroupTest extends BaseTestCase
             extra: [
                 'config-plugin' => [
                     'params' => [],
-                    'widgets' => []
+                    'widgets' => [],
                 ],
             ],
         );

@@ -13,12 +13,12 @@ final class BaseWithPackagesTest extends BaseTestCase
         $config = $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,
             packages: [
-                'test/a' => __DIR__ . '/packages/a'
+                'test/a' => __DIR__ . '/packages/a',
             ],
             extra: [
                 'config-plugin' => [
                     'params' => 'params.php',
-                    'web' => []
+                    'web' => [],
                 ],
             ],
         );
