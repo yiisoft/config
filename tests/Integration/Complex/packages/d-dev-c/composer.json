@@ -1,0 +1,15 @@
+{
+    "name": "test/d-dev-c",
+    "version": "1.0.0",
+    "require-dev": {
+        "test/c": "*"
+    },
+    "extra": {
+        "config-plugin-options": {
+            "source-directory": "config"
+        },
+        "config-plugin": {
+            "web": "web.php"
+        }
+    }
+}
