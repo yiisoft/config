@@ -15,7 +15,7 @@ final class BrokenFileTest extends BaseTestCase
             rootPath: __DIR__,
             extra: [
                 'config-plugin' => [
-                    'params' => 'params.php'
+                    'params' => 'params.php',
                 ],
             ],
         );

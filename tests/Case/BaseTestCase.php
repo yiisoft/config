@@ -96,7 +96,7 @@ abstract class BaseTestCase extends TestCase
 
     private function createComposerJson(string $rootPath, array $packages, array $extra): void
     {
-        $require = ["yiisoft/config"];
+        $require = ['yiisoft/config'];
         $repositories = [];
 
         foreach ($packages as $name => $path) {
