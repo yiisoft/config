@@ -173,7 +173,7 @@ abstract class IntegrationTestCase extends TestCase
         );
 
         $repositoriesItems = array_map(
-            fn($path) => '{"type":"path","url":"' . $path . '"}',
+            fn($path) => '{"type":"path","url":"' . str_replace('\\', '/', $path) . '"}',
             $repositories
         );
 
