@@ -1,0 +1,7 @@
+{
+    "name": "test/metapack",
+    "version": "1.0.0",
+    "type": "metapackage",
+    "require": {
+    }
+}

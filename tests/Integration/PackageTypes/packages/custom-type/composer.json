@@ -1,0 +1,10 @@
+{
+    "name": "test/custom-type",
+    "version": "1.0.0",
+    "type": "custom-type",
+    "extra": {
+        "config-plugin": {
+            "params": "params.php"
+        }
+    }
+}
