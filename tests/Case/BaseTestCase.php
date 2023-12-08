@@ -43,10 +43,12 @@ abstract class BaseTestCase extends TestCase
         string $rootPath,
         array $packages = [],
         array $extra = [],
+        ?string $configDirectory = null,
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
+        ?string $environment = null,
     ): Config {
         $this->rootPath = $rootPath;
-        $this->mergePlanPath = '/' . $mergePlanFile;
+        $this->mergePlanPath = '/' . ($configDirectory === null ? '' : ($configDirectory . '/')) . $mergePlanFile;
 
         $this->createComposerJson($rootPath, $packages, $extra);
 
@@ -64,7 +66,8 @@ abstract class BaseTestCase extends TestCase
         try {
             $application->run($input, $output);
             return new Config(
-                new ConfigPaths($rootPath),
+                new ConfigPaths($rootPath, $configDirectory),
+                environment: $environment,
                 mergePlanFile: $mergePlanFile,
             );
         } catch (Throwable $exception) {

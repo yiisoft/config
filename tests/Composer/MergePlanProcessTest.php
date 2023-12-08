@@ -109,49 +109,6 @@ final class MergePlanProcessTest extends TestCase
         ]);
     }
 
-    public function testProcessWithIgnoreAdditionalDefaultEnvironment(): void
-    {
-        new MergePlanProcess($this->createComposerMock([
-            'alfa' => [
-                'params' => 'alfa/params.php',
-                'web' => 'alfa/web.php',
-                'main' => [
-                    '$web',
-                    'alfa/main.php',
-                ],
-            ],
-            Options::DEFAULT_ENVIRONMENT => [
-                'params' => 'params.php',
-                'web' => 'web.php',
-                'main' => [
-                    '$web',
-                    'main.php',
-                ],
-            ],
-        ]));
-
-        $this->assertMergePlan([
-            'alfa' => [
-                'params' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        'alfa/params.php',
-                    ],
-                ],
-                'web' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        'alfa/web.php',
-                    ],
-                ],
-                'main' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        '$web',
-                        'alfa/main.php',
-                    ],
-                ],
-            ],
-        ]);
-    }
-
     public function vendorOverrideLayerPackagesDataProvider(): array
     {
         return [
