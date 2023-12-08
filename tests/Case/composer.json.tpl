@@ -1,16 +1,11 @@
 {
-    "name": "test/empty-group",
+    "name": "test/base-with-packages",
     "version": "1.0.0",
     "minimum-stability": "dev",
     "require": {
-        "yiisoft/config": "*"
+        %REQUIRE%
     },
-    "extra": {
-        "config-plugin": {
-            "params": [],
-            "widgets": []
-        }
-    },
+    "extra": %EXTRA%,
     "config": {
         "allow-plugins": {
             "yiisoft/config": true
@@ -21,6 +16,7 @@
             "type": "path",
             "url": "../../.."
         },
+        %REPOSITORIES%
         {
             "type": "path",
             "url": "../../../vendor/yiisoft/arrays",

@@ -10,7 +10,13 @@ final class EmptyGroupTest extends BaseTestCase
 {
     public function testBase(): void
     {
-        $config = $this->prepareConfig(__DIR__);
+        $config = $this->prepareConfig(
+            rootPath: __DIR__,
+            configuration: [
+                'params' => [],
+                'widgets' => []
+            ],
+        );
 
         $this->assertSame([], $config->get('params'));
         $this->assertSame([], $config->get('widgets'));
