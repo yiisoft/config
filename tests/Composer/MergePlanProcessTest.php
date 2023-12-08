@@ -103,32 +103,6 @@ final class MergePlanProcessTest extends TestCase
         ]);
     }
 
-    public function vendorOverrideLayerPackagesDataProvider(): array
-    {
-        return [
-            ['*/over'],
-            ['t*t/over'],
-            ['test/ov*'],
-            ['test/ov*r'],
-            ['test/over'],
-        ];
-    }
-
-    /**
-     * @dataProvider vendorOverrideLayerPackagesDataProvider
-     */
-    public function testProcessWithSpecifyVendorOverrideLayerPackages(string $package): void
-    {
-        new MergePlanProcess($this->createComposerMock([], (array) $package));
-        $this->assertMergePlan();
-    }
-
-    public function testProcessWithSpecifyVendorOverrideLayerIncorrectPackageNames(): void
-    {
-        new MergePlanProcess($this->createComposerMock([], ['', '/', 1, [], 'test/over']));
-        $this->assertMergePlan();
-    }
-
     public function testProcessWithSpecifyPhpConfigurationFile(): void
     {
         $configuration = [
