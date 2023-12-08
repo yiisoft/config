@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Integration\ProcessOnAutoloadDump;
 
 use Yiisoft\Config\Options;
-use Yiisoft\Config\Tests\Integration\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class ProcessOnAutoloadDumpTest extends BaseTestCase
+final class ProcessOnAutoloadDumpTest extends IntegrationTestCase
 {
     public function testBase(): void
     {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Integration\ProcessWithoutMergePlanBuild;
 
 use Yiisoft\Config\Options;
-use Yiisoft\Config\Tests\Integration\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class ProcessWithoutMergePlanBuildTest extends BaseTestCase
+final class ProcessWithoutMergePlanBuildTest extends IntegrationTestCase
 {
     public function testBase(): void
     {

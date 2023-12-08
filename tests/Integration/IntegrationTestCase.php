@@ -15,7 +15,7 @@ use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
 
-abstract class BaseTestCase extends TestCase
+abstract class IntegrationTestCase extends TestCase
 {
     protected ?string $rootPath = null;
     protected ?string $mergePlanPath = null;

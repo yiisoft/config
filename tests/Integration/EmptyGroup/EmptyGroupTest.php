@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\EmptyGroup;
 
-use Yiisoft\Config\Tests\Integration\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class EmptyGroupTest extends BaseTestCase
+final class EmptyGroupTest extends IntegrationTestCase
 {
     public function testBase(): void
     {

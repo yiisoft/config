@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\CustomMergePlanFile;
 
-use Yiisoft\Config\Tests\Integration\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class CustomMergePlanFileTest extends BaseTestCase
+final class CustomMergePlanFileTest extends IntegrationTestCase
 {
     public function testBase(): void
     {

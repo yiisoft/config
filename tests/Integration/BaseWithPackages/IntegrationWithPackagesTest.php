@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\BaseWithPackages;
 
-use Yiisoft\Config\Tests\Integration\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class BaseWithPackagesTest extends BaseTestCase
+final class IntegrationWithPackagesTest extends IntegrationTestCase
 {
     public function testBase(): void
     {

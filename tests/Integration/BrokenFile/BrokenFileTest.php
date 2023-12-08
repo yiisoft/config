@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests\Integration\BrokenFile;
 
 use ErrorException;
-use Yiisoft\Config\Tests\Integration\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class BrokenFileTest extends BaseTestCase
+final class BrokenFileTest extends IntegrationTestCase
 {
     public function testBase(): void
     {

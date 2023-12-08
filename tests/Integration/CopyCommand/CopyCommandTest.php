@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\CopyCommand;
 
-use Yiisoft\Config\Tests\Integration\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class CopyCommandTest extends BaseTestCase
+final class CopyCommandTest extends IntegrationTestCase
 {
     public static function dataBase(): array
     {
