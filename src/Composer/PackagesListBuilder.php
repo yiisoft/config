@@ -6,7 +6,6 @@ namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
 use Composer\Package\BasePackage;
-use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 
 use function array_key_exists;

@@ -7,7 +7,6 @@ namespace Yiisoft\Config\Composer;
 use Composer\Composer;
 use Composer\Factory;
 use Composer\Package\BasePackage;
-use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
