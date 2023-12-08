@@ -39,14 +39,13 @@ abstract class BaseTestCase extends TestCase
         parent::tearDown();
     }
 
-    protected function prepareConfig(
+    public function runComposerUpdate(
         string $rootPath,
         array $packages = [],
         array $extra = [],
         ?string $configDirectory = null,
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
-        ?string $environment = null,
-    ): Config {
+    ): string {
         $this->rootPath = $rootPath;
         $this->mergePlanPath = '/' . ($configDirectory === null ? '' : ($configDirectory . '/')) . $mergePlanFile;
 
@@ -65,13 +64,32 @@ abstract class BaseTestCase extends TestCase
 
         try {
             $application->run($input, $output);
+        } catch (Throwable $exception) {
+            echo $output->fetch();
+            throw $exception;
+        }
+
+        return $output->fetch();
+    }
+
+    protected function runComposerUpdateAndCreateConfig(
+        string $rootPath,
+        array $packages = [],
+        array $extra = [],
+        ?string $configDirectory = null,
+        string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
+        ?string $environment = null,
+    ): Config {
+        $output = $this->runComposerUpdate($rootPath, $packages, $extra, $configDirectory, $mergePlanFile);
+
+        try {
             return new Config(
                 new ConfigPaths($rootPath, $configDirectory),
                 environment: $environment,
                 mergePlanFile: $mergePlanFile,
             );
         } catch (Throwable $exception) {
-            echo $output->fetch();
+            echo $output;
             throw $exception;
         }
     }

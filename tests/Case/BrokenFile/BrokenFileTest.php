@@ -11,7 +11,7 @@ final class BrokenFileTest extends BaseTestCase
 {
     public function testBase(): void
     {
-        $config = $this->prepareConfig(
+        $config = $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,
             extra: [
                 'config-plugin' => [

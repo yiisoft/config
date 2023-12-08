@@ -11,7 +11,7 @@ final class ProcessWithIgnoreAdditionalDefaultEnvironmentTest extends BaseTestCa
 {
     public function testBase(): void
     {
-        $config = $this->prepareConfig(
+        $config = $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,
             extra: [
                 'config-plugin-options' => [

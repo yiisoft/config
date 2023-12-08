@@ -10,7 +10,7 @@ final class CustomMergePlanFileTest extends BaseTestCase
 {
     public function testBase(): void
     {
-        $config = $this->prepareConfig(
+        $config = $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,
             packages: [
                 'test/a' => __DIR__ . '/packages/a',
