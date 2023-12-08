@@ -19,6 +19,8 @@ use Yiisoft\Config\Command\ConfigCommandProvider;
 /**
  * ComposerEventHandler responds to composer event. In the package,
  * its job is to prepare a merge plan that is later used by {@see Config}.
+ *
+ * @codeCoverageIgnore Covered by integration tests.
  */
 final class EventHandler implements PluginInterface, EventSubscriberInterface, Capable
 {
