@@ -16,7 +16,7 @@ final class VendorOverrideLayerTest extends IntegrationTestCase
             ['test/ov*'],
             ['test/ov*r'],
             ['test/over'],
-            [['test/not-exist', 'test/over']],
+            [['test/not-exist', 'test/over', 7]],
         ];
     }
 
