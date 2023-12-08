@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Case\ProcessWithIgnoreAdditionalDefaultEnvironment;
+namespace Yiisoft\Config\Tests\Integration\ProcessWithIgnoreAdditionalDefaultEnvironment;
 
 use Yiisoft\Config\Options;
-use Yiisoft\Config\Tests\Case\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\BaseTestCase;
 
 final class ProcessWithIgnoreAdditionalDefaultEnvironmentTest extends BaseTestCase
 {

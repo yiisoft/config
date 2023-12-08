@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Case\EmptyGroup;
+namespace Yiisoft\Config\Tests\Integration\EmptyGroup;
 
-use Yiisoft\Config\Tests\Case\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\BaseTestCase;
 
 final class EmptyGroupTest extends BaseTestCase
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Case;
+namespace Yiisoft\Config\Tests\Integration;
 
 use Composer\Console\Application;
 use Composer\Util\Filesystem;

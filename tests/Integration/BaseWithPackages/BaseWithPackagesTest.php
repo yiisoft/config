@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Case\BaseWithPackages;
+namespace Yiisoft\Config\Tests\Integration\BaseWithPackages;
 
-use Yiisoft\Config\Tests\Case\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\BaseTestCase;
 
 final class BaseWithPackagesTest extends BaseTestCase
 {

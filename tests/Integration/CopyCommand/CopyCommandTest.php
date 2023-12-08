@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Case\CopyCommand;
+namespace Yiisoft\Config\Tests\Integration\CopyCommand;
 
-use Yiisoft\Config\Tests\Case\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\BaseTestCase;
 
 final class CopyCommandTest extends BaseTestCase
 {

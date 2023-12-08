@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Case\BrokenFile;
+namespace Yiisoft\Config\Tests\Integration\BrokenFile;
 
 use ErrorException;
-use Yiisoft\Config\Tests\Case\BaseTestCase;
+use Yiisoft\Config\Tests\Integration\BaseTestCase;
 
 final class BrokenFileTest extends BaseTestCase
 {
