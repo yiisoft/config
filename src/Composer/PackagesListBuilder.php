@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
+use Composer\Package\BasePackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 
@@ -24,7 +25,7 @@ final class PackagesListBuilder
     /**
      * Builds and returns packages.
      *
-     * @return array<string, CompletePackage>
+     * @return array<string, BasePackage>
      */
     public function build(): array
     {
@@ -68,7 +69,7 @@ final class PackagesListBuilder
     }
 
     /**
-     * @param array<string, CompletePackage> $allPackages
+     * @param array<string, BasePackage> $allPackages
      * @param array<string, int> $packageDepths
      */
     private function calculatePackageDepths(
@@ -105,7 +106,7 @@ final class PackagesListBuilder
     }
 
     /**
-     * @return array<string, CompletePackage>
+     * @return array<string, BasePackage>
      */
     private function getAllPackages(): array
     {
