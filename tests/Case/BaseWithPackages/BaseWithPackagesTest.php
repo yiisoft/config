@@ -15,9 +15,11 @@ final class BaseWithPackagesTest extends BaseTestCase
             packages: [
                 'test/a' => __DIR__ . '/packages/a'
             ],
-            configuration: [
-                'params' => 'params.php',
-                'web' => []
+            extra: [
+                'config-plugin' => [
+                    'params' => 'params.php',
+                    'web' => []
+                ],
             ],
         );
 

@@ -12,16 +12,18 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Throwable;
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
+use Yiisoft\Config\Options;
 
 abstract class BaseTestCase extends TestCase
 {
     protected ?string $rootPath = null;
-    protected string $mergePlanPath = '/.merge-plan.php';
+    protected ?string $mergePlanPath = null;
     protected string $vendorPath = '/vendor';
 
     protected function setUp(): void
     {
         $this->rootPath = null;
+        $this->mergePlanPath = null;
         parent::setUp();
     }
 
@@ -40,11 +42,13 @@ abstract class BaseTestCase extends TestCase
     protected function prepareConfig(
         string $rootPath,
         array $packages = [],
-        ?array $configuration = null,
+        array $extra = [],
+        string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ): Config {
         $this->rootPath = $rootPath;
+        $this->mergePlanPath = '/' . $mergePlanFile;
 
-        $this->createComposerJson($rootPath, $packages, $configuration);
+        $this->createComposerJson($rootPath, $packages, $extra);
 
         $application = new Application();
         $application->setAutoExit(false);
@@ -60,7 +64,8 @@ abstract class BaseTestCase extends TestCase
         try {
             $application->run($input, $output);
             return new Config(
-                new ConfigPaths($rootPath)
+                new ConfigPaths($rootPath),
+                mergePlanFile: $mergePlanFile,
             );
         } catch (Throwable $exception) {
             echo $output->fetch();
@@ -68,7 +73,7 @@ abstract class BaseTestCase extends TestCase
         }
     }
 
-    private function createComposerJson(string $rootPath, array $packages, ?array $configuration): void
+    private function createComposerJson(string $rootPath, array $packages, array $extra): void
     {
         $require = ["yiisoft/config"];
         $repositories = [];
@@ -88,17 +93,12 @@ abstract class BaseTestCase extends TestCase
             $repositories
         );
 
-        $extraItems = [];
-        if ($configuration !== null) {
-            $extraItems = ['config-plugin' => $configuration];
-        }
-
         $composerJson = strtr(
             file_get_contents(__DIR__ . '/composer.json.tpl'),
             [
                 '%REQUIRE%' => implode(', ', $requireItems),
                 '%REPOSITORIES%' => empty($repositoriesItems) ? '' : (implode(', ', $repositoriesItems) . ','),
-                '%EXTRA%' => json_encode($extraItems),
+                '%EXTRA%' => json_encode($extra),
             ]
         );
 

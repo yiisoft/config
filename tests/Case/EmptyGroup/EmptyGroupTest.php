@@ -12,9 +12,11 @@ final class EmptyGroupTest extends BaseTestCase
     {
         $config = $this->prepareConfig(
             rootPath: __DIR__,
-            configuration: [
-                'params' => [],
-                'widgets' => []
+            extra: [
+                'config-plugin' => [
+                    'params' => [],
+                    'widgets' => []
+                ],
             ],
         );
 

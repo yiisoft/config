@@ -13,8 +13,10 @@ final class BrokenFileTest extends BaseTestCase
     {
         $config = $this->prepareConfig(
             rootPath: __DIR__,
-            configuration: [
-                'params' => 'params.php'
+            extra: [
+                'config-plugin' => [
+                    'params' => 'params.php'
+                ],
             ],
         );
 
