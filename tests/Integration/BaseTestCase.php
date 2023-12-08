@@ -68,11 +68,7 @@ abstract class BaseTestCase extends TestCase
 
         return $this->runComposerCommand(
             array_merge(
-                [
-                    'command' => 'yii-config-copy',
-                    '--working-dir' => $rootPath,
-                    '--no-interaction' => true,
-                ],
+                ['command' => 'yii-config-copy'],
                 $arguments,
             ),
             $rootPath,
@@ -91,11 +87,7 @@ abstract class BaseTestCase extends TestCase
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ): string {
         return $this->runComposerCommand(
-            [
-                'command' => 'update',
-                '--working-dir' => $rootPath,
-                '--no-interaction' => true,
-            ],
+            ['command' => 'update'],
             $rootPath,
             $packages,
             $extra,
@@ -126,7 +118,7 @@ abstract class BaseTestCase extends TestCase
         }
     }
 
-    private function runComposerCommand(
+    protected function runComposerCommand(
         array $arguments,
         string $rootPath,
         array $packages = [],
@@ -143,7 +135,15 @@ abstract class BaseTestCase extends TestCase
         $application->addCommands((new ConfigCommandProvider())->getCommands());
         $application->setAutoExit(false);
 
-        $input = new ArrayInput($arguments);
+        $input = new ArrayInput(
+            array_merge(
+                [
+                    '--working-dir' => $rootPath,
+                    '--no-interaction' => true,
+                ],
+                $arguments,
+            ),
+        );
 
         $output = new BufferedOutput();
 
