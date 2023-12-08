@@ -38,4 +38,33 @@ final class BaseWithEnvironmentTest extends IntegrationTestCase
             $config->get('params')
         );
     }
+
+    public function testEmptyEnvironment(): void
+    {
+        $config = $this->runComposerUpdateAndCreateConfig(
+            rootPath: __DIR__,
+            packages: [
+                'test/a' => __DIR__ . '/packages/a',
+            ],
+            extra: [
+                'config-plugin' => [
+                    'params' => 'params.php',
+                    'web' => [],
+                ],
+                'config-plugin-environments' => [
+                    'dev' => [],
+                ],
+            ],
+            environment: 'dev',
+        );
+
+        $this->assertSame(
+            [
+                'a' => 1,
+                'b' => 2,
+                'c' => 3,
+            ],
+            $config->get('params')
+        );
+    }
 }
