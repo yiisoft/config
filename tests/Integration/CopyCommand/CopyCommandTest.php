@@ -57,7 +57,7 @@ final class CopyCommandTest extends IntegrationTestCase
     /**
      * @dataProvider dataBase
      */
-    public function testBase1(array $expectedFiles, array $arguments): void
+    public function testBase(array $expectedFiles, array $arguments): void
     {
         $this->removeDirectories[] = __DIR__ . '/config';
 
