@@ -1,5 +1,5 @@
 {
-    "name": "test/base-with-packages",
+    "name": "test/yiisoft-config",
     "version": "1.0.0",
     "minimum-stability": "dev",
     "require": {
