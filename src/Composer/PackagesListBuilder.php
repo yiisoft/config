@@ -116,10 +116,6 @@ final class PackagesListBuilder
 
         $result = [];
         foreach ($packages as $package) {
-            if (!$package instanceof CompletePackage) {
-                continue;
-            }
-
             if (!in_array($package->getType(), $this->packageTypes)) {
                 continue;
             }
