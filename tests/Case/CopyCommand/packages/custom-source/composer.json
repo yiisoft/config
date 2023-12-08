@@ -1,0 +1,22 @@
+{
+    "name": "test/custom-source",
+    "version": "1.0.0",
+    "extra": {
+        "config-plugin-options": {
+            "source-directory": "custom-dir"
+        },
+        "config-plugin": {
+            "common": "common/*.php",
+            "events": "events.php",
+            "events-web": [
+                "$events",
+                "events-web.php"
+            ],
+            "params": [
+                "params.php",
+                "?params-not-exist.php"
+            ],
+            "web": "web.php"
+        }
+    }
+}

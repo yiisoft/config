@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Throwable;
+use Yiisoft\Config\Command\ConfigCommandProvider;
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
@@ -19,11 +20,15 @@ abstract class BaseTestCase extends TestCase
     protected ?string $rootPath = null;
     protected ?string $mergePlanPath = null;
     protected string $vendorPath = '/vendor';
+    protected array $removeFiles = [];
+    protected array $removeDirectories = [];
 
     protected function setUp(): void
     {
         $this->rootPath = null;
         $this->mergePlanPath = null;
+        $this->removeFiles = [];
+        $this->removeDirectories = [];
         parent::setUp();
     }
 
@@ -35,8 +40,47 @@ abstract class BaseTestCase extends TestCase
             $filesystem->remove($this->rootPath . '/composer.json');
             $filesystem->remove($this->rootPath . '/composer.lock');
             $filesystem->remove($this->rootPath . $this->mergePlanPath);
+            foreach ($this->removeFiles as $file) {
+                $filesystem->remove($file);
+            }
+            foreach ($this->removeDirectories as $directory) {
+                $filesystem->removeDirectory($directory);
+            }
         }
         parent::tearDown();
+    }
+
+    public function runComposerYiiConfigCopy(
+        string $rootPath,
+        array $arguments,
+        array $packages = [],
+        array $extra = [],
+        ?string $configDirectory = null,
+        string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
+    ): string {
+        $this->runComposerUpdate(
+            $rootPath,
+            $packages,
+            $extra,
+            $configDirectory,
+            $mergePlanFile
+        );
+
+        return $this->runComposerCommand(
+            array_merge(
+                [
+                    'command' => 'yii-config-copy',
+                    '--working-dir' => $rootPath,
+                    '--no-interaction' => true,
+                ],
+                $arguments,
+            ),
+            $rootPath,
+            $packages,
+            $extra,
+            $configDirectory,
+            $mergePlanFile
+        );
     }
 
     public function runComposerUpdate(
@@ -46,30 +90,18 @@ abstract class BaseTestCase extends TestCase
         ?string $configDirectory = null,
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ): string {
-        $this->rootPath = $rootPath;
-        $this->mergePlanPath = '/' . ($configDirectory === null ? '' : ($configDirectory . '/')) . $mergePlanFile;
-
-        $this->createComposerJson($rootPath, $packages, $extra);
-
-        $application = new Application();
-        $application->setAutoExit(false);
-
-        $input = new ArrayInput([
-            'command' => 'update',
-            '--working-dir' => $rootPath,
-            '--no-interaction' => true,
-        ]);
-
-        $output = new BufferedOutput();
-
-        try {
-            $application->run($input, $output);
-        } catch (Throwable $exception) {
-            echo $output->fetch();
-            throw $exception;
-        }
-
-        return $output->fetch();
+        return $this->runComposerCommand(
+            [
+                'command' => 'update',
+                '--working-dir' => $rootPath,
+                '--no-interaction' => true,
+            ],
+            $rootPath,
+            $packages,
+            $extra,
+            $configDirectory,
+            $mergePlanFile
+        );
     }
 
     protected function runComposerUpdateAndCreateConfig(
@@ -92,6 +124,37 @@ abstract class BaseTestCase extends TestCase
             echo $output;
             throw $exception;
         }
+    }
+
+    private function runComposerCommand(
+        array $arguments,
+        string $rootPath,
+        array $packages = [],
+        array $extra = [],
+        ?string $configDirectory = null,
+        string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
+    ): string {
+        $this->rootPath = $rootPath;
+        $this->mergePlanPath = '/' . ($configDirectory === null ? '' : ($configDirectory . '/')) . $mergePlanFile;
+
+        $this->createComposerJson($rootPath, $packages, $extra);
+
+        $application = new Application();
+        $application->addCommands((new ConfigCommandProvider())->getCommands());
+        $application->setAutoExit(false);
+
+        $input = new ArrayInput($arguments);
+
+        $output = new BufferedOutput();
+
+        try {
+            $application->run($input, $output);
+        } catch (Throwable $exception) {
+            echo $output->fetch();
+            throw $exception;
+        }
+
+        return $output->fetch();
     }
 
     private function createComposerJson(string $rootPath, array $packages, array $extra): void
