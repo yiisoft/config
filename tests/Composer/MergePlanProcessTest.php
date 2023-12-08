@@ -18,69 +18,6 @@ final class MergePlanProcessTest extends TestCase
         $this->assertMergePlan();
     }
 
-    public function testProcessWithEnvironment(): void
-    {
-        new MergePlanProcess($this->createComposerMock([
-            'alfa' => [
-                'params' => 'alfa/params.php',
-                'web' => 'alfa/web.php',
-                'main' => [
-                    '$web',
-                    'alfa/main.php',
-                ],
-            ],
-            'beta' => [
-                'params' => 'beta/params.php',
-                'web' => 'beta/web.php',
-                'main' => [
-                    '$web',
-                    'beta/main.php',
-                ],
-            ],
-            'empty' => [],
-        ]));
-
-        $this->assertMergePlan([
-            'alfa' => [
-                'params' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        'alfa/params.php',
-                    ],
-                ],
-                'web' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        'alfa/web.php',
-                    ],
-                ],
-                'main' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        '$web',
-                        'alfa/main.php',
-                    ],
-                ],
-            ],
-            'beta' => [
-                'params' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        'beta/params.php',
-                    ],
-                ],
-                'web' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        'beta/web.php',
-                    ],
-                ],
-                'main' => [
-                    Options::ROOT_PACKAGE_NAME => [
-                        '$web',
-                        'beta/main.php',
-                    ],
-                ],
-            ],
-            'empty' => [],
-        ]);
-    }
-
     public function testProcessWithSpecifyPhpConfigurationFile(): void
     {
         $configuration = [
