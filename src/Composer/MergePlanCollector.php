@@ -126,7 +126,7 @@ final class MergePlanCollector
                 $packageItems = $packages[$groupPackage] ?? [];
                 $packages[$groupPackage] = in_array($variable, $packageItems, true)
                     ? $this->replaceVariableToFiles($packageItems, $variable, $groupItems)
-                    : array_merge($packageItems, $groupItems);
+                    : array_merge($groupItems, $packageItems);
             }
             foreach ($packages as $package => $items) {
                 $packages[$package] = array_filter(

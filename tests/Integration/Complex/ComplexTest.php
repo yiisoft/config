@@ -54,11 +54,11 @@ final class ComplexTest extends IntegrationTestCase
             [
                 'ba-web' => true,
                 'c-web' => true,
+                'custom-source-common-a' => true,
+                'custom-source-common-b' => true,
                 'custom-source-web' => true,
                 'd-dev-c-web' => true,
                 'a-web' => true,
-                'custom-source-common-a' => true,
-                'custom-source-common-b' => true,
                 'common' => 99,
                 'web' => 7,
             ],
