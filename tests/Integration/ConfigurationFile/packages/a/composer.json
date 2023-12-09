@@ -1,0 +1,10 @@
+{
+    "name": "test/a",
+    "version": "1.0.0",
+    "extra": {
+        "config-plugin": {
+            "params": "params.php",
+            "web": "web.php"
+        }
+    }
+}

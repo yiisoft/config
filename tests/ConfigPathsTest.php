@@ -7,12 +7,9 @@ namespace Yiisoft\Config\Tests;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
-use Yiisoft\Config\Tests\TestAsset\TestTrait;
 
 final class ConfigPathsTest extends TestCase
 {
-    use TestTrait;
-
     private const ROOT_PATH = __DIR__ . '/TestAsset/configs/dummy';
 
     public function absolutePathsDataProvider(): array
@@ -30,11 +27,9 @@ final class ConfigPathsTest extends TestCase
      */
     public function testAbsolute(string $file, string $package, string $expected): void
     {
-        $this->assertSameIgnoringSlash(
+        $this->assertSame(
             $expected,
-            $this
-                ->createConfigPaths()
-                ->absolute($file, $package),
+            $this->createConfigPaths()->absolute($file, $package),
         );
     }
 

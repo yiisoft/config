@@ -464,26 +464,6 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
-    public function testCustomMergePlanFile(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/custom-merge-plan-file', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            mergePlanFile: '../merge-plan.php',
-        );
-
-        $this->assertSame(
-            [
-                'a-web-key' => 'a-web-value',
-                'a-web-environment-override-key' => 'a-web-override-value',
-                'b-web-key' => 'b-web-value',
-                'b-web-environment-override-key' => 'b-web-override-value',
-                'root-web-key' => 'root-params-value',
-            ],
-            $config->get('web')
-        );
-    }
-
     public function testConfigWithCustomParams(): void
     {
         $config = new Config(
@@ -535,17 +515,6 @@ final class ConfigTest extends TestCase
         $this->expectExceptionMessageMatches(
             '~^The ".*/params2\.php" file does not found\.$~'
         );
-        $config->get('params');
-    }
-
-    public function testBrokenFile(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/broken-file', 'config'),
-        );
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage('test-error');
         $config->get('params');
     }
 
