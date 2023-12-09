@@ -34,6 +34,9 @@ final class EventHandler implements PluginInterface, EventSubscriberInterface, C
         ];
     }
 
+    /**
+     * @codeCoverageIgnore This method runs via eval and does not get into coverage.
+     */
     public function onCommand(CommandEvent $event): void
     {
         if ($event->getCommandName() === 'dump-autoload') {
@@ -41,6 +44,9 @@ final class EventHandler implements PluginInterface, EventSubscriberInterface, C
         }
     }
 
+    /**
+     * @codeCoverageIgnore This method runs via eval and does not get into coverage.
+     */
     public function onPostAutoloadDump(Event $event): void
     {
         if ($this->runOnAutoloadDump) {

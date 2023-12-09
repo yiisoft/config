@@ -6,7 +6,7 @@ namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
 use Composer\Factory;
-use Composer\Package\CompletePackage;
+use Composer\Package\BasePackage;
 use Composer\Package\PackageInterface;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Options;
@@ -28,7 +28,7 @@ final class ProcessHelper
     private array $rootPackageExtra;
 
     /**
-     * @psalm-var array<string, CompletePackage>
+     * @psalm-var array<string, BasePackage>
      */
     private array $packages;
 
@@ -65,7 +65,7 @@ final class ProcessHelper
     /**
      * Returns all vendor packages.
      *
-     * @psalm-return array<string, CompletePackage>
+     * @psalm-return array<string, BasePackage>
      */
     public function getPackages(): array
     {
@@ -75,7 +75,7 @@ final class ProcessHelper
     /**
      * Returns vendor packages without packages from the vendor override sublayer.
      *
-     * @psalm-return array<string, CompletePackage>
+     * @psalm-return array<string, BasePackage>
      */
     public function getVendorPackages(): array
     {
@@ -93,7 +93,7 @@ final class ProcessHelper
     /**
      * Returns vendor packages only from the vendor override sublayer.
      *
-     * @psalm-return array<string, CompletePackage>
+     * @psalm-return array<string, BasePackage>
      */
     public function getVendorOverridePackages(): array
     {
