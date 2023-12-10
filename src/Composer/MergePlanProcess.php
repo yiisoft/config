@@ -23,7 +23,7 @@ use function substr;
  */
 final class MergePlanProcess
 {
-    private MergePlanCollector $mergePlan;
+    private MergePlanCollector $mergePlanCollector;
     private ProcessHelper $helper;
 
     /**
@@ -31,7 +31,7 @@ final class MergePlanProcess
      */
     public function __construct(Composer $composer)
     {
-        $this->mergePlan = new MergePlanCollector();
+        $this->mergePlanCollector = new MergePlanCollector();
         $this->helper = new ProcessHelper($composer);
 
         if (!$this->helper->shouldBuildMergePlan()) {
@@ -56,7 +56,7 @@ final class MergePlanProcess
             $packageName = $isVendorOverrideLayer ? Options::VENDOR_OVERRIDE_PACKAGE_NAME : $name;
 
             foreach ($this->helper->getPackageConfig($package) as $group => $files) {
-                $this->mergePlan->addGroup($group);
+                $this->mergePlanCollector->addGroup($group);
 
                 foreach ((array) $files as $file) {
                     $isOptional = false;
@@ -67,7 +67,7 @@ final class MergePlanProcess
                     }
 
                     if (Options::isVariable($file)) {
-                        $this->mergePlan->add($file, $packageName, $group);
+                        $this->mergePlanCollector->add($file, $packageName, $group);
                         continue;
                     }
 
@@ -81,7 +81,7 @@ final class MergePlanProcess
                         }
 
                         foreach ($matches as $match) {
-                            $this->mergePlan->add(
+                            $this->mergePlanCollector->add(
                                 $this->normalizePackageFilePath($package, $match, $isVendorOverrideLayer),
                                 $packageName,
                                 $group,
@@ -95,7 +95,7 @@ final class MergePlanProcess
                         continue;
                     }
 
-                    $this->mergePlan->add(
+                    $this->mergePlanCollector->add(
                         $this->normalizePackageFilePath($package, $absoluteFilePath, $isVendorOverrideLayer),
                         $packageName,
                         $group,
@@ -108,7 +108,7 @@ final class MergePlanProcess
     private function addRootPackageConfigToMergePlan(): void
     {
         foreach ($this->helper->getRootPackageConfig() as $group => $files) {
-            $this->mergePlan->addMultiple(
+            $this->mergePlanCollector->addMultiple(
                 (array) $files,
                 Options::ROOT_PACKAGE_NAME,
                 $group,
@@ -124,12 +124,12 @@ final class MergePlanProcess
             }
 
             if (empty($groups)) {
-                $this->mergePlan->addEnvironmentWithoutConfigs($environment);
+                $this->mergePlanCollector->addEnvironmentWithoutConfigs($environment);
                 continue;
             }
 
             foreach ($groups as $group => $files) {
-                $this->mergePlan->addMultiple(
+                $this->mergePlanCollector->addMultiple(
                     (array) $files,
                     Options::ROOT_PACKAGE_NAME,
                     $group,
@@ -141,7 +141,7 @@ final class MergePlanProcess
 
     private function updateMergePlan(): void
     {
-        $mergePlan = $this->mergePlan->generate();
+        $mergePlan = $this->mergePlanCollector->generate();
         ksort($mergePlan);
 
         $filePath = $this->helper->getPaths()->absolute(
