@@ -141,7 +141,7 @@ final class MergePlanProcess
 
     private function updateMergePlan(): void
     {
-        $mergePlan = $this->mergePlanCollector->generate();
+        $mergePlan = $this->mergePlanCollector->asArray();
         ksort($mergePlan);
 
         $filePath = $this->helper->getPaths()->absolute(

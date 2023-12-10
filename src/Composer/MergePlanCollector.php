@@ -88,7 +88,7 @@ final class MergePlanCollector
      *
      * @psalm-return MergePlanType
      */
-    public function generate(): array
+    public function asArray(): array
     {
         $result = [];
         foreach ($this->mergePlan as $environment => $groups) {
