@@ -25,6 +25,30 @@ final class NestedGroupTest extends IntegrationTestCase
         );
 
         $this->assertSame(['key' => 42], $config->get('di'));
-        $this->assertSame(['key' => 42, 'test' => 19], $config->get('di-web'));
+        $this->assertSame(['key' => 42, 'over' => 1, 'test' => 19], $config->get('di-web'));
+    }
+
+    public function testVendorOverrideLayer(): void
+    {
+        $config = $this->runComposerUpdateAndCreateConfig(
+            rootPath: __DIR__,
+            packages: [
+                'test/a' => __DIR__ . '/packages/a',
+                'test/over' => __DIR__ . '/packages/over',
+            ],
+            extra: [
+                'config-plugin' => [
+                    'params' => [],
+                    'di' => 'di.php',
+                    'di-web' => ['$di', 'di-web.php'],
+                ],
+                'config-plugin-options' => [
+                    'vendor-override-layer' => 'test/over',
+                ],
+            ],
+        );
+
+        $this->assertSame(['key' => 42], $config->get('di'));
+        $this->assertSame(['key' => 42, 'over' => 2, 'test' => 19], $config->get('di-web'));
     }
 }

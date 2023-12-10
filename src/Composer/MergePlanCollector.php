@@ -16,6 +16,11 @@ use function in_array;
  */
 final class MergePlanCollector
 {
+    private const PACKAGES_ORDER = [
+        Options::VENDOR_OVERRIDE_PACKAGE_NAME => 1,
+        Options::ROOT_PACKAGE_NAME => 2,
+    ];
+
     /**
      * @psalm-var MergePlanType
      */
@@ -127,7 +132,7 @@ final class MergePlanCollector
                     if ($a === $b) {
                         return 0;
                     }
-                    return $a === Options::ROOT_PACKAGE_NAME ? 1 : -1;
+                    return (self::PACKAGES_ORDER[$a] ?? 0) <=> (self::PACKAGES_ORDER[$b] ?? 0);
                 }
             );
         }
@@ -139,6 +144,7 @@ final class MergePlanCollector
                 }
             }
         }
+
         return $packages;
     }
 
