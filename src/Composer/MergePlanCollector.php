@@ -128,12 +128,7 @@ final class MergePlanCollector
             }
             uksort(
                 $packages,
-                static function ($a, $b) {
-                    if ($a === $b) {
-                        return 0;
-                    }
-                    return (self::PACKAGES_ORDER[$a] ?? 0) <=> (self::PACKAGES_ORDER[$b] ?? 0);
-                }
+                static fn($a, $b) => (self::PACKAGES_ORDER[$a] ?? 0) <=> (self::PACKAGES_ORDER[$b] ?? 0),
             );
         }
 
