@@ -79,19 +79,6 @@ final class MergePlanCollector
     }
 
     /**
-     * Returns the merge plan group.
-     *
-     * @param string $group The group name.
-     * @param string $environment The environment name.
-     *
-     * @return array<string, string[]>
-     */
-    public function getGroup(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): array
-    {
-        return $this->mergePlan[$environment][$group] ?? [];
-    }
-
-    /**
      * Returns the merge plan as an array.
      *
      * @psalm-return MergePlanType
