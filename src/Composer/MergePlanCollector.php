@@ -104,11 +104,11 @@ final class MergePlanCollector
      * @psalm-param array<string, array<string, string[]>> $groups
      * @psalm-return array<string, string[]>
      */
-    private function expandVariablesInPackages(array $packages, array $groups, ?string $group = null): array
+    private function expandVariablesInPackages(array $packages, array $groups, ?string $targetGroup = null): array
     {
-        if ($group !== null) {
-            $groupPackages = $this->expandVariablesInPackages($groups[$group], $groups);
-            $variable = '$' . $group;
+        if ($targetGroup !== null) {
+            $groupPackages = $this->expandVariablesInPackages($groups[$targetGroup], $groups);
+            $variable = '$' . $targetGroup;
             foreach ($groupPackages as $groupPackage => $groupItems) {
                 $packageItems = $packages[$groupPackage] ?? [];
                 $packages[$groupPackage] = in_array($variable, $packageItems, true)
