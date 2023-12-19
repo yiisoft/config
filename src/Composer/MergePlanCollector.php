@@ -71,7 +71,7 @@ final class MergePlanCollector
     }
 
     /**
-     * Add empty group if it not exists.
+     * Add empty group if it doesn't exist.
      *
      * @param string $group The group name.
      * @param string $environment The environment name.
