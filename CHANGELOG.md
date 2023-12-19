@@ -4,7 +4,7 @@
 
 - New #155: Add ability to specify recursion depth for recursive modifier (@vjik)
 - Enh #157: Remove unnecessary code in `PackagesListBuilder` (@vjik)
-- Bug #153: Prevent throw "Duplicate key…" exception on use nested groups (@vjik)
+- Bug #153: Do not throw "Duplicate key…" exception when using nested groups (@vjik)
 
 ## 1.4.0 November 17, 2023
 
