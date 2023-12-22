@@ -12,7 +12,6 @@ final class DoubleDotInPathTest extends IntegrationTestCase
     {
         $config = $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,
-
             extra: [
                 'config-plugin-options' => [
                     'source-directory' => 'config',

@@ -44,6 +44,7 @@ final class RecursiveReverseTest extends IntegrationTestCase
             $config->get('params')
         );
     }
+
     public function testRemoveNestedKeyFromVendor(): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(

@@ -26,7 +26,7 @@ final class RemoveFromVendorPackagesTest extends IntegrationTestCase
                         'nested-a' => 1,
                         'nested-app' => 0,
                     ],
-                ]
+                ],
             ],
             'keys-package-and-group' => [
                 RemoveFromVendor::keys(['nested'])->package('test/b', 'params1'),
