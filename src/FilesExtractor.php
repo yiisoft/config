@@ -38,7 +38,7 @@ final class FilesExtractor
     {
         $environment = $this->prepareEnvironment($group);
 
-        $result = $this->process(Options::DEFAULT_ENVIRONMENT, $group, $this->mergePlan->getGroup($group));
+        return $this->process($environment, $group, $this->mergePlan->getGroup($group, $environment));
 
         if ($environment !== Options::DEFAULT_ENVIRONMENT) {
             $result = array_merge(
@@ -81,13 +81,25 @@ final class FilesExtractor
         $result = [];
 
         foreach ($data as $package => $items) {
-            $layer = $this->detectLayer($environment, $package);
+            $defaultLayer = match ($package) {
+                Options::ROOT_PACKAGE_NAME => Context::APPLICATION,
+                Options::VENDOR_OVERRIDE_PACKAGE_NAME => Context::VENDOR_OVERRIDE,
+                default => Context::VENDOR,
+            };
 
-            if ($this->dataModifiers->shouldRemoveGroupFromVendor($package, $group, $layer)) {
+
+            if ($defaultLayer === Context::VENDOR && $this->dataModifiers->shouldRemoveGroupFromVendor($package, $group)) {
                 continue;
             }
 
             foreach ($items as $item) {
+                if (is_array($item)) {
+                    $item = $item[0];
+                    $layer = Context::ENVIRONMENT;
+                } else {
+                    $layer = $defaultLayer;
+                }
+
                 if (Options::isVariable($item)) {
                     $result[$item] = new Context($group, $package, $layer, $item, true);
                     continue;
@@ -113,24 +125,6 @@ final class FilesExtractor
         }
 
         return $result;
-    }
-
-    /**
-     * Calculates the layer for the context.
-     *
-     * @param string $environment The environment name.
-     * @param string $package The package name.
-     *
-     * @return int The layer for the context.
-     */
-    private function detectLayer(string $environment, string $package): int
-    {
-        return match ($package) {
-            Options::ROOT_PACKAGE_NAME => Context::APPLICATION,
-            Options::ENVIRONMENT_PACKAGE_NAME => Context::ENVIRONMENT,
-            Options::VENDOR_OVERRIDE_PACKAGE_NAME => Context::VENDOR_OVERRIDE,
-            default => Context::VENDOR,
-        };
     }
 
     /**

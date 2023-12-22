@@ -471,8 +471,6 @@ final class DummyTest extends IntegrationTestCase
                     'empty' => [],
                     'emptyVariable' => '$empty',
                     'events' => 'events.php',
-                    'failVariableGroupEqual' => '$failVariableGroupEqual',
-                    'failVariableGroupNotExist' => '$failVariableNotExist',
                     'common' => [
                         'common/*.php',
                         'common/*/*.php',
@@ -488,8 +486,6 @@ final class DummyTest extends IntegrationTestCase
                 ],
                 'config-plugin-environments' => [
                     'alfa' => [
-                        'failVariableGroupEqual' => '$failVariableGroupEqual',
-                        'failVariableGroupNotExist' => '$failVariableNotExist',
                         'main' => [
                             '$web',
                             'alfa/main.php',

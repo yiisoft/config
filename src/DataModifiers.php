@@ -123,12 +123,8 @@ final class DataModifiers
         return array_key_exists($group, $this->reverseMergeGroupsIndex);
     }
 
-    public function shouldRemoveGroupFromVendor(string $package, string $group, int $layer): bool
+    public function shouldRemoveGroupFromVendor(string $package, string $group): bool
     {
-        if ($layer !== Context::VENDOR) {
-            return false;
-        }
-
         return array_key_exists('*~*', $this->removeFromVendorGroupsIndex)
             || array_key_exists('*~' . $group, $this->removeFromVendorGroupsIndex)
             || array_key_exists($package . '~*', $this->removeFromVendorGroupsIndex)

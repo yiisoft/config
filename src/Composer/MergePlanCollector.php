@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Composer;
 
+use ErrorException;
 use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 
@@ -19,13 +20,17 @@ final class MergePlanCollector
     private const PACKAGES_ORDER = [
         Options::VENDOR_OVERRIDE_PACKAGE_NAME => 1,
         Options::ROOT_PACKAGE_NAME => 2,
-        Options::ENVIRONMENT_PACKAGE_NAME => 3,
     ];
 
     /**
      * @psalm-var MergePlanType
      */
     private array $mergePlan = [];
+
+    /**
+     * @psalm-var array<string,true|null>
+     */
+    private array $processedGroups = [];
 
     /**
      * Adds an item to the merge plan.
@@ -126,13 +131,26 @@ final class MergePlanCollector
     private function expandVariablesInPackages(array $packages, array $groups, ?string $targetGroup = null): array
     {
         if ($targetGroup !== null) {
+            if (!isset($groups[$targetGroup])) {
+                throw new ErrorException(
+                    sprintf('The "%s" configuration group does not exist.', $targetGroup),
+                    severity: E_USER_ERROR
+                );
+            }
+
+            if (isset($this->processedGroups[$targetGroup])) {
+                throw new ErrorException('Circular dependency', severity: E_USER_ERROR);
+            }
+            $this->processedGroups[$targetGroup] = true;
             $groupPackages = $this->expandVariablesInPackages($groups[$targetGroup], $groups);
+            $this->processedGroups[$targetGroup] = null;
+
             $variable = '$' . $targetGroup;
             foreach ($groupPackages as $groupPackage => $groupItems) {
                 $packageItems = $packages[$groupPackage] ?? [];
                 $packages[$groupPackage] = in_array($variable, $packageItems, true)
                     ? $this->replaceVariableToFiles($packageItems, $variable, $groupItems)
-                    : array_merge($groupItems, $packageItems);
+                    : array_merge($packageItems, $groupItems);
             }
             foreach ($packages as $package => $items) {
                 $packages[$package] = array_filter(
