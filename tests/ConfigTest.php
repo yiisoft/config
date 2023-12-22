@@ -436,28 +436,6 @@ final class ConfigTest extends TestCase
         );
     }
 
-    public function testDeepRecursive(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/deep-recursive', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            [
-                RecursiveMerge::groups('params'),
-            ]
-        );
-
-        $this->assertSame([
-            'nested' => [
-                'nested2' => [
-                    'nested3-1' => 1,
-                    'nested3-2' => 2,
-                    'nested3-3' => 3,
-                    'nested3-4' => 4,
-                ],
-            ],
-        ], $config->get('params'));
-    }
-
     public static function dataRecursionDepth(): array
     {
         return [
