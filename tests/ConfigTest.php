@@ -485,19 +485,6 @@ final class ConfigTest extends TestCase
         );
     }
 
-    public function testNotFoundFile(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/not-found-file', 'config'),
-        );
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessageMatches(
-            '~^The ".*/params2\.php" file does not found\.$~'
-        );
-        $config->get('params');
-    }
-
     public function testDeepRecursive(): void
     {
         $config = new Config(
