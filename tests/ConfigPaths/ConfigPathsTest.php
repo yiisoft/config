@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests;
+namespace Yiisoft\Config\Tests\ConfigPaths;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\ConfigPaths;
@@ -15,10 +15,10 @@ final class ConfigPathsTest extends TestCase
     public function absolutePathsDataProvider(): array
     {
         return [
-            ['params.php', Options::ROOT_PACKAGE_NAME, self::ROOT_PATH . '/config/params.php'],
-            ['alfa/main.php', Options::ROOT_PACKAGE_NAME, self::ROOT_PATH . '/config/alfa/main.php'],
-            ['common.php', 'package/a', self::ROOT_PATH . '/vendor/package/a/common.php'],
-            ['web.php', 'package/b', self::ROOT_PATH . '/vendor/package/b/web.php'],
+            ['params.php', Options::ROOT_PACKAGE_NAME, __DIR__ . '/config/params.php'],
+            ['alfa/main.php', Options::ROOT_PACKAGE_NAME,__DIR__ . '/config/alfa/main.php'],
+            ['common.php', 'package/a', __DIR__ . '/vendor/package/a/common.php'],
+            ['web.php', 'package/b', __DIR__ . '/vendor/package/b/web.php'],
         ];
     }
 
@@ -35,6 +35,6 @@ final class ConfigPathsTest extends TestCase
 
     private function createConfigPaths(): ConfigPaths
     {
-        return new ConfigPaths(self::ROOT_PATH, 'config', 'vendor');
+        return new ConfigPaths(__DIR__, 'config', 'vendor');
     }
 }
