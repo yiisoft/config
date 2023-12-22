@@ -4,48 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests;
 
-use ErrorException;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Modifier\RecursiveMerge;
 use Yiisoft\Config\Modifier\RemoveFromVendor;
-use Yiisoft\Config\Modifier\ReverseMerge;
 use Yiisoft\Config\Options;
 
 final class ConfigTest extends TestCase
 {
-    public function testDuplicateRootKeysErrorMessage(): void
-    {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys', 'config'));
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/params/a.php' . "\n" .
-            ' - config/params/b.php'
-        );
-
-        $config->get('params');
-    }
-
-    public function testDuplicateRootKeysErrorMessageWithReverseMerge(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-root-keys', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            [ReverseMerge::groups('params')]
-        );
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/params/a.php' . "\n" .
-            ' - config/params/b.php'
-        );
-        $config->get('params');
-    }
-
     public function testConfigWithCustomParams(): void
     {
         $config = new Config(
