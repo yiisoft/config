@@ -19,6 +19,7 @@ final class Options
     public const DEFAULT_ENVIRONMENT = '/';
     public const ROOT_PACKAGE_NAME = '/';
     public const VENDOR_OVERRIDE_PACKAGE_NAME = '//';
+    public const ENVIRONMENT_PACKAGE_NAME = '///';
     public const DEFAULT_PACKAGE_TYPES = ['library', 'composer-plugin'];
 
     private string $mergePlanFile = self::DEFAULT_MERGE_PLAN_FILE;

@@ -43,7 +43,7 @@ final class ConfigPaths
      */
     public function absolute(string $file, string $package = Options::ROOT_PACKAGE_NAME): string
     {
-        if ($package === Options::ROOT_PACKAGE_NAME) {
+        if ($package === Options::ROOT_PACKAGE_NAME || $package === Options::ENVIRONMENT_PACKAGE_NAME) {
             return "$this->configPath/$file";
         }
 

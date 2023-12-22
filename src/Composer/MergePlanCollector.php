@@ -19,6 +19,7 @@ final class MergePlanCollector
     private const PACKAGES_ORDER = [
         Options::VENDOR_OVERRIDE_PACKAGE_NAME => 1,
         Options::ROOT_PACKAGE_NAME => 2,
+        Options::ENVIRONMENT_PACKAGE_NAME => 3,
     ];
 
     /**
@@ -91,16 +92,29 @@ final class MergePlanCollector
     public function asArray(): array
     {
         $result = [];
+        $result[Options::DEFAULT_ENVIRONMENT] = [];
+        foreach ($this->mergePlan[Options::DEFAULT_ENVIRONMENT] as $group => $packages) {
+            $result[Options::DEFAULT_ENVIRONMENT][$group] = $this->expandVariablesInPackages(
+                $packages,
+                $this->mergePlan[Options::DEFAULT_ENVIRONMENT]
+            );
+        }
+
         foreach ($this->mergePlan as $environment => $groups) {
-            if ($environment === Options::DEFAULT_ENVIRONMENT) {
-                $result[$environment] = [];
+            if ($environment !== Options::DEFAULT_ENVIRONMENT) {
+                $base = $this->mergePlan[Options::DEFAULT_ENVIRONMENT];
                 foreach ($groups as $group => $packages) {
-                    $result[$environment][$group] = $this->expandVariablesInPackages($packages, $groups);
+                    $base[$group][Options::ENVIRONMENT_PACKAGE_NAME] = $packages['/'];
                 }
-            } else {
-                $result[$environment] = $groups;
+                foreach ($base as $group => $packages) {
+                    $result[$environment][$group] = $this->expandVariablesInPackages(
+                        $packages,
+                        $base
+                    );
+                }
             }
         }
+
         return $result;
     }
 
