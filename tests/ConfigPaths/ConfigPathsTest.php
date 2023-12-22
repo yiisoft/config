@@ -10,8 +10,6 @@ use Yiisoft\Config\Options;
 
 final class ConfigPathsTest extends TestCase
 {
-    private const ROOT_PATH = __DIR__ . '/TestAsset/configs/dummy';
-
     public function absolutePathsDataProvider(): array
     {
         return [
