@@ -1,0 +1,10 @@
+{
+    "name": "test/a",
+    "version": "1.0.0",
+    "extra": {
+        "config-plugin": {
+            "web1": "web1.php",
+            "web2": "web2.php"
+        }
+    }
+}
