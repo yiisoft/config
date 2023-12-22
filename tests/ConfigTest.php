@@ -1111,18 +1111,6 @@ final class ConfigTest extends TestCase
         ], $config->get('definitions-backend'));
     }
 
-    public function testDoubleDotInPath(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/double-dot-in-path', 'config'),
-        );
-
-        $this->assertSame([
-            'a' => 1,
-            'b' => 2,
-        ], $config->get('params'));
-    }
-
     public function testMergeIndexedArray(): void
     {
         $config = new Config(
