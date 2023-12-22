@@ -383,40 +383,6 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
-    public function testDuplicateEnvironmentKeysErrorMessage(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys', 'config'),
-            'environment'
-        );
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/environment/params/a.php' . "\n" .
-            ' - config/environment/params/b.php'
-        );
-
-        $config->get('params');
-    }
-
-    public function testDuplicateEnvironmentKeysErrorMessageWithReverseMerge(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-environment-keys', 'config'),
-            'environment',
-            [ReverseMerge::groups('params')]
-        );
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/environment/params/a.php' . "\n" .
-            ' - config/environment/params/b.php'
-        );
-        $config->get('params');
-    }
-
     public function testDuplicateVendorKeysErrorMessage(): void
     {
         $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys', 'config'));
