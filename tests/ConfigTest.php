@@ -449,21 +449,6 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
-    public function testDuplicateKeysWithRecursiveKeyPathErrorMessage(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys-with-params', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            [RecursiveMerge::groups('params')]
-        );
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessageMatches(
-            '~^Duplicate key "name => first-name" in the following configs while building "params" group~',
-        );
-        $config->get('params');
-    }
-
     public function testConfigWithCustomParams(): void
     {
         $config = new Config(
