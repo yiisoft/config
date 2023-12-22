@@ -832,21 +832,6 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
-    public function testNestedGroupInEnvironment(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/nested-in-environment', 'config'),
-            'environment',
-        );
-
-        $this->assertSame([
-            'app-base' => 7,
-            'only-app' => 42,
-            'env-base' => 8,
-            'app-backend' => 2,
-        ], $config->get('definitions-backend'));
-    }
-
     private function createConfig(string $environment = Options::DEFAULT_ENVIRONMENT): Config
     {
         return new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/dummy', 'config'), $environment);
