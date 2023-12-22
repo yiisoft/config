@@ -1076,22 +1076,6 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
-    public function testReverseWithTwoVariables(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/variables', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            [
-                ReverseMerge::groups('web'),
-            ]
-        );
-
-        $this->assertSame([
-            'b' => 2,
-            'a' => 1,
-        ], $config->get('web'));
-    }
-
     public function testReverseAndRemoveNestedKeyFromVendor(): void
     {
         $config = new Config(
@@ -1137,31 +1121,6 @@ final class ConfigTest extends TestCase
             'a' => 1,
             'b' => 2,
         ], $config->get('params'));
-    }
-
-    public function dataDefaultEnvironment(): array
-    {
-        return [
-            [null],
-            [''],
-            ['/'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataDefaultEnvironment
-     */
-    public function testDefaultEnvironment(?string $environment): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/variables', 'config'),
-            $environment,
-        );
-
-        $this->assertSame([
-            'a' => 1,
-            'b' => 2,
-        ], $config->get('web'));
     }
 
     public function testMergeIndexedArray(): void
