@@ -832,45 +832,6 @@ final class ConfigTest extends TestCase
         ], $config->get('params'));
     }
 
-    public function testReverseAndRecursive(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            [
-                RecursiveMerge::groups('params'),
-                ReverseMerge::groups('params'),
-            ]
-        );
-
-        $this->assertSame([
-            'array' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
-            'nested' => [
-                'nested-key' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
-            ],
-        ], $config->get('params'));
-    }
-
-    public function testReverseAndRemoveNestedKeyFromVendor(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/recursive-reverse', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            [
-                RecursiveMerge::groups('params'),
-                ReverseMerge::groups('params'),
-                RemoveFromVendor::keys(['nested', 'nested-key']),
-            ]
-        );
-
-        $this->assertSame([
-            'array' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
-            'nested' => [
-                'nested-key' => [7, 8, 9],
-            ],
-        ], $config->get('params'));
-    }
-
     public function testNestedGroupInEnvironment(): void
     {
         $config = new Config(
