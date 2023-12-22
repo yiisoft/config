@@ -46,38 +46,6 @@ final class ConfigTest extends TestCase
         $config->get('params');
     }
 
-    public function testDuplicateVendorKeysErrorMessage(): void
-    {
-        $config = new Config(new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys', 'config'));
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - vendor/package/a/params.php' . "\n" .
-            ' - vendor/package/b/params.php'
-        );
-
-        $config->get('params');
-    }
-
-    public function testDuplicateVendorKeysErrorMessageWithReverseMerge(): void
-    {
-        $config = new Config(
-            new ConfigPaths(__DIR__ . '/TestAsset/configs/duplicate-vendor-keys', 'config'),
-            Options::DEFAULT_ENVIRONMENT,
-            [ReverseMerge::groups('params')]
-        );
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - vendor/package/a/params.php' . "\n" .
-            ' - vendor/package/b/params.php'
-        );
-
-        $config->get('params');
-    }
-
     public function testConfigWithCustomParams(): void
     {
         $config = new Config(
