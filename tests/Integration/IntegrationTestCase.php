@@ -104,6 +104,7 @@ abstract class IntegrationTestCase extends TestCase
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
         ?string $environment = null,
         ?string $paramsGroup = 'params',
+        array $modifiers = [],
     ): Config {
         $output = $this->runComposerUpdate($rootPath, $packages, $extra, $configDirectory, $mergePlanFile);
 
@@ -111,8 +112,9 @@ abstract class IntegrationTestCase extends TestCase
             return new Config(
                 new ConfigPaths($rootPath, $configDirectory),
                 environment: $environment,
-                mergePlanFile: $mergePlanFile,
+                modifiers: $modifiers,
                 paramsGroup: $paramsGroup,
+                mergePlanFile: $mergePlanFile,
             );
         } catch (Throwable $exception) {
             echo $output;
