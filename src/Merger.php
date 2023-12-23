@@ -158,7 +158,7 @@ final class Merger
             if (!$isReverseMerge || !$existKey) {
                 $isSet = $this->setValue($context, $fullKeyPath, $result, $k, $v);
 
-                if ($isSet && !$isReverseMerge && !$context->isVariable()) {
+                if ($isSet && !$isReverseMerge) {
                     /** @psalm-suppress MixedPropertyTypeCoercion */
                     ArrayHelper::setValue(
                         $this->cacheKeys,
@@ -202,11 +202,6 @@ final class Merger
                     $value,
                     true,
                 );
-                continue;
-            }
-
-            if ($context->isVariable()) {
-                $result[$key] = $value;
                 continue;
             }
 

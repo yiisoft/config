@@ -77,7 +77,7 @@ final class FilesExtractor
 
                 foreach ($files as $file) {
                     if (is_file($file)) {
-                        $result[$file] = new Context($group, $package, $layer, $file, false);
+                        $result[$file] = new Context($group, $package, $layer, $file);
                     } elseif (!$isOptional) {
                         $message = Options::isVariable($item)
                             ? sprintf('Don\'t allow to use variables in environments. Found variable "%s".', $item)
