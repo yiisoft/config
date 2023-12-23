@@ -11,7 +11,6 @@ use function func_get_arg;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
-use function substr;
 
 /**
  * Config takes merge plan prepared by {@see \Yiisoft\Config\Composer\EventHandler}
