@@ -23,11 +23,9 @@ final class DuplicateEnvironmentKeysTest extends IntegrationTestCase
                     'source-directory' => 'config',
                 ],
                 'config-plugin' => [
-                    'params' => 'params/*.php',
-                ],
-                'config-plugin-environments' => [
-                    'environment' => [
-                        'params' => 'environment/params/*.php',
+                    'params' => [
+                        'params/*.php',
+                        ['environment', 'environment/params/*.php'],
                     ],
                 ],
             ],
@@ -57,11 +55,9 @@ final class DuplicateEnvironmentKeysTest extends IntegrationTestCase
                     'source-directory' => 'config',
                 ],
                 'config-plugin' => [
-                    'params' => 'params/*.php',
-                ],
-                'config-plugin-environments' => [
-                    'environment' => [
-                        'params' => 'environment/params/*.php',
+                    'params' => [
+                        'params/*.php',
+                        ['environment', 'environment/params/*.php'],
                     ],
                 ],
             ],

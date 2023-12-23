@@ -1,0 +1,9 @@
+{
+    "name": "test/a",
+    "version": "1.0.0",
+    "extra": {
+        "config-plugin": {
+            "di-web": "di-web.php"
+        }
+    }
+}

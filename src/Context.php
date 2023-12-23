@@ -19,7 +19,6 @@ final class Context
         private string $package,
         private int $layer,
         private string $file,
-        private bool $isVariable,
     ) {
     }
 
@@ -41,10 +40,5 @@ final class Context
     public function file(): string
     {
         return $this->file;
-    }
-
-    public function isVariable(): bool
-    {
-        return $this->isVariable;
     }
 }

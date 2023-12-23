@@ -105,7 +105,7 @@ abstract class IntegrationTestCase extends TestCase
         ?string $environment = null,
         ?string $paramsGroup = 'params',
         array $modifiers = [],
-        bool $echoOutputOnException = true,
+        bool $echoOutputOnException = false,
     ): Config {
         $output = $this->runComposerUpdate($rootPath, $packages, $extra, $configDirectory, $mergePlanFile);
 

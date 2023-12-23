@@ -191,19 +191,6 @@ final class ProcessHelper
     }
 
     /**
-     * Returns the environment configuration.
-     *
-     * @return array The environment configuration.
-     *
-     * @psalm-return array<string, array<string, string|string[]>>
-     * @psalm-suppress MixedReturnTypeCoercion
-     */
-    public function getEnvironmentConfig(): array
-    {
-        return (array) ($this->rootPackageExtra['config-plugin-environments'] ?? []);
-    }
-
-    /**
      * Returns the config paths instance.
      *
      * @return ConfigPaths The config paths instance.

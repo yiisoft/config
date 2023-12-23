@@ -11,7 +11,6 @@ use function func_get_arg;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
-use function substr;
 
 /**
  * Config takes merge plan prepared by {@see \Yiisoft\Config\Composer\EventHandler}
@@ -39,17 +38,14 @@ final class Config implements ConfigInterface
      */
     public function __construct(
         ConfigPaths $paths,
-        string $environment = null,
+        ?string $environment = null,
         array $modifiers = [],
         private ?string $paramsGroup = 'params',
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ) {
-        $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
+        $mergePlan = new MergePlan($paths->absolute($mergePlanFile));
 
-        /** @psalm-suppress UnresolvableInclude, MixedArgument */
-        $mergePlan = new MergePlan(require $paths->absolute($mergePlanFile));
-
-        if (!$mergePlan->hasEnvironment($environment)) {
+        if ($environment !== null && !$mergePlan->hasEnvironment($environment)) {
             $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));
         }
 
@@ -117,44 +113,12 @@ final class Config implements ConfigInterface
         $this->build[$group] = [];
 
         foreach ($this->filesExtractor->extract($group) as $file => $context) {
-            if (Options::isVariable($file)) {
-                $variable = $this->prepareVariable($file, $group);
-                $array = $this->get($variable);
-            } else {
-                $array = $this->buildFile($file);
-            }
-
             $this->build[$group] = $this->merger->merge(
                 $context,
                 $this->build[$group],
-                $array,
+                $this->buildFile($file),
             );
         }
-    }
-
-    /**
-     * Checks the configuration variable and returns its name.
-     *
-     * @param string $variable The variable.
-     * @param string $group The group name.
-     *
-     * @throws ErrorException If the variable name is not valid.
-     *
-     * @return string The variable name.
-     */
-    private function prepareVariable(string $variable, string $group): string
-    {
-        $name = substr($variable, 1);
-
-        if ($name === $group) {
-            $this->throwException(sprintf(
-                'The variable "%s" must not be located inside the "%s" config group.',
-                "$variable",
-                "$name",
-            ));
-        }
-
-        return $name;
     }
 
     /**

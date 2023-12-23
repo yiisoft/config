@@ -135,6 +135,14 @@ final class Merger
 
             $existKey = array_key_exists($k, $result);
 
+            if (
+                $existKey
+                && $context->layer() !== Context::ENVIRONMENT
+                && isset($this->cacheKeys[Context::ENVIRONMENT][$k])
+            ) {
+                continue;
+            }
+
             if ($existKey && !$isReverseMerge) {
                 /** @var string|null $file */
                 $file = ArrayHelper::getValue(
@@ -150,7 +158,7 @@ final class Merger
             if (!$isReverseMerge || !$existKey) {
                 $isSet = $this->setValue($context, $fullKeyPath, $result, $k, $v);
 
-                if ($isSet && !$isReverseMerge && !$context->isVariable()) {
+                if ($isSet && !$isReverseMerge) {
                     /** @psalm-suppress MixedPropertyTypeCoercion */
                     ArrayHelper::setValue(
                         $this->cacheKeys,
@@ -194,11 +202,6 @@ final class Merger
                     $value,
                     true,
                 );
-                continue;
-            }
-
-            if ($context->isVariable()) {
-                $result[$key] = $value;
                 continue;
             }
 

@@ -3,5 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'root-web-key' => 'root-web-value',
+    'key' => 7,
+    'over' => 1,
 ];

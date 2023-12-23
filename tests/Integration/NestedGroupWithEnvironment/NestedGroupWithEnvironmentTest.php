@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Integration\BaseWithEnvironment;
+namespace Yiisoft\Config\Tests\Integration\NestedGroupWithEnvironment;
 
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
-final class BaseWithEnvironmentTest extends IntegrationTestCase
+final class NestedGroupWithEnvironmentTest extends IntegrationTestCase
 {
     public function testBase(): void
     {
@@ -21,19 +21,16 @@ final class BaseWithEnvironmentTest extends IntegrationTestCase
                         'params.php',
                         ['dev', 'params-dev.php'],
                     ],
-                    'web' => [],
+                    'params-web' => [
+                        '$params',
+                        'params-web.php',
+                    ],
                 ],
             ],
             environment: 'dev',
         );
 
-        $this->assertSame(
-            [
-                'a' => 1,
-                'b' => 99,
-                'c' => 3,
-            ],
-            $config->get('params')
-        );
+        $this->assertSame(['key' => 'environment'], $config->get('params'));
+        $this->assertSame(['key' => 'environment'], $config->get('params-web'));
     }
 }

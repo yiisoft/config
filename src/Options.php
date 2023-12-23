@@ -66,6 +66,9 @@ final class Options
         return str_starts_with($file, '?');
     }
 
+    /**
+     * @psalm-param string $file
+     */
     public static function isVariable(string $file): bool
     {
         return str_starts_with($file, '$');

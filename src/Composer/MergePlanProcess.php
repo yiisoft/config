@@ -7,7 +7,6 @@ namespace Yiisoft\Config\Composer;
 use Composer\Composer;
 use Composer\Package\PackageInterface;
 use Composer\Util\Filesystem;
-use Yiisoft\Config\MergePlan;
 use Yiisoft\Config\Options;
 use Yiisoft\VarDumper\VarDumper;
 
@@ -24,7 +23,7 @@ use function substr;
  */
 final class MergePlanProcess
 {
-    private MergePlan $mergePlan;
+    private MergePlanCollector $mergePlanCollector;
     private ProcessHelper $helper;
 
     /**
@@ -32,7 +31,7 @@ final class MergePlanProcess
      */
     public function __construct(Composer $composer)
     {
-        $this->mergePlan = new MergePlan();
+        $this->mergePlanCollector = new MergePlanCollector();
         $this->helper = new ProcessHelper($composer);
 
         if (!$this->helper->shouldBuildMergePlan()) {
@@ -43,7 +42,6 @@ final class MergePlanProcess
         $this->addPackagesConfigsToMergePlan(true);
 
         $this->addRootPackageConfigToMergePlan();
-        $this->addEnvironmentsConfigsToMergePlan();
 
         $this->updateMergePlan();
     }
@@ -57,7 +55,7 @@ final class MergePlanProcess
             $packageName = $isVendorOverrideLayer ? Options::VENDOR_OVERRIDE_PACKAGE_NAME : $name;
 
             foreach ($this->helper->getPackageConfig($package) as $group => $files) {
-                $this->mergePlan->addGroup($group);
+                $this->mergePlanCollector->addGroup($group);
 
                 foreach ((array) $files as $file) {
                     $isOptional = false;
@@ -68,7 +66,7 @@ final class MergePlanProcess
                     }
 
                     if (Options::isVariable($file)) {
-                        $this->mergePlan->add($file, $packageName, $group);
+                        $this->mergePlanCollector->add($file, $packageName, $group);
                         continue;
                     }
 
@@ -82,7 +80,7 @@ final class MergePlanProcess
                         }
 
                         foreach ($matches as $match) {
-                            $this->mergePlan->add(
+                            $this->mergePlanCollector->add(
                                 $this->normalizePackageFilePath($package, $match, $isVendorOverrideLayer),
                                 $packageName,
                                 $group,
@@ -96,7 +94,7 @@ final class MergePlanProcess
                         continue;
                     }
 
-                    $this->mergePlan->add(
+                    $this->mergePlanCollector->add(
                         $this->normalizePackageFilePath($package, $absoluteFilePath, $isVendorOverrideLayer),
                         $packageName,
                         $group,
@@ -109,7 +107,7 @@ final class MergePlanProcess
     private function addRootPackageConfigToMergePlan(): void
     {
         foreach ($this->helper->getRootPackageConfig() as $group => $files) {
-            $this->mergePlan->addMultiple(
+            $this->mergePlanCollector->addMultiple(
                 (array) $files,
                 Options::ROOT_PACKAGE_NAME,
                 $group,
@@ -117,32 +115,9 @@ final class MergePlanProcess
         }
     }
 
-    private function addEnvironmentsConfigsToMergePlan(): void
-    {
-        foreach ($this->helper->getEnvironmentConfig() as $environment => $groups) {
-            if ($environment === Options::DEFAULT_ENVIRONMENT) {
-                continue;
-            }
-
-            if (empty($groups)) {
-                $this->mergePlan->addEnvironmentWithoutConfigs($environment);
-                continue;
-            }
-
-            foreach ($groups as $group => $files) {
-                $this->mergePlan->addMultiple(
-                    (array) $files,
-                    Options::ROOT_PACKAGE_NAME,
-                    $group,
-                    $environment,
-                );
-            }
-        }
-    }
-
     private function updateMergePlan(): void
     {
-        $mergePlan = $this->mergePlan->toArray();
+        $mergePlan = $this->mergePlanCollector->asArray();
         ksort($mergePlan);
 
         $filePath = $this->helper->getPaths()->absolute(
