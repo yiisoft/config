@@ -122,7 +122,7 @@ final class MergePlanCollector
             }
 
             if (isset($this->processedGroups[$targetGroup])) {
-                throw new ErrorException('Circular dependency', severity: E_USER_ERROR);
+                throw new ErrorException('Circular references in configuration.', severity: E_USER_ERROR);
             }
             $this->processedGroups[$targetGroup] = true;
             $groupPackages = $this->expandVariablesInPackages($this->mergePlan[$targetGroup]);
