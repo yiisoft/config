@@ -7,7 +7,7 @@ namespace Yiisoft\Config;
 /**
  * @internal
  *
- * @psalm-type FileType = string|list{string,string}
+ * @psalm-type FileType = string|array{0:string,1:string}
  * @psalm-type MergePlanType = array{
  *     groups: array<string, array<string, list<FileType>>>,
  *     environments: list<string>,

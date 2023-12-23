@@ -40,7 +40,7 @@ final class MergePlanCollector
      * @param string $package The package name.
      * @param string $group The group name.
      *
-     * @psalm-param list{string,string}|string $file
+     * @psalm-param array{0:string,1:string}|string $file
      */
     public function add(array|string $file, string $package, string $group): void
     {
@@ -54,7 +54,7 @@ final class MergePlanCollector
      * @param string $package The package name.
      * @param string $group The group name.
      *
-     * @psalm-param list<string|list{string,string}> $files
+     * @psalm-param list<string|array{0:string,1:string}> $files
      */
     public function addMultiple(
         array $files,
