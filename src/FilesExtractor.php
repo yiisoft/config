@@ -6,7 +6,6 @@ namespace Yiisoft\Config;
 
 use ErrorException;
 
-use function array_merge;
 use function glob;
 use function is_file;
 use function sprintf;
@@ -102,9 +101,9 @@ final class FilesExtractor
     public function hasGroup(string $group): bool
     {
         return $this->mergePlan->hasGroup($group) || (
-                $this->environment !== Options::DEFAULT_ENVIRONMENT &&
-                $this->mergePlan->hasGroup($group)
-            );
+            $this->environment !== Options::DEFAULT_ENVIRONMENT &&
+            $this->mergePlan->hasGroup($group)
+        );
     }
 
     /**

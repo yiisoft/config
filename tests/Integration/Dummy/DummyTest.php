@@ -308,13 +308,13 @@ final class DummyTest extends IntegrationTestCase
                         'params.php',
                         '?params-local.php',
                         ['alfa', 'alfa/params.php'],
-                        ['beta', 'beta/params.php']
+                        ['beta', 'beta/params.php'],
                     ],
                     'web' => [
                         'web.php',
                         ['alfa', 'alfa/web.php'],
                         ['alfa', 'alfa/web2.php'],
-                        ['beta', 'beta/web.php']
+                        ['beta', 'beta/web.php'],
                     ],
                     'main' => [
                         ['alfa', 'alfa/main.php'],
