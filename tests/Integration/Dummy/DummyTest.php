@@ -389,7 +389,7 @@ final class DummyTest extends IntegrationTestCase
     {
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage('The "not-exist" configuration environment does not exist.');
-        $this->prepareConfig('not-exist', echoOutputOnException: false);
+        $this->prepareConfig('not-exist');
     }
 
     public function testGetThrowExceptionForGroupNotExist(): void
@@ -453,7 +453,7 @@ final class DummyTest extends IntegrationTestCase
     private function prepareConfig(
         ?string $environment = null,
         array $modifiers = [],
-        bool $echoOutputOnException = true,
+        bool $echoOutputOnException = false,
     ): Config {
         return $this->runComposerUpdateAndCreateConfig(
             rootPath: __DIR__,
