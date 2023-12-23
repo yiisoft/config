@@ -100,10 +100,7 @@ final class FilesExtractor
      */
     public function hasGroup(string $group): bool
     {
-        return $this->mergePlan->hasGroup($group) || (
-            $this->environment !== Options::DEFAULT_ENVIRONMENT &&
-            $this->mergePlan->hasGroup($group)
-        );
+        return $this->mergePlan->hasGroup($group);
     }
 
     /**

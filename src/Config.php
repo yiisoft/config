@@ -123,31 +123,6 @@ final class Config implements ConfigInterface
     }
 
     /**
-     * Checks the configuration variable and returns its name.
-     *
-     * @param string $variable The variable.
-     * @param string $group The group name.
-     *
-     * @throws ErrorException If the variable name is not valid.
-     *
-     * @return string The variable name.
-     */
-    private function prepareVariable(string $variable, string $group): string
-    {
-        $name = substr($variable, 1);
-
-        if ($name === $group) {
-            $this->throwException(sprintf(
-                'The variable "%s" must not be located inside the "%s" config group.',
-                "$variable",
-                "$name",
-            ));
-        }
-
-        return $name;
-    }
-
-    /**
      * Builds the configuration from the file.
      *
      * @param string $filePath The file path.
