@@ -39,7 +39,7 @@ final class FilesExtractor
         if (!$this->mergePlan->hasGroup($group)) {
             $this->throwException(sprintf('The "%s" configuration group does not exist.', $group));
         }
-        
+
         $result = [];
 
         foreach ($this->mergePlan->getGroup($group) as $package => $items) {
@@ -80,7 +80,10 @@ final class FilesExtractor
                     if (is_file($file)) {
                         $result[$file] = new Context($group, $package, $layer, $file, false);
                     } elseif (!$isOptional) {
-                        $this->throwException(sprintf('The "%s" file does not found.', $file));
+                        $message = Options::isVariable($item)
+                            ? sprintf('Don\'t allow to use variables in environments. Found variable "%s".', $item)
+                            : sprintf('The "%s" file does not found.', $file);
+                        $this->throwException($message);
                     }
                 }
             }
