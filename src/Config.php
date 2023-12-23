@@ -46,7 +46,7 @@ final class Config implements ConfigInterface
     ) {
         $mergePlan = new MergePlan($paths->absolute($mergePlanFile));
 
-        if (!$mergePlan->hasEnvironment($environment)) {
+        if ($environment !== null && !$mergePlan->hasEnvironment($environment)) {
             $this->throwException(sprintf('The "%s" configuration environment does not exist.', $environment));
         }
 

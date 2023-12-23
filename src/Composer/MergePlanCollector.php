@@ -13,6 +13,7 @@ use function in_array;
 /**
  * @internal
  *
+ * @psalm-import-type FileType from MergePlan
  * @psalm-import-type MergePlanType from MergePlan
  */
 final class MergePlanCollector
@@ -23,7 +24,7 @@ final class MergePlanCollector
     ];
 
     /**
-     * @psalm-var MergePlanType
+     * @psalm-var array<string, array<string, list<FileType>>>
      */
     private array $mergePlan = [];
 
@@ -84,7 +85,7 @@ final class MergePlanCollector
     {
         $groups = [];
         foreach ($this->mergePlan as $group => $packages) {
-            $groups[$group] = $this->expandVariablesInPackages($packages, $this->mergePlan);
+            $groups[$group] = $this->expandVariablesInPackages($packages);
         }
 
         $environments = [];
@@ -105,14 +106,15 @@ final class MergePlanCollector
     }
 
     /**
-     * @psalm-param array<string, string[]> $packages
-     * @psalm-param array<string, array<string, string[]>> $groups
-     * @psalm-return array<string, string[]>
+     * @throws ErrorException
+     *
+     * @psalm-param array<string, list<FileType>> $packages
+     * @psalm-return array<string, list<FileType>>
      */
-    private function expandVariablesInPackages(array $packages, array $groups, ?string $targetGroup = null): array
+    private function expandVariablesInPackages(array $packages, ?string $targetGroup = null): array
     {
         if ($targetGroup !== null) {
-            if (!isset($groups[$targetGroup])) {
+            if (!isset($this->mergePlan[$targetGroup])) {
                 throw new ErrorException(
                     sprintf('The "%s" configuration group does not exist.', $targetGroup),
                     severity: E_USER_ERROR
@@ -123,7 +125,7 @@ final class MergePlanCollector
                 throw new ErrorException('Circular dependency', severity: E_USER_ERROR);
             }
             $this->processedGroups[$targetGroup] = true;
-            $groupPackages = $this->expandVariablesInPackages($groups[$targetGroup], $groups);
+            $groupPackages = $this->expandVariablesInPackages($this->mergePlan[$targetGroup]);
             $this->processedGroups[$targetGroup] = null;
 
             $variable = '$' . $targetGroup;
@@ -134,9 +136,11 @@ final class MergePlanCollector
                     : array_merge($packageItems, $groupItems);
             }
             foreach ($packages as $package => $items) {
-                $packages[$package] = array_filter(
-                    $items,
-                    static fn($item) => $item !== $variable,
+                $packages[$package] = array_values(
+                    array_filter(
+                        $items,
+                        static fn($item) => $item !== $variable,
+                    )
                 );
             }
             uksort(
@@ -147,8 +151,8 @@ final class MergePlanCollector
 
         foreach ($packages as $items) {
             foreach ($items as $item) {
-                if (Options::isVariable($item)) {
-                    return $this->expandVariablesInPackages($packages, $groups, substr($item, 1));
+                if (!is_array($item) && Options::isVariable($item)) {
+                    return $this->expandVariablesInPackages($packages, substr($item, 1));
                 }
             }
         }
@@ -157,9 +161,9 @@ final class MergePlanCollector
     }
 
     /**
-     * @param string[] $items
-     * @param string[] $files
-     * @return string[]
+     * @psalm-param list<FileType> $items
+     * @psalm-param list<FileType> $files
+     * @psalm-return list<FileType>
      */
     private function replaceVariableToFiles(array $items, string $variable, array $files): array
     {

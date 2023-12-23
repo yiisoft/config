@@ -67,11 +67,11 @@ final class Options
     }
 
     /**
-     * @psalm-param string|list{string,string} $file
+     * @psalm-param string $file
      */
-    public static function isVariable(string|array $file): bool
+    public static function isVariable(string $file): bool
     {
-        return str_starts_with(is_array($file) ? $file[1] : $file, '$');
+        return str_starts_with($file, '$');
     }
 
     public function mergePlanFile(): string

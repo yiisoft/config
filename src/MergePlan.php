@@ -7,7 +7,11 @@ namespace Yiisoft\Config;
 /**
  * @internal
  *
- * @psalm-type MergePlanType = array<string, array<string, array<string, string[]>>>
+ * @psalm-type FileType = string|list{string,string}
+ * @psalm-type MergePlanType = array{
+ *     groups: array<string, array<string, list<FileType>>>,
+ *     environments: list<string>,
+ * }
  */
 final class MergePlan
 {
@@ -27,7 +31,7 @@ final class MergePlan
      *
      * @param string $group The group name.
      *
-     * @return array<string, string[]>
+     * @return array<string, list<FileType>>
      */
     public function getGroup(string $group): array
     {
@@ -49,12 +53,12 @@ final class MergePlan
     /**
      * Checks whether the environment exists in the merge plan.
      *
-     * @param string|null $environment The environment name.
+     * @param string $environment The environment name.
      *
      * @return bool Whether the environment exists in the merge plan.
      */
-    public function hasEnvironment(?string $environment): bool
+    public function hasEnvironment(string $environment): bool
     {
-        return $environment === null || in_array($environment, $this->mergePlan['environments']);
+        return in_array($environment, $this->mergePlan['environments']);
     }
 }
