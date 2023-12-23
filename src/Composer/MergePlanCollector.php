@@ -35,57 +35,43 @@ final class MergePlanCollector
     /**
      * Adds an item to the merge plan.
      *
-     * @param string $file The config file.
+     * @param array|string $file The config file.
      * @param string $package The package name.
      * @param string $group The group name.
-     * @param string $environment The environment name.
+     *
+     * @psalm-param list{string,string}|string $file
      */
-    public function add(
-        string $file,
-        string $package,
-        string $group,
-        string $environment = Options::DEFAULT_ENVIRONMENT
-    ): void {
-        $this->mergePlan[$environment][$group][$package][] = $file;
+    public function add(array|string $file, string $package, string $group): void
+    {
+        $this->mergePlan[$group][$package][] = $file;
     }
 
     /**
      * Adds a multiple items to the merge plan.
      *
-     * @param string[] $files The config files.
+     * @param array $files The config files.
      * @param string $package The package name.
      * @param string $group The group name.
-     * @param string $environment The environment name.
+     *
+     * @psalm-param list<string|list{string,string}> $files
      */
     public function addMultiple(
         array $files,
         string $package,
         string $group,
-        string $environment = Options::DEFAULT_ENVIRONMENT
     ): void {
-        $this->mergePlan[$environment][$group][$package] = $files;
-    }
-
-    /**
-     * Adds an empty environment item to the merge plan.
-     *
-     * @param string $environment The environment name.
-     */
-    public function addEnvironmentWithoutConfigs(string $environment): void
-    {
-        $this->mergePlan[$environment] = [];
+        $this->mergePlan[$group][$package] = $files;
     }
 
     /**
      * Add empty group if it doesn't exist.
      *
      * @param string $group The group name.
-     * @param string $environment The environment name.
      */
-    public function addGroup(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): void
+    public function addGroup(string $group): void
     {
-        if (!isset($this->mergePlan[$environment][$group])) {
-            $this->mergePlan[$environment][$group] = [];
+        if (!isset($this->mergePlan[$group])) {
+            $this->mergePlan[$group] = [];
         }
     }
 
@@ -96,31 +82,26 @@ final class MergePlanCollector
      */
     public function asArray(): array
     {
-        $result = [];
-        $result[Options::DEFAULT_ENVIRONMENT] = [];
-        foreach ($this->mergePlan[Options::DEFAULT_ENVIRONMENT] as $group => $packages) {
-            $result[Options::DEFAULT_ENVIRONMENT][$group] = $this->expandVariablesInPackages(
-                $packages,
-                $this->mergePlan[Options::DEFAULT_ENVIRONMENT]
-            );
+        $groups = [];
+        foreach ($this->mergePlan as $group => $packages) {
+            $groups[$group] = $this->expandVariablesInPackages($packages, $this->mergePlan);
         }
 
-        foreach ($this->mergePlan as $environment => $groups) {
-            if ($environment !== Options::DEFAULT_ENVIRONMENT) {
-                $base = $this->mergePlan[Options::DEFAULT_ENVIRONMENT];
-                foreach ($groups as $group => $packages) {
-                    $base[$group][Options::ENVIRONMENT_PACKAGE_NAME] = $packages['/'];
-                }
-                foreach ($base as $group => $packages) {
-                    $result[$environment][$group] = $this->expandVariablesInPackages(
-                        $packages,
-                        $base
-                    );
+        $environments = [];
+        foreach ($groups as $packages) {
+            foreach ($packages as $files) {
+                foreach ($files as $file) {
+                    if (is_array($file)) {
+                        $environments[$file[0]] = true;
+                    }
                 }
             }
         }
 
-        return $result;
+        return [
+            'groups' => $groups,
+            'environments' => array_keys($environments),
+        ];
     }
 
     /**

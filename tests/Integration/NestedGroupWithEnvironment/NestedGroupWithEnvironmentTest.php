@@ -17,15 +17,13 @@ final class NestedGroupWithEnvironmentTest extends IntegrationTestCase
             ],
             extra: [
                 'config-plugin' => [
-                    'params' => 'params.php',
+                    'params' => [
+                        'params.php',
+                        ['dev', 'params-dev.php'],
+                    ],
                     'params-web' => [
                         '$params',
                         'params-web.php',
-                    ],
-                ],
-                'config-plugin-environments' => [
-                    'dev' => [
-                        'params' => 'params-dev.php',
                     ],
                 ],
             ],

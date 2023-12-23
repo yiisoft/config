@@ -18,15 +18,13 @@ final class NestedInEnvironmentTest extends IntegrationTestCase
                 ],
                 'config-plugin' => [
                     'params' => 'params.php',
-                    'definitions' => 'definitions.php',
+                    'definitions' => [
+                        'definitions.php',
+                        ['environment', 'environment/definitions.php'],
+                    ],
                     'definitions-backend' => [
                         '$definitions',
                         'definitions-backend.php',
-                    ],
-                ],
-                'config-plugin-environments' => [
-                    'environment' => [
-                        'definitions' => 'environment/definitions.php',
                     ],
                 ],
             ],

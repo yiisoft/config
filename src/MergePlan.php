@@ -26,37 +26,35 @@ final class MergePlan
      * Returns the merge plan group.
      *
      * @param string $group The group name.
-     * @param string $environment The environment name.
      *
      * @return array<string, string[]>
      */
-    public function getGroup(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): array
+    public function getGroup(string $group): array
     {
-        return $this->mergePlan[$environment][$group] ?? [];
+        return $this->mergePlan['groups'][$group] ?? [];
     }
 
     /**
      * Checks whether the group exists in the merge plan.
      *
      * @param string $group The group name.
-     * @param string $environment The environment name.
      *
      * @return bool Whether the group exists in the merge plan.
      */
-    public function hasGroup(string $group, string $environment): bool
+    public function hasGroup(string $group): bool
     {
-        return isset($this->mergePlan[$environment][$group]);
+        return isset($this->mergePlan['groups'][$group]);
     }
 
     /**
      * Checks whether the environment exists in the merge plan.
      *
-     * @param string $environment The environment name.
+     * @param string|null $environment The environment name.
      *
      * @return bool Whether the environment exists in the merge plan.
      */
-    public function hasEnvironment(string $environment): bool
+    public function hasEnvironment(?string $environment): bool
     {
-        return isset($this->mergePlan[$environment]);
+        return $environment === null || in_array($environment, $this->mergePlan['environments']);
     }
 }

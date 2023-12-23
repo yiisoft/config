@@ -135,6 +135,14 @@ final class Merger
 
             $existKey = array_key_exists($k, $result);
 
+            if (
+                $existKey
+                && $context->layer() !== Context::ENVIRONMENT
+                && isset($this->cacheKeys[Context::ENVIRONMENT][$k])
+            ) {
+                continue;
+            }
+
             if ($existKey && !$isReverseMerge) {
                 /** @var string|null $file */
                 $file = ArrayHelper::getValue(

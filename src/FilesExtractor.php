@@ -21,7 +21,7 @@ final class FilesExtractor
         private ConfigPaths $paths,
         private MergePlan $mergePlan,
         private DataModifiers $dataModifiers,
-        private string $environment,
+        private ?string $environment,
     ) {
     }
 
@@ -36,73 +36,35 @@ final class FilesExtractor
      */
     public function extract(string $group): array
     {
-        $environment = $this->prepareEnvironment($group);
-
-        return $this->process($environment, $group, $this->mergePlan->getGroup($group, $environment));
-
-        if ($environment !== Options::DEFAULT_ENVIRONMENT) {
-            $result = array_merge(
-                $result,
-                $this->process(
-                    $environment,
-                    $group,
-                    $this->mergePlan->getGroup($group, $environment)
-                )
-            );
+        if (!$this->mergePlan->hasGroup($group)) {
+            $this->throwException(sprintf('The "%s" configuration group does not exist.', $group));
         }
-
-        return $result;
-    }
-
-    /**
-     * Checks whether the group exists in the merge plan.
-     *
-     * @param string $group The group name.
-     *
-     * @return bool Whether the group exists in the merge plan.
-     */
-    public function hasGroup(string $group): bool
-    {
-        return $this->mergePlan->hasGroup($group, $this->environment) || (
-            $this->environment !== Options::DEFAULT_ENVIRONMENT &&
-            $this->mergePlan->hasGroup($group, Options::DEFAULT_ENVIRONMENT)
-        );
-    }
-
-    /**
-     * @psalm-param array<string, string[]> $data
-     *
-     * @throws ErrorException If an error occurred during the process.
-     *
-     * @psalm-return array<string, Context>
-     */
-    private function process(string $environment, string $group, array $data): array
-    {
+        
         $result = [];
 
-        foreach ($data as $package => $items) {
+        foreach ($this->mergePlan->getGroup($group) as $package => $items) {
             $defaultLayer = match ($package) {
                 Options::ROOT_PACKAGE_NAME => Context::APPLICATION,
                 Options::VENDOR_OVERRIDE_PACKAGE_NAME => Context::VENDOR_OVERRIDE,
                 default => Context::VENDOR,
             };
 
-
-            if ($defaultLayer === Context::VENDOR && $this->dataModifiers->shouldRemoveGroupFromVendor($package, $group)) {
+            if (
+                $defaultLayer === Context::VENDOR
+                && $this->dataModifiers->shouldRemoveGroupFromVendor($package, $group)
+            ) {
                 continue;
             }
 
             foreach ($items as $item) {
                 if (is_array($item)) {
-                    $item = $item[0];
+                    if ($item[0] !== $this->environment) {
+                        continue;
+                    }
+                    $item = $item[1];
                     $layer = Context::ENVIRONMENT;
                 } else {
                     $layer = $defaultLayer;
-                }
-
-                if (Options::isVariable($item)) {
-                    $result[$item] = new Context($group, $package, $layer, $item, true);
-                    continue;
                 }
 
                 $isOptional = Options::isOptional($item);
@@ -128,28 +90,18 @@ final class FilesExtractor
     }
 
     /**
-     * Checks the group name and returns actual environment name.
+     * Checks whether the group exists in the merge plan.
      *
      * @param string $group The group name.
      *
-     * @throws ErrorException If the group does not exist.
-     *
-     * @return string The actual environment name.
+     * @return bool Whether the group exists in the merge plan.
      */
-    private function prepareEnvironment(string $group): string
+    public function hasGroup(string $group): bool
     {
-        if (!$this->mergePlan->hasGroup($group, $this->environment)) {
-            if (
-                $this->environment === Options::DEFAULT_ENVIRONMENT ||
-                !$this->mergePlan->hasGroup($group, Options::DEFAULT_ENVIRONMENT)
-            ) {
-                $this->throwException(sprintf('The "%s" configuration group does not exist.', $group));
-            }
-
-            return Options::DEFAULT_ENVIRONMENT;
-        }
-
-        return $this->environment;
+        return $this->mergePlan->hasGroup($group) || (
+                $this->environment !== Options::DEFAULT_ENVIRONMENT &&
+                $this->mergePlan->hasGroup($group)
+            );
     }
 
     /**

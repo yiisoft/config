@@ -42,7 +42,6 @@ final class MergePlanProcess
         $this->addPackagesConfigsToMergePlan(true);
 
         $this->addRootPackageConfigToMergePlan();
-        $this->addEnvironmentsConfigsToMergePlan();
 
         $this->updateMergePlan();
     }
@@ -113,29 +112,6 @@ final class MergePlanProcess
                 Options::ROOT_PACKAGE_NAME,
                 $group,
             );
-        }
-    }
-
-    private function addEnvironmentsConfigsToMergePlan(): void
-    {
-        foreach ($this->helper->getEnvironmentConfig() as $environment => $groups) {
-            if ($environment === Options::DEFAULT_ENVIRONMENT) {
-                continue;
-            }
-
-            if (empty($groups)) {
-                $this->mergePlanCollector->addEnvironmentWithoutConfigs($environment);
-                continue;
-            }
-
-            foreach ($groups as $group => $files) {
-                $this->mergePlanCollector->addMultiple(
-                    (array) $files,
-                    Options::ROOT_PACKAGE_NAME,
-                    $group,
-                    $environment,
-                );
-            }
         }
     }
 

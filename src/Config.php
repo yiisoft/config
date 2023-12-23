@@ -39,13 +39,11 @@ final class Config implements ConfigInterface
      */
     public function __construct(
         ConfigPaths $paths,
-        string $environment = null,
+        ?string $environment = null,
         array $modifiers = [],
         private ?string $paramsGroup = 'params',
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ) {
-        $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
-
         $mergePlan = new MergePlan($paths->absolute($mergePlanFile));
 
         if (!$mergePlan->hasEnvironment($environment)) {
@@ -116,17 +114,10 @@ final class Config implements ConfigInterface
         $this->build[$group] = [];
 
         foreach ($this->filesExtractor->extract($group) as $file => $context) {
-            if (Options::isVariable($file)) {
-                $variable = $this->prepareVariable($file, $group);
-                $array = $this->get($variable);
-            } else {
-                $array = $this->buildFile($file);
-            }
-
             $this->build[$group] = $this->merger->merge(
                 $context,
                 $this->build[$group],
-                $array,
+                $this->buildFile($file),
             );
         }
     }

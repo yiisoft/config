@@ -20,15 +20,6 @@ final class DummyTest extends IntegrationTestCase
         $this->assertFalse($config->has('not-exist'));
     }
 
-    public function testHasWithEmptyEnvironment(): void
-    {
-        $config = $this->prepareConfig('empty');
-
-        $this->assertTrue($config->has('web'));
-        $this->assertTrue($config->has('empty'));
-        $this->assertFalse($config->has('not-exist'));
-    }
-
     public function testHasWithEnvironment(): void
     {
         $config = $this->prepareConfig('alfa');
@@ -83,76 +74,6 @@ final class DummyTest extends IntegrationTestCase
                 'b-web-environment-override-key' => 'c-web-override-value',
                 'c-web-key' => 'c-web-value',
                 'c-web-environment-override-key' => 'c-web-override-value',
-                'a-common-key' => 'a-common-value',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-key' => 'b-common-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-key' => 'c-common-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-1' => 'root-common-value-1',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
-                'root-web-key' => 'root-web-value',
-            ],
-            $config->get('web')
-        );
-    }
-
-    public function testGetWithEmptyEnvironment(): void
-    {
-        $config = $this->prepareConfig('empty');
-
-        $this->assertSame([], $config->get('empty'));
-        $this->assertSame([], $config->get('emptyVariable'));
-
-        $this->assertSame(
-            [
-                'a-common-key' => 'a-common-value',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-key' => 'b-common-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-key' => 'c-common-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-1' => 'root-common-value-1',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
-            ],
-            $config->get('common')
-        );
-
-        $this->assertSame(
-            [
-                'a-params-key' => 'a-params-value',
-                'a-params-over-vendor-override-key' => 'c-params-over-vendor-override-value',
-                'b-params-key' => 'b-params-value',
-                'b-params-over-vendor-override-key' => 'c-params-over-vendor-override-value',
-                'c-params-key' => 'c-params-value',
-                'root-params-key' => 'root-params-value',
-                'root-params-local-key' => 'root-params-local-value',
-            ],
-            $config->get('params')
-        );
-
-        $this->assertSame(
-            [
-                'a-web-key' => 'a-web-value',
-                'a-web-environment-override-key' => 'a-web-override-value',
-                'b-web-key' => 'b-web-value',
-                'b-web-environment-override-key' => 'c-web-override-value',
-                'c-web-key' => 'c-web-value',
-                'c-web-environment-override-key' => 'c-web-override-value',
-                'a-common-key' => 'a-common-value',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-key' => 'b-common-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-key' => 'c-common-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-1' => 'root-common-value-1',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'root-web-key' => 'root-web-value',
             ],
             $config->get('web')
@@ -184,26 +105,10 @@ final class DummyTest extends IntegrationTestCase
 
         $this->assertSame(
             [
-                'a-web-key' => 'a-web-value',
-                'a-web-environment-override-key' => 'alfa-web-override-value',
-                'b-web-key' => 'b-web-value',
-                'b-web-environment-override-key' => 'alfa-web-override-value',
-                'c-web-key' => 'c-web-value',
-                'c-web-environment-override-key' => 'alfa-web-override-value',
-                'a-common-key' => 'a-common-value',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-key' => 'b-common-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-key' => 'c-common-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-1' => 'root-common-value-1',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
-                'root-web-key' => 'root-web-value',
-                'alfa-web-key' => 'alfa-web-value',
-                'alfa-web2-key' => 'alfa-web2-value',
                 'alfa-main-key' => 'alfa-main-value',
+                'a-web-environment-override-key' => 'alfa-web-override-value',
+                'b-web-environment-override-key' => 'alfa-web-override-value',
+                'c-web-environment-override-key' => 'alfa-web-override-value',
             ],
             $config->get('main')
         );
@@ -227,19 +132,10 @@ final class DummyTest extends IntegrationTestCase
                 'a-web-key' => 'a-web-value',
                 'a-web-environment-override-key' => 'a-web-override-value',
                 'b-web-key' => 'b-web-value',
-                'b-web-environment-override-key' => 'c-web-override-value',
+                'b-web-environment-override-key' => 'b-web-override-value',
                 'c-web-key' => 'c-web-value',
+                'b-web-environment-override-key' => 'c-web-override-value',
                 'c-web-environment-override-key' => 'c-web-override-value',
-                'a-common-key' => 'a-common-value',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-key' => 'b-common-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-key' => 'c-common-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-1' => 'root-common-value-1',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'root-web-key' => 'root-web-value',
                 'alfa-web-key' => 'alfa-web-value',
                 'alfa-web2-key' => 'alfa-web2-value',
@@ -279,16 +175,6 @@ final class DummyTest extends IntegrationTestCase
                 'b-web-environment-override-key' => 'beta-web-override-value',
                 'c-web-key' => 'c-web-value',
                 'c-web-environment-override-key' => 'beta-web-override-value',
-                'a-common-key' => 'a-common-value',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-key' => 'b-common-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-key' => 'c-common-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-1' => 'root-common-value-1',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'root-web-key' => 'root-web-value',
                 'beta-web-key' => 'beta-web-value',
                 'beta-web-isset-config' => true,
@@ -308,16 +194,6 @@ final class DummyTest extends IntegrationTestCase
         $this->assertSame(
             [
                 'root-events-key' => 'root-events-value',
-                'a-common-key' => 'a-common-value',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-key' => 'b-common-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-key' => 'c-common-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-1' => 'root-common-value-1',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'beta-events-key' => 'beta-events-value',
             ],
             $config->get('events')
@@ -369,16 +245,6 @@ final class DummyTest extends IntegrationTestCase
                 'b-web-environment-override-key' => 'c-web-override-value',
                 'c-web-key' => 'c-web-value',
                 'c-web-environment-override-key' => 'c-web-override-value',
-                'root-common-nested-key-2' => 'root-common-nested-value-2',
-                'root-common-nested-key-1' => 'root-common-nested-value-1',
-                'a-common-root-override-key' => 'common-root-override-value',
-                'b-common-root-override-key' => 'common-root-override-value',
-                'c-common-root-override-key' => 'common-root-override-value',
-                'root-common-key-2' => 'root-common-value-2',
-                'root-common-key-1' => 'root-common-value-1',
-                'c-common-key' => 'c-common-value',
-                'b-common-key' => 'b-common-value',
-                'a-common-key' => 'a-common-value',
                 'root-web-key' => 'root-web-value',
             ],
             $config->get('web')
@@ -410,46 +276,6 @@ final class DummyTest extends IntegrationTestCase
         $config->get('not-exist');
     }
 
-    public function testGetThrowExceptionForVariableGroupEqual(): void
-    {
-        $config = $this->prepareConfig();
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.'
-        );
-        $config->get('failVariableGroupEqual');
-    }
-
-    public function testGetEnvironmentThrowExceptionForVariableGroupEqual(): void
-    {
-        $config = $this->prepareConfig('alfa');
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(
-            'The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.'
-        );
-        $config->get('failVariableGroupEqual');
-    }
-
-    public function testGetThrowExceptionForVariableGroupNotExist(): void
-    {
-        $config = $this->prepareConfig();
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage('The "failVariableNotExist" configuration group does not exist.');
-        $config->get('failVariableNotExist');
-    }
-
-    public function testGetEnvironmentThrowExceptionForVariableGroupNotExist(): void
-    {
-        $config = $this->prepareConfig('alfa');
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage('The "failVariableNotExist" configuration group does not exist.');
-        $config->get('failVariableNotExist');
-    }
-
     private function prepareConfig(
         ?string $environment = null,
         array $modifiers = [],
@@ -470,7 +296,10 @@ final class DummyTest extends IntegrationTestCase
                 'config-plugin' => [
                     'empty' => [],
                     'emptyVariable' => '$empty',
-                    'events' => 'events.php',
+                    'events' => [
+                        'events.php',
+                        ['beta', 'beta/events.php'],
+                    ],
                     'common' => [
                         'common/*.php',
                         'common/*/*.php',
@@ -478,33 +307,18 @@ final class DummyTest extends IntegrationTestCase
                     'params' => [
                         'params.php',
                         '?params-local.php',
+                        ['alfa', 'alfa/params.php'],
+                        ['beta', 'beta/params.php']
                     ],
                     'web' => [
-                        '$common',
                         'web.php',
+                        ['alfa', 'alfa/web.php'],
+                        ['alfa', 'alfa/web2.php'],
+                        ['beta', 'beta/web.php']
                     ],
-                ],
-                'config-plugin-environments' => [
-                    'alfa' => [
-                        'main' => [
-                            '$web',
-                            'alfa/main.php',
-                        ],
-                        'params' => 'alfa/params.php',
-                        'web' => [
-                            'alfa/web.php',
-                            'alfa/web2.php',
-                        ],
+                    'main' => [
+                        ['alfa', 'alfa/main.php'],
                     ],
-                    'beta' => [
-                        'events' => [
-                            '$common',
-                            'beta/events.php',
-                        ],
-                        'web' => 'beta/web.php',
-                        'params' => 'beta/params.php',
-                    ],
-                    'empty' => [],
                 ],
             ],
             configDirectory: 'config',
