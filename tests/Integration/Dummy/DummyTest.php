@@ -267,15 +267,6 @@ final class DummyTest extends IntegrationTestCase
         $config->get('not-exist');
     }
 
-    public function testGetEnvironmentThrowExceptionForGroupNotExist(): void
-    {
-        $config = $this->prepareConfig('alfa');
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage('The "not-exist" configuration group does not exist.');
-        $config->get('not-exist');
-    }
-
     private function prepareConfig(
         ?string $environment = null,
         array $modifiers = [],
