@@ -6,4 +6,5 @@ declare(strict_types=1);
 
 return [
     'app-backend' => 2,
+    'env-base' => 100,
 ];
