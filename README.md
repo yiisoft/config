@@ -496,7 +496,7 @@ $config = new Config(
 $events = $config->get('events-console'); // merged reversed
 ```
 
-> Note. References to another configs used reverse modifier of root group.
+> Note: References to another configs use reverse modifier of root group.
 
 ### Remove elements from vendor package configuration
 
