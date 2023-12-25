@@ -1,6 +1,6 @@
 # Yii Config Change Log
 
-## 1.5.0 under development
+## 1.5.0 December 25, 2023
 
 - New #155: Add ability to specify recursion depth for recursive modifier (@vjik)
 - Enh #157: Remove unnecessary code in `PackagesListBuilder` (@vjik)
