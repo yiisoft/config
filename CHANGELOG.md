@@ -1,5 +1,9 @@
 # Yii Config Change Log
 
+## 1.5.1 under development
+
+- no changes in this release.
+
 ## 1.5.0 December 25, 2023
 
 - New #155: Add ability to specify recursion depth for recursive modifier (@vjik)
