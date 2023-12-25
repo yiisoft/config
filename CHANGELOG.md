@@ -5,7 +5,7 @@
 - New #155: Add ability to specify recursion depth for recursive modifier (@vjik)
 - Enh #157: Remove unnecessary code in `PackagesListBuilder` (@vjik)
 - Bug #153: Do not throw "Duplicate key…" exception when using nested groups (@vjik)
-- Bug #163: References to another configs used reverse and recursive modifiers of root group now (@vjik)
+- Bug #163: References to another configs use reverse and recursive modifiers of root group now (@vjik)
 
 ## 1.4.0 November 17, 2023
 
