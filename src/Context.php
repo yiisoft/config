@@ -14,13 +14,20 @@ final class Context
     public const APPLICATION = 3;
     public const ENVIRONMENT = 4;
 
+    private string $group = '';
+
     public function __construct(
-        private string $group,
         private string $package,
         private int $layer,
         private string $file,
         private bool $isVariable,
     ) {
+    }
+
+    public function setGroup(string $group): self
+    {
+        $this->group = $group;
+        return $this;
     }
 
     public function group(): string

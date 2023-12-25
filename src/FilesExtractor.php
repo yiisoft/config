@@ -89,7 +89,7 @@ final class FilesExtractor
 
             foreach ($items as $item) {
                 if (Options::isVariable($item)) {
-                    $result[$item] = new Context($group, $package, $layer, $item, true);
+                    $result[$item] = new Context($package, $layer, $item, true);
                     continue;
                 }
 
@@ -104,7 +104,7 @@ final class FilesExtractor
 
                 foreach ($files as $file) {
                     if (is_file($file)) {
-                        $result[$file] = new Context($group, $package, $layer, $file, false);
+                        $result[$file] = new Context($package, $layer, $file, false);
                     } elseif (!$isOptional) {
                         $this->throwException(sprintf('The "%s" file does not found.', $file));
                     }

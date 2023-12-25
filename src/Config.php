@@ -70,7 +70,9 @@ final class Config implements ConfigInterface
         }
 
         $this->runBuildParams();
-        $this->runBuildGroup($group);
+
+        $this->merger->reset();
+        $this->build[$group] = $this->buildGroup($group);
 
         return $this->build[$group];
     }
@@ -85,21 +87,11 @@ final class Config implements ConfigInterface
      */
     private function runBuildParams(): void
     {
-        if ($this->paramsGroup !== null) {
+        if ($this->paramsGroup !== null && !isset($this->build[$this->paramsGroup])) {
             $this->isBuildingParams = true;
-            $this->runBuildGroup($this->paramsGroup);
+            $this->build[$this->paramsGroup] = $this->buildGroup($this->paramsGroup);
             $this->isBuildingParams = false;
         }
-    }
-
-    /**
-     * @throws ErrorException If an error occurred during the build.
-     */
-    private function runBuildGroup(string $group): void
-    {
-        $this->merger->shelve();
-        $this->buildGroup($group);
-        $this->merger->unshelve();
     }
 
     /**
@@ -109,28 +101,22 @@ final class Config implements ConfigInterface
      *
      * @throws ErrorException If an error occurred during the build.
      */
-    private function buildGroup(string $group): void
+    private function buildGroup(string $group, array $result = [], ?string $originalGroup = null): array
     {
-        if (isset($this->build[$group])) {
-            return;
-        }
-
-        $this->build[$group] = [];
-
         foreach ($this->filesExtractor->extract($group) as $file => $context) {
             if (Options::isVariable($file)) {
                 $variable = $this->prepareVariable($file, $group);
-                $array = $this->get($variable);
+                $result = $this->buildGroup($variable, $result, $originalGroup ?? $group);
             } else {
-                $array = $this->buildFile($file);
+                $result = $this->merger->merge(
+                    $context->setGroup($originalGroup ?? $group),
+                    $result,
+                    $this->buildFile($file),
+                );
             }
-
-            $this->build[$group] = $this->merger->merge(
-                $context,
-                $this->build[$group],
-                $array,
-            );
         }
+
+        return $result;
     }
 
     /**
