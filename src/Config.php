@@ -97,8 +97,9 @@ final class Config implements ConfigInterface
      */
     private function runBuildGroup(string $group): void
     {
-        $this->merger->reset();
+        $this->merger->shelve();
         $this->buildGroup($group);
+        $this->merger->unshelve();
     }
 
     /**

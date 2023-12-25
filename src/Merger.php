@@ -28,6 +28,11 @@ final class Merger
     private array $cacheKeys = [];
 
     /**
+     * @psalm-var list<array<int, array>>
+     */
+    private array $shelveStorage = [];
+
+    /**
      * @param ConfigPaths $configPaths The config paths instance.
      * @param DataModifiers $dataModifiers The data modifiers that affect merge process.
      */
@@ -37,9 +42,15 @@ final class Merger
     ) {
     }
 
-    public function reset(): void
+    public function shelve(): void
     {
+        $this->shelveStorage[] = $this->cacheKeys;
         $this->cacheKeys = [];
+    }
+
+    public function unshelve(): void
+    {
+        $this->cacheKeys = array_pop($this->shelveStorage);
     }
 
     /**
