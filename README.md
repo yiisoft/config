@@ -471,7 +471,7 @@ If you want to recursively merge arrays to a certain depth, use the `RecursiveMe
 RecursiveMerge::groups(['widgets-themes', 'my-custom-group'], 1)
 ```
 
-> Note. References to another configs used recursive modifier of root group.
+> Note: References to another configs use recursive modifier of root group.
 
 ### Reverse merge of arrays
 
