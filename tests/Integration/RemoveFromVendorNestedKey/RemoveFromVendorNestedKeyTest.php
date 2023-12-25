@@ -24,7 +24,7 @@ final class RemoveFromVendorNestedKeyTest extends IntegrationTestCase
             ],
             modifiers: [
                 RecursiveMerge::groups('params'),
-                RemoveFromVendor::keys(['yiisoft/auth-jwt', 'algorithms'])->package('yiisoft/auth-jwt', 'params')
+                RemoveFromVendor::keys(['yiisoft/auth-jwt', 'algorithms'])->package('yiisoft/auth-jwt', 'params'),
             ],
         );
 
