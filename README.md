@@ -471,6 +471,8 @@ If you want to recursively merge arrays to a certain depth, use the `RecursiveMe
 RecursiveMerge::groups(['widgets-themes', 'my-custom-group'], 1)
 ```
 
+> Note: References to another configs use recursive modifier of root group.
+
 ### Reverse merge of arrays
 
 Result of reverse merge is being ordered descending by data source. It is useful for merging module config with
@@ -493,6 +495,8 @@ $config = new Config(
 
 $events = $config->get('events-console'); // merged reversed
 ```
+
+> Note: References to another configs use reverse modifier of root group.
 
 ### Remove elements from vendor package configuration
 

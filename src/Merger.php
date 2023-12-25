@@ -55,8 +55,8 @@ final class Merger
      */
     public function merge(Context $context, array $arrayA, array $arrayB): array
     {
-        $recursionDepth = $this->dataModifiers->getRecursionDepth($context->group());
-        $isReverseMerge = $this->dataModifiers->isReverseMergeGroup($context->group());
+        $recursionDepth = $this->dataModifiers->getRecursionDepth($context->originalGroup());
+        $isReverseMerge = $this->dataModifiers->isReverseMergeGroup($context->originalGroup());
 
         if ($isReverseMerge) {
             $arrayB = $this->prepareArrayForReverse($context, [], $arrayB, $recursionDepth !== false);
@@ -143,7 +143,7 @@ final class Merger
                 );
 
                 if ($file !== null) {
-                    $this->throwDuplicateKeyErrorException($context->group(), $fullKeyPath, [$file, $context->file()]);
+                    $this->throwDuplicateKeyErrorException($context->originalGroup(), $fullKeyPath, [$file, $context->file()]);
                 }
             }
 
@@ -197,11 +197,6 @@ final class Merger
                 continue;
             }
 
-            if ($context->isVariable()) {
-                $result[$key] = $value;
-                continue;
-            }
-
             $recursiveKeyPath[] = $key;
 
             /** @var string|null $file */
@@ -211,7 +206,7 @@ final class Merger
             );
 
             if ($file !== null) {
-                $this->throwDuplicateKeyErrorException($context->group(), $recursiveKeyPath, [$file, $context->file()]);
+                $this->throwDuplicateKeyErrorException($context->originalGroup(), $recursiveKeyPath, [$file, $context->file()]);
             }
 
             $result[$key] = $value;

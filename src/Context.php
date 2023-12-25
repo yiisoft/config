@@ -14,6 +14,8 @@ final class Context
     public const APPLICATION = 3;
     public const ENVIRONMENT = 4;
 
+    private string $originalGroup = '';
+
     public function __construct(
         private string $group,
         private string $package,
@@ -21,6 +23,17 @@ final class Context
         private string $file,
         private bool $isVariable,
     ) {
+    }
+
+    public function setOriginalGroup(string $group): self
+    {
+        $this->originalGroup = $group;
+        return $this;
+    }
+
+    public function originalGroup(): string
+    {
+        return $this->originalGroup;
     }
 
     public function group(): string

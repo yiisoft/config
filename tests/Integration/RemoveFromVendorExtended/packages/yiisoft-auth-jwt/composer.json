@@ -1,0 +1,9 @@
+{
+    "name": "yiisoft/auth-jwt",
+    "version": "1.0.0",
+    "extra": {
+        "config-plugin": {
+            "params": "params.php"
+        }
+    }
+}

@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'yiisoft/auth-jwt' => [
+        'algorithms' => [
+            'RS384',
+            'HS512',
+        ],
+    ],
+];
