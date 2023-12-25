@@ -104,7 +104,7 @@ final class Config implements ConfigInterface
     private function buildGroup(string $group, array $result = [], ?string $originalGroup = null): array
     {
         foreach ($this->filesExtractor->extract($group) as $file => $context) {
-            if (Options::isVariable($file)) {
+            if ($context->isVariable()) {
                 $variable = $this->prepareVariable($file, $group);
                 $result = $this->buildGroup($variable, $result, $originalGroup ?? $group);
             } else {

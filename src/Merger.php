@@ -197,11 +197,6 @@ final class Merger
                 continue;
             }
 
-            if ($context->isVariable()) {
-                $result[$key] = $value;
-                continue;
-            }
-
             $recursiveKeyPath[] = $key;
 
             /** @var string|null $file */
