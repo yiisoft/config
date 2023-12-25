@@ -23,7 +23,7 @@ final class RemoveFromVendorExtendedTest extends IntegrationTestCase
                     'params-web' => [
                         '$params',
                         'params-web.php',
-                    ]
+                    ],
                 ],
                 'config-plugin-environments' => [
                     'dev' => [
@@ -35,7 +35,7 @@ final class RemoveFromVendorExtendedTest extends IntegrationTestCase
             paramsGroup: 'params-web',
             modifiers: [
                 RecursiveMerge::groups('params', 'params-web'),
-                RemoveFromVendor::keys(['yiisoft/auth-jwt', 'algorithms'])->package('yiisoft/auth-jwt', 'params')
+                RemoveFromVendor::keys(['yiisoft/auth-jwt', 'algorithms'])->package('yiisoft/auth-jwt', 'params'),
             ],
         );
 
