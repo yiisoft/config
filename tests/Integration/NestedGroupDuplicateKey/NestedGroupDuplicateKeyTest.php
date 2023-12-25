@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests\Integration\NestedGroup;
+namespace Yiisoft\Config\Tests\Integration\NestedGroupDuplicateKey;
 
 use ErrorException;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
