@@ -14,9 +14,10 @@ final class Context
     public const APPLICATION = 3;
     public const ENVIRONMENT = 4;
 
-    private string $group = '';
+    private string $originalGroup = '';
 
     public function __construct(
+        private string $group,
         private string $package,
         private int $layer,
         private string $file,
@@ -24,10 +25,15 @@ final class Context
     ) {
     }
 
-    public function setGroup(string $group): self
+    public function setOriginalGroup(string $group): self
     {
-        $this->group = $group;
+        $this->originalGroup = $group;
         return $this;
+    }
+
+    public function originalGroup(): string
+    {
+        return $this->originalGroup;
     }
 
     public function group(): string

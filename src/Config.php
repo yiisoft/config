@@ -109,7 +109,7 @@ final class Config implements ConfigInterface
                 $result = $this->buildGroup($variable, $result, $originalGroup ?? $group);
             } else {
                 $result = $this->merger->merge(
-                    $context->setGroup($originalGroup ?? $group),
+                    $context->setOriginalGroup($originalGroup ?? $group),
                     $result,
                     $this->buildFile($file),
                 );
