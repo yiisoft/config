@@ -41,12 +41,12 @@ final class ProcessHelper
 
         $this->composer = $composer;
         $this->paths = new ConfigPaths(
-            $this->rootConfiguration->getPath(),
-            $this->rootConfiguration->getOptions()->sourceDirectory(),
+            $this->rootConfiguration->path(),
+            $this->rootConfiguration->options()->sourceDirectory(),
         );
         $this->packages = (new PackagesListBuilder(
             $this->composer,
-            $this->rootConfiguration->getOptions()->packageTypes()
+            $this->rootConfiguration->options()->packageTypes()
         ))->build();
     }
 
@@ -174,7 +174,7 @@ final class ProcessHelper
      */
     public function getRootPackageConfig(): array
     {
-        return $this->rootConfiguration->getPackageConfiguration();
+        return $this->rootConfiguration->packageConfiguration();
     }
 
     /**
@@ -186,7 +186,7 @@ final class ProcessHelper
      */
     public function getEnvironmentConfig(): array
     {
-        return $this->rootConfiguration->getEnvironmentsConfiguration();
+        return $this->rootConfiguration->environmentsConfiguration();
     }
 
     /**
@@ -206,7 +206,7 @@ final class ProcessHelper
      */
     public function shouldBuildMergePlan(): bool
     {
-        return $this->rootConfiguration->getOptions()->buildMergePlan();
+        return $this->rootConfiguration->options()->buildMergePlan();
     }
 
     /**
@@ -214,7 +214,7 @@ final class ProcessHelper
      */
     public function getMergePlanFile(): string
     {
-        return $this->rootConfiguration->getOptions()->mergePlanFile();
+        return $this->rootConfiguration->options()->mergePlanFile();
     }
 
     /**
@@ -258,7 +258,7 @@ final class ProcessHelper
      */
     private function isVendorOverridePackage(string $package): bool
     {
-        foreach ($this->rootConfiguration->getOptions()->vendorOverrideLayerPackages() as $pattern) {
+        foreach ($this->rootConfiguration->options()->vendorOverrideLayerPackages() as $pattern) {
             if (!is_string($pattern)) {
                 continue;
             }

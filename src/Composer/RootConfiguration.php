@@ -57,12 +57,12 @@ final class RootConfiguration
         );
     }
 
-    public function getPath(): string
+    public function path(): string
     {
         return $this->path;
     }
 
-    public function getOptions(): Options
+    public function options(): Options
     {
         return $this->options;
     }
@@ -74,7 +74,7 @@ final class RootConfiguration
      *
      * @psalm-return PackageConfigurationType
      */
-    public function getPackageConfiguration(): array
+    public function packageConfiguration(): array
     {
         return $this->packageConfiguration;
     }
@@ -86,7 +86,7 @@ final class RootConfiguration
      *
      * @psalm-return EnvironmentsConfigurationType
      */
-    public function getEnvironmentsConfiguration(): array
+    public function environmentsConfiguration(): array
     {
         return $this->environmentsConfiguration;
     }
