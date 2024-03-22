@@ -8,7 +8,6 @@ use Composer\Composer;
 use Composer\Package\PackageInterface;
 use Composer\Util\Filesystem;
 use Yiisoft\Config\MergePlan;
-use Yiisoft\Config\Composer\Options;
 use Yiisoft\VarDumper\VarDumper;
 
 use function file_get_contents;
