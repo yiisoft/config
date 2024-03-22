@@ -28,7 +28,6 @@
 /.gitignore             export-ignore
 /.phpunit-watcher.yml   export-ignore
 /.roave-bc-check.yaml   export-ignore
-/.scrutinizer.yml       export-ignore
 /.styleci.yml           export-ignore
 /infection.json.dist    export-ignore
 /phpunit.xml.dist       export-ignore
