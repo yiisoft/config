@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config\Tests;
+namespace Yiisoft\Config\Tests\Composer;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\Composer\Options;
