@@ -14,8 +14,6 @@ use Composer\Factory;
  */
 final class RootConfiguration
 {
-    private string $path;
-
     private Options $options;
 
     /**
@@ -28,11 +26,10 @@ final class RootConfiguration
      */
     private array $environmentsConfiguration;
 
-    public function __construct(Composer $composer)
-    {
-        $this->path = realpath(dirname(Factory::getComposerFile()));
-
-        $composerExtra = $composer->getPackage()->getExtra();
+    private function __construct(
+        private string $path,
+        array $composerExtra,
+    ) {
         if (isset($composerExtra['config-plugin-file'])) {
             /**
              * @var array $extra
@@ -50,6 +47,14 @@ final class RootConfiguration
 
         /** @psalm-var EnvironmentsConfigurationType */
         $this->environmentsConfiguration = $extra['config-plugin-environments'] ?? [];
+    }
+
+    public static function fromComposerInstance(Composer $composer): self
+    {
+        return new self(
+            realpath(dirname(Factory::getComposerFile())),
+            $composer->getPackage()->getExtra(),
+        );
     }
 
     public function getPath(): string

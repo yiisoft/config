@@ -37,7 +37,7 @@ final class ProcessHelper
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
         require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
-        $this->rootConfiguration = new RootConfiguration($composer);
+        $this->rootConfiguration = RootConfiguration::fromComposerInstance($composer);
 
         $this->composer = $composer;
         $this->paths = new ConfigPaths(
