@@ -80,9 +80,9 @@ final class RootConfiguration
     }
 
     /**
-     * Returns the environment configuration.
+     * Returns the environments configuration.
      *
-     * @return array The environment configuration.
+     * @return array The environments configuration.
      *
      * @psalm-return EnvironmentsConfigurationType
      */
