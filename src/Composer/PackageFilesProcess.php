@@ -6,7 +6,7 @@ namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
 use Yiisoft\Config\ConfigPaths;
-use Yiisoft\Config\Options;
+use Yiisoft\Config\Composer\Options;
 
 use function glob;
 use function in_array;

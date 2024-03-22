@@ -2,7 +2,7 @@
 
 ## 1.5.1 under development
 
-- no changes in this release.
+- Enh #172: Refactoring: extract root package configuration reader to separate class (@vjik)
 
 ## 1.5.0 December 25, 2023
 

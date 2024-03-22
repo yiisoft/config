@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Config;
+namespace Yiisoft\Config\Composer;
 
 use function is_array;
 use function str_replace;

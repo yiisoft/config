@@ -6,6 +6,8 @@ namespace Yiisoft\Config;
 
 use ErrorException;
 
+use Yiisoft\Config\Composer\Options;
+
 use function array_merge;
 use function glob;
 use function is_file;

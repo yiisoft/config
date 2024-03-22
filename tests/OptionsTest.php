@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Config\Options;
+use Yiisoft\Config\Composer\Options;
 
 final class OptionsTest extends TestCase
 {
