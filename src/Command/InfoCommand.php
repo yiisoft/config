@@ -20,7 +20,6 @@ final class InfoCommand extends BaseCommand
             ->addArgument('type', InputArgument::OPTIONAL);
     }
 
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $configuration = RootConfiguration::fromComposerInstance($this->getComposer());
@@ -54,18 +53,18 @@ final class InfoCommand extends BaseCommand
                 'Merge plan file path',
                 file_exists($mergePlanFilePath)
                     ? '<fg=green>' . $mergePlanFilePath . '</>'
-                    : '<fg=red>' . $mergePlanFilePath . ' (not exists)</>'
+                    : '<fg=red>' . $mergePlanFilePath . ' (not exists)</>',
             ],
             ['Package types', implode(', ', $options->packageTypes())],
             [
                 'Source directory',
-                $configuration->path() . '/' . $options->sourceDirectory()
+                $configuration->path() . '/' . $options->sourceDirectory(),
             ],
             [
                 'Vendor override layer packages',
                 empty($options->vendorOverrideLayerPackages())
                     ? '<fg=gray>not set</>'
-                    : implode(', ', $options->vendorOverrideLayerPackages())
+                    : implode(', ', $options->vendorOverrideLayerPackages()),
             ],
         ]);
 
