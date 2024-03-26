@@ -6,6 +6,8 @@ namespace Yiisoft\Config;
 
 use ErrorException;
 
+use Yiisoft\Config\Composer\Options;
+
 use function extract;
 use function func_get_arg;
 use function restore_error_handler;

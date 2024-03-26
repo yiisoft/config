@@ -5,27 +5,24 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
-use Composer\Factory;
 use Composer\Package\BasePackage;
 use Composer\Package\PackageInterface;
 use Yiisoft\Config\ConfigPaths;
-use Yiisoft\Config\Options;
 use Yiisoft\Strings\WildcardPattern;
 
-use function dirname;
 use function is_string;
-use function realpath;
 use function str_replace;
 
 /**
  * @internal
+ * @psalm-import-type PackageConfigurationType from RootConfiguration
+ * @psalm-import-type EnvironmentsConfigurationType from RootConfiguration
  */
 final class ProcessHelper
 {
     private Composer $composer;
     private ConfigPaths $paths;
-    private Options $rootPackageOptions;
-    private array $rootPackageExtra;
+    private RootConfiguration $rootConfiguration;
 
     /**
      * @psalm-var array<string, BasePackage>
@@ -38,27 +35,18 @@ final class ProcessHelper
     public function __construct(Composer $composer)
     {
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
-        require_once $composer
-                ->getConfig()
-                ->get('vendor-dir') . '/autoload.php';
-        /** @psalm-suppress MixedArgument */
-        $rootPath = realpath(dirname(Factory::getComposerFile()));
+        require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
-        $rootPackageExtra = $composer
-            ->getPackage()
-            ->getExtra();
-        /** @psalm-suppress UnresolvableInclude */
-        $this->rootPackageExtra = isset($rootPackageExtra['config-plugin-file'])
-            ? (array) (require "$rootPath/{$rootPackageExtra['config-plugin-file']}")
-            : $rootPackageExtra
-        ;
+        $this->rootConfiguration = RootConfiguration::fromComposerInstance($composer);
 
         $this->composer = $composer;
-        $this->rootPackageOptions = new Options($this->rootPackageExtra);
-        $this->paths = new ConfigPaths($rootPath, $this->rootPackageOptions->sourceDirectory());
+        $this->paths = new ConfigPaths(
+            $this->rootConfiguration->path(),
+            $this->rootConfiguration->options()->sourceDirectory(),
+        );
         $this->packages = (new PackagesListBuilder(
             $this->composer,
-            $this->rootPackageOptions->packageTypes()
+            $this->rootConfiguration->options()->packageTypes()
         ))->build();
     }
 
@@ -169,7 +157,7 @@ final class ProcessHelper
      *
      * @return array The package configuration.
      *
-     * @psalm-return array<string, string|list<string>>
+     * @psalm-return PackageConfigurationType
      * @psalm-suppress MixedReturnTypeCoercion
      */
     public function getPackageConfig(PackageInterface $package): array
@@ -182,12 +170,11 @@ final class ProcessHelper
      *
      * @return array The root package configuration.
      *
-     * @psalm-return array<string, string|list<string>>
-     * @psalm-suppress MixedReturnTypeCoercion
+     * @psalm-return PackageConfigurationType
      */
     public function getRootPackageConfig(): array
     {
-        return (array) ($this->rootPackageExtra['config-plugin'] ?? []);
+        return $this->rootConfiguration->packageConfiguration();
     }
 
     /**
@@ -195,12 +182,11 @@ final class ProcessHelper
      *
      * @return array The environment configuration.
      *
-     * @psalm-return array<string, array<string, string|string[]>>
-     * @psalm-suppress MixedReturnTypeCoercion
+     * @psalm-return EnvironmentsConfigurationType
      */
     public function getEnvironmentConfig(): array
     {
-        return (array) ($this->rootPackageExtra['config-plugin-environments'] ?? []);
+        return $this->rootConfiguration->environmentsConfiguration();
     }
 
     /**
@@ -220,7 +206,7 @@ final class ProcessHelper
      */
     public function shouldBuildMergePlan(): bool
     {
-        return $this->rootPackageOptions->buildMergePlan();
+        return $this->rootConfiguration->options()->buildMergePlan();
     }
 
     /**
@@ -228,7 +214,7 @@ final class ProcessHelper
      */
     public function getMergePlanFile(): string
     {
-        return $this->rootPackageOptions->mergePlanFile();
+        return $this->rootConfiguration->options()->mergePlanFile();
     }
 
     /**
@@ -272,7 +258,7 @@ final class ProcessHelper
      */
     private function isVendorOverridePackage(string $package): bool
     {
-        foreach ($this->rootPackageOptions->vendorOverrideLayerPackages() as $pattern) {
+        foreach ($this->rootConfiguration->options()->vendorOverrideLayerPackages() as $pattern) {
             if (!is_string($pattern)) {
                 continue;
             }

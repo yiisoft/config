@@ -13,7 +13,7 @@ use Throwable;
 use Yiisoft\Config\Command\ConfigCommandProvider;
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
-use Yiisoft\Config\Options;
+use Yiisoft\Config\Composer\Options;
 
 abstract class IntegrationTestCase extends TestCase
 {

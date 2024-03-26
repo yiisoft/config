@@ -6,7 +6,7 @@ namespace Yiisoft\Config\Tests\ConfigPaths;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\ConfigPaths;
-use Yiisoft\Config\Options;
+use Yiisoft\Config\Composer\Options;
 
 final class ConfigPathsTest extends TestCase
 {
