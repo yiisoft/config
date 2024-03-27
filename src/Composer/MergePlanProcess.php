@@ -52,10 +52,10 @@ final class MergePlanProcess
         $packages = $isVendorOverrideLayer ? $this->helper->getVendorOverridePackages() : $this->helper->getVendorPackages();
 
         foreach ($packages as $name => $package) {
-            $packageConfigSettings = ConfigSettings::forVendorPackage($this->composer, $package);
+            $configSettings = ConfigSettings::forVendorPackage($this->composer, $package);
             $packageName = $isVendorOverrideLayer ? Options::VENDOR_OVERRIDE_PACKAGE_NAME : $name;
 
-            foreach ($packageConfigSettings->packageConfiguration() as $group => $files) {
+            foreach ($configSettings->packageConfiguration() as $group => $files) {
                 $this->mergePlan->addGroup($group);
 
                 foreach ((array) $files as $file) {
@@ -71,7 +71,7 @@ final class MergePlanProcess
                         continue;
                     }
 
-                    $absoluteFilePath = $packageConfigSettings->configPath() . '/' . $file;
+                    $absoluteFilePath = $configSettings->configPath() . '/' . $file;
 
                     if (Options::containsWildcard($file)) {
                         $matches = glob($absoluteFilePath);
