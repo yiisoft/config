@@ -175,20 +175,6 @@ final class ProcessHelper
     }
 
     /**
-     * Returns the absolute path to the package source directory {@see Options::sourceDirectory()}.
-     *
-     * @param PackageInterface $package The package instance.
-     * @param Options $options The options instance.
-     *
-     * @return string The absolute path to the package config directory.
-     */
-    private function getPackageSourceDirectoryPath(PackageInterface $package, Options $options): string
-    {
-        $packageConfigDirectory = $options->sourceDirectory() === '' ? '' : "/{$options->sourceDirectory()}";
-        return $this->getPackageRootDirectoryPath($package) . $packageConfigDirectory;
-    }
-
-    /**
      * Returns the absolute path to the package root directory.
      *
      * @param PackageInterface $package The package instance.
