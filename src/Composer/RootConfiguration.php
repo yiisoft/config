@@ -6,6 +6,7 @@ namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
 use Composer\Factory;
+use Composer\Package\BasePackage;
 
 /**
  * @internal
@@ -57,9 +58,25 @@ final class RootConfiguration
         );
     }
 
+    public static function fromPackage(Composer $composer, BasePackage $package): self
+    {
+        /**
+         * @var string $rootPath Because we use library and composer-plugins only which always has installation path.
+         * @see PackagesListBuilder::getAllPackages()
+         */
+        $rootPath = $composer->getInstallationManager()->getInstallPath($package);
+        return new self($rootPath, $package->getExtra());
+    }
+
     public function path(): string
     {
         return $this->path;
+    }
+
+    public function configPath(): string
+    {
+        $sourceDirectory = $this->options->sourceDirectory();
+        return $this->path . (empty($sourceDirectory) ? '' : "/$sourceDirectory");
     }
 
     public function options(): Options

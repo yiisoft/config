@@ -97,20 +97,6 @@ final class ProcessHelper
     }
 
     /**
-     * Returns the absolute path to the package file.
-     *
-     * @param PackageInterface $package The package instance.
-     * @param Options $options The options instance.
-     * @param string $filename The package configuration filename.
-     *
-     * @return string The absolute path to the package file.
-     */
-    public function getAbsolutePackageFilePath(PackageInterface $package, Options $options, string $filename): string
-    {
-        return "{$this->getPackageSourceDirectoryPath($package, $options)}/$filename";
-    }
-
-    /**
      * Returns the relative path to the package file including the source directory {@see Options::sourceDirectory()}.
      *
      * @param PackageInterface $package The package instance.
@@ -134,35 +120,6 @@ final class ProcessHelper
     public function getRelativePackageFilePathWithPackageName(PackageInterface $package, string $filePath): string
     {
         return "{$package->getPrettyName()}/{$this->getRelativePackageFilePath($package, $filePath)}";
-    }
-
-    /**
-     * Returns the package filename excluding the source directory {@see Options::sourceDirectory()}.
-     *
-     * @param PackageInterface $package The package instance.
-     * @param Options $options The options instance.
-     * @param string $filePath The absolute path to the package file.
-     *
-     * @return string The package filename excluding the source directory.
-     */
-    public function getPackageFilename(PackageInterface $package, Options $options, string $filePath): string
-    {
-        return str_replace("{$this->getPackageSourceDirectoryPath($package, $options)}/", '', $filePath);
-    }
-
-    /**
-     * Returns the package configuration.
-     *
-     * @param PackageInterface $package The package instance.
-     *
-     * @return array The package configuration.
-     *
-     * @psalm-return PackageConfigurationType
-     * @psalm-suppress MixedReturnTypeCoercion
-     */
-    public function getPackageConfig(PackageInterface $package): array
-    {
-        return (array) ($package->getExtra()['config-plugin'] ?? []);
     }
 
     /**

@@ -29,7 +29,7 @@ final class PackageFilesProcess
      * @param string[] $packageNames The pretty package names to build.
      * If the array is empty, the files of all packages will be build.
      */
-    public function __construct(Composer $composer, array $packageNames = [])
+    public function __construct(private Composer $composer, array $packageNames = [])
     {
         $this->helper = new ProcessHelper($composer);
         $this->process($packageNames);
@@ -62,9 +62,8 @@ final class PackageFilesProcess
     private function process(array $packageNames): void
     {
         foreach ($this->helper->getPackages() as $package) {
-            $options = new Options($package->getExtra());
-
-            foreach ($this->helper->getPackageConfig($package) as $files) {
+            $configSettings = RootConfiguration::fromPackage($this->composer, $package);
+            foreach ($configSettings->packageConfiguration() as $files) {
                 $files = (array) $files;
 
                 foreach ($files as $file) {
@@ -82,7 +81,7 @@ final class PackageFilesProcess
                         continue;
                     }
 
-                    $absoluteFilePath = $this->helper->getAbsolutePackageFilePath($package, $options, $file);
+                    $absoluteFilePath = $configSettings->configPath() . '/' . $file;
 
                     if (Options::containsWildcard($file)) {
                         $matches = glob($absoluteFilePath);
@@ -92,11 +91,7 @@ final class PackageFilesProcess
                         }
 
                         foreach ($matches as $match) {
-                            $this->packageFiles[] = new PackageFile(
-                                $this->helper->getPackageFilename($package, $options, $match),
-                                $this->helper->getRelativePackageFilePath($package, $match),
-                                $match,
-                            );
+                            $this->packageFiles[] = new PackageFile($configSettings, $match);
                         }
 
                         continue;
@@ -106,11 +101,7 @@ final class PackageFilesProcess
                         continue;
                     }
 
-                    $this->packageFiles[] = new PackageFile(
-                        $this->helper->getPackageFilename($package, $options, $absoluteFilePath),
-                        $this->helper->getRelativePackageFilePath($package, $absoluteFilePath),
-                        $absoluteFilePath,
-                    );
+                    $this->packageFiles[] = new PackageFile($configSettings, $absoluteFilePath);
                 }
             }
         }
