@@ -15,14 +15,14 @@ use function str_replace;
 
 /**
  * @internal
- * @psalm-import-type PackageConfigurationType from RootConfiguration
- * @psalm-import-type EnvironmentsConfigurationType from RootConfiguration
+ * @psalm-import-type PackageConfigurationType from ConfigSettings
+ * @psalm-import-type EnvironmentsConfigurationType from ConfigSettings
  */
 final class ProcessHelper
 {
     private Composer $composer;
     private ConfigPaths $paths;
-    private RootConfiguration $rootConfiguration;
+    private ConfigSettings $appConfigSettings;
 
     /**
      * @psalm-var array<string, BasePackage>
@@ -37,16 +37,16 @@ final class ProcessHelper
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
         require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
-        $this->rootConfiguration = RootConfiguration::fromComposerInstance($composer);
+        $this->appConfigSettings = ConfigSettings::forRootPackage($composer);
 
         $this->composer = $composer;
         $this->paths = new ConfigPaths(
-            $this->rootConfiguration->path(),
-            $this->rootConfiguration->options()->sourceDirectory(),
+            $this->appConfigSettings->path(),
+            $this->appConfigSettings->options()->sourceDirectory(),
         );
         $this->packages = (new PackagesListBuilder(
             $this->composer,
-            $this->rootConfiguration->options()->packageTypes()
+            $this->appConfigSettings->options()->packageTypes()
         ))->build();
     }
 
@@ -131,7 +131,7 @@ final class ProcessHelper
      */
     public function getRootPackageConfig(): array
     {
-        return $this->rootConfiguration->packageConfiguration();
+        return $this->appConfigSettings->packageConfiguration();
     }
 
     /**
@@ -143,7 +143,7 @@ final class ProcessHelper
      */
     public function getEnvironmentConfig(): array
     {
-        return $this->rootConfiguration->environmentsConfiguration();
+        return $this->appConfigSettings->environmentsConfiguration();
     }
 
     /**
@@ -163,7 +163,7 @@ final class ProcessHelper
      */
     public function shouldBuildMergePlan(): bool
     {
-        return $this->rootConfiguration->options()->buildMergePlan();
+        return $this->appConfigSettings->options()->buildMergePlan();
     }
 
     /**
@@ -171,7 +171,7 @@ final class ProcessHelper
      */
     public function getMergePlanFile(): string
     {
-        return $this->rootConfiguration->options()->mergePlanFile();
+        return $this->appConfigSettings->options()->mergePlanFile();
     }
 
     /**
@@ -215,7 +215,7 @@ final class ProcessHelper
      */
     private function isVendorOverridePackage(string $package): bool
     {
-        foreach ($this->rootConfiguration->options()->vendorOverrideLayerPackages() as $pattern) {
+        foreach ($this->appConfigSettings->options()->vendorOverrideLayerPackages() as $pattern) {
             if (!is_string($pattern)) {
                 continue;
             }

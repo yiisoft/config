@@ -13,7 +13,7 @@ final class PackageFile
     private string $relativePath;
 
     public function __construct(
-        RootConfiguration $configSettings,
+        ConfigSettings $configSettings,
         private string $absolutePath,
     ) {
         $this->filename = str_replace($configSettings->configPath() . '/', '', $absolutePath);

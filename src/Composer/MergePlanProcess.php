@@ -52,7 +52,7 @@ final class MergePlanProcess
         $packages = $isVendorOverrideLayer ? $this->helper->getVendorOverridePackages() : $this->helper->getVendorPackages();
 
         foreach ($packages as $name => $package) {
-            $packageConfigSettings = RootConfiguration::fromPackage($this->composer, $package);
+            $packageConfigSettings = ConfigSettings::forVendorPackage($this->composer, $package);
             $packageName = $isVendorOverrideLayer ? Options::VENDOR_OVERRIDE_PACKAGE_NAME : $name;
 
             foreach ($packageConfigSettings->packageConfiguration() as $group => $files) {

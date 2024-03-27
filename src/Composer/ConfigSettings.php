@@ -13,7 +13,7 @@ use Composer\Package\BasePackage;
  * @psalm-type PackageConfigurationType = array<string, string|list<string>>
  * @psalm-type EnvironmentsConfigurationType = array<string, array<string, string|string[]>>
  */
-final class RootConfiguration
+final class ConfigSettings
 {
     private Options $options;
 
@@ -50,7 +50,7 @@ final class RootConfiguration
         $this->environmentsConfiguration = $extra['config-plugin-environments'] ?? [];
     }
 
-    public static function fromComposerInstance(Composer $composer): self
+    public static function forRootPackage(Composer $composer): self
     {
         return new self(
             realpath(dirname(Factory::getComposerFile())),
@@ -58,7 +58,7 @@ final class RootConfiguration
         );
     }
 
-    public static function fromPackage(Composer $composer, BasePackage $package): self
+    public static function forVendorPackage(Composer $composer, BasePackage $package): self
     {
         /**
          * @var string $rootPath Because we use library and composer-plugins only which always has installation path.

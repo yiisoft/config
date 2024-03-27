@@ -62,7 +62,7 @@ final class PackageFilesProcess
     private function process(array $packageNames): void
     {
         foreach ($this->helper->getPackages() as $package) {
-            $configSettings = RootConfiguration::fromPackage($this->composer, $package);
+            $configSettings = ConfigSettings::forVendorPackage($this->composer, $package);
             foreach ($configSettings->packageConfiguration() as $files) {
                 $files = (array) $files;
 
