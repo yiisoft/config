@@ -331,6 +331,50 @@ The `package-types` option define package types for process by composer plugin. 
 }
 ```
 
+### `config-plugin-file`
+
+This option allow to define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of
+the `composer.json`:
+
+```json
+"extra": {
+    "config-plugin-file": "path/to/configuration/file.php"
+}
+```
+
+Configurations are specified in the same way, only in PHP format:
+
+```php
+return [
+    'config-plugin-options' => [
+        'source-directory' => 'config',  
+    ],
+    'config-plugin' => [
+        'params' => [
+            'params.php',
+            '?params-local.php',
+        ],
+        'web' => 'web.php', 
+    ],
+    'config-plugin-environments' => [
+        'dev' => [
+            'params' => 'dev/params.php',
+            'app' => [
+                '$web',
+                'dev/app.php',
+            ],
+        ],
+        'prod' => [
+            'app' => 'prod/app.php',
+        ],
+    ],
+];
+```
+
+If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored
+and configurations will be read from the PHP file specified. The path is relative to where the `composer.json` file
+is located.
+
 ## Environments
 
 The plugin supports creating additional environments added to the base configuration. This allows you to create
@@ -397,48 +441,6 @@ $app = $config->get('app');
 
 If defined in an environment, `params` will be merged with `params` from the main configuration,
 and could be used as `$params` in all configurations.
-
-## Configuration in a PHP file
-
-You can define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of the `composer.json`:
-
-```json
-"extra": {
-    "config-plugin-file": "path/to/configuration/file.php"
-}
-```
-
-Configurations are specified in the same way, only in PHP format:
-
-```php
-return [
-    'config-plugin-options' => [
-        'source-directory' => 'config',  
-    ],
-    'config-plugin' => [
-        'params' => [
-            'params.php',
-            '?params-local.php',
-        ],
-        'web' => 'web.php', 
-    ],
-    'config-plugin-environments' => [
-        'dev' => [
-            'params' => 'dev/params.php',
-            'app' => [
-                '$web',
-                'dev/app.php',
-            ],
-        ],
-        'prod' => [
-            'app' => 'prod/app.php',
-        ],
-    ],
-];
-```
-
-If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored
-and configurations will be read from the PHP file specified. The path is relative to where the `composer.json` file is located.
 
 ## Configuration modifiers
 

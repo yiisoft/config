@@ -2,7 +2,8 @@
 
 ## 1.5.1 under development
 
-- Enh #172, 173: Refactoring: extract package configuration reader to separate class (@vjik)
+- New #173: Allow to use option "config-plugin-file" in packages (@vjik) 
+- Enh #172, 173: Refactoring: extract config settings reader to separate class (@vjik)
 
 ## 1.5.0 December 25, 2023
 
