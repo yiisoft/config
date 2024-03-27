@@ -109,7 +109,7 @@ final class InfoCommand extends BaseCommand
     }
 
     /**
-     * @param string[]|string $items
+     * @param string|string[] $items
      */
     private function writeGroup(SymfonyStyle $io, string $group, array|string $items, int $offset): void
     {
