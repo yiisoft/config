@@ -333,7 +333,7 @@ The `package-types` option define package types for process by composer plugin. 
 
 ### `config-plugin-file`
 
-This option allow to define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of
+This option allows to define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of
 the `composer.json`:
 
 ```json
