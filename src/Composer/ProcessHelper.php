@@ -15,14 +15,14 @@ use function str_replace;
 
 /**
  * @internal
- * @psalm-import-type PackageConfigurationType from RootConfiguration
- * @psalm-import-type EnvironmentsConfigurationType from RootConfiguration
+ * @psalm-import-type PackageConfigurationType from ConfigSettings
+ * @psalm-import-type EnvironmentsConfigurationType from ConfigSettings
  */
 final class ProcessHelper
 {
     private Composer $composer;
     private ConfigPaths $paths;
-    private RootConfiguration $rootConfiguration;
+    private ConfigSettings $appConfigSettings;
 
     /**
      * @psalm-var array<string, BasePackage>
@@ -37,16 +37,16 @@ final class ProcessHelper
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
         require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
-        $this->rootConfiguration = RootConfiguration::fromComposerInstance($composer);
+        $this->appConfigSettings = ConfigSettings::forRootPackage($composer);
 
         $this->composer = $composer;
         $this->paths = new ConfigPaths(
-            $this->rootConfiguration->path(),
-            $this->rootConfiguration->options()->sourceDirectory(),
+            $this->appConfigSettings->path(),
+            $this->appConfigSettings->options()->sourceDirectory(),
         );
         $this->packages = (new PackagesListBuilder(
             $this->composer,
-            $this->rootConfiguration->options()->packageTypes()
+            $this->appConfigSettings->options()->packageTypes()
         ))->build();
     }
 
@@ -97,20 +97,6 @@ final class ProcessHelper
     }
 
     /**
-     * Returns the absolute path to the package file.
-     *
-     * @param PackageInterface $package The package instance.
-     * @param Options $options The options instance.
-     * @param string $filename The package configuration filename.
-     *
-     * @return string The absolute path to the package file.
-     */
-    public function getAbsolutePackageFilePath(PackageInterface $package, Options $options, string $filename): string
-    {
-        return "{$this->getPackageSourceDirectoryPath($package, $options)}/$filename";
-    }
-
-    /**
      * Returns the relative path to the package file including the source directory {@see Options::sourceDirectory()}.
      *
      * @param PackageInterface $package The package instance.
@@ -137,35 +123,6 @@ final class ProcessHelper
     }
 
     /**
-     * Returns the package filename excluding the source directory {@see Options::sourceDirectory()}.
-     *
-     * @param PackageInterface $package The package instance.
-     * @param Options $options The options instance.
-     * @param string $filePath The absolute path to the package file.
-     *
-     * @return string The package filename excluding the source directory.
-     */
-    public function getPackageFilename(PackageInterface $package, Options $options, string $filePath): string
-    {
-        return str_replace("{$this->getPackageSourceDirectoryPath($package, $options)}/", '', $filePath);
-    }
-
-    /**
-     * Returns the package configuration.
-     *
-     * @param PackageInterface $package The package instance.
-     *
-     * @return array The package configuration.
-     *
-     * @psalm-return PackageConfigurationType
-     * @psalm-suppress MixedReturnTypeCoercion
-     */
-    public function getPackageConfig(PackageInterface $package): array
-    {
-        return (array) ($package->getExtra()['config-plugin'] ?? []);
-    }
-
-    /**
      * Returns the root package configuration.
      *
      * @return array The root package configuration.
@@ -174,7 +131,7 @@ final class ProcessHelper
      */
     public function getRootPackageConfig(): array
     {
-        return $this->rootConfiguration->packageConfiguration();
+        return $this->appConfigSettings->packageConfiguration();
     }
 
     /**
@@ -186,7 +143,7 @@ final class ProcessHelper
      */
     public function getEnvironmentConfig(): array
     {
-        return $this->rootConfiguration->environmentsConfiguration();
+        return $this->appConfigSettings->environmentsConfiguration();
     }
 
     /**
@@ -206,7 +163,7 @@ final class ProcessHelper
      */
     public function shouldBuildMergePlan(): bool
     {
-        return $this->rootConfiguration->options()->buildMergePlan();
+        return $this->appConfigSettings->options()->buildMergePlan();
     }
 
     /**
@@ -214,21 +171,7 @@ final class ProcessHelper
      */
     public function getMergePlanFile(): string
     {
-        return $this->rootConfiguration->options()->mergePlanFile();
-    }
-
-    /**
-     * Returns the absolute path to the package source directory {@see Options::sourceDirectory()}.
-     *
-     * @param PackageInterface $package The package instance.
-     * @param Options $options The options instance.
-     *
-     * @return string The absolute path to the package config directory.
-     */
-    private function getPackageSourceDirectoryPath(PackageInterface $package, Options $options): string
-    {
-        $packageConfigDirectory = $options->sourceDirectory() === '' ? '' : "/{$options->sourceDirectory()}";
-        return $this->getPackageRootDirectoryPath($package) . $packageConfigDirectory;
+        return $this->appConfigSettings->options()->mergePlanFile();
     }
 
     /**
@@ -258,7 +201,7 @@ final class ProcessHelper
      */
     private function isVendorOverridePackage(string $package): bool
     {
-        foreach ($this->rootConfiguration->options()->vendorOverrideLayerPackages() as $pattern) {
+        foreach ($this->appConfigSettings->options()->vendorOverrideLayerPackages() as $pattern) {
             if (!is_string($pattern)) {
                 continue;
             }

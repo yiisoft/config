@@ -29,7 +29,7 @@ final class MergePlanProcess
     /**
      * @param Composer $composer The composer instance.
      */
-    public function __construct(Composer $composer)
+    public function __construct(private Composer $composer)
     {
         $this->mergePlan = new MergePlan();
         $this->helper = new ProcessHelper($composer);
@@ -52,10 +52,10 @@ final class MergePlanProcess
         $packages = $isVendorOverrideLayer ? $this->helper->getVendorOverridePackages() : $this->helper->getVendorPackages();
 
         foreach ($packages as $name => $package) {
-            $options = new Options($package->getExtra());
+            $configSettings = ConfigSettings::forVendorPackage($this->composer, $package);
             $packageName = $isVendorOverrideLayer ? Options::VENDOR_OVERRIDE_PACKAGE_NAME : $name;
 
-            foreach ($this->helper->getPackageConfig($package) as $group => $files) {
+            foreach ($configSettings->packageConfiguration() as $group => $files) {
                 $this->mergePlan->addGroup($group);
 
                 foreach ((array) $files as $file) {
@@ -71,7 +71,7 @@ final class MergePlanProcess
                         continue;
                     }
 
-                    $absoluteFilePath = $this->helper->getAbsolutePackageFilePath($package, $options, $file);
+                    $absoluteFilePath = $configSettings->configPath() . '/' . $file;
 
                     if (Options::containsWildcard($file)) {
                         $matches = glob($absoluteFilePath);

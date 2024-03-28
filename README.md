@@ -400,7 +400,8 @@ and could be used as `$params` in all configurations.
 
 ## Configuration in a PHP file
 
-You can define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of the `composer.json`:
+You can define configuration in a PHP file. To do it, specify a PHP file path in the `extra` section of
+the `composer.json`:
 
 ```json
 "extra": {
@@ -437,8 +438,9 @@ return [
 ];
 ```
 
-If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored
-and configurations will be read from the PHP file specified. The path is relative to where the `composer.json` file is located.
+If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored and 
+configurations will be read from the PHP file specified. The path is relative to where the `composer.json` file
+is located.
 
 ## Configuration modifiers
 
