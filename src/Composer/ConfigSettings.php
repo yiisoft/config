@@ -6,13 +6,14 @@ namespace Yiisoft\Config\Composer;
 
 use Composer\Composer;
 use Composer\Factory;
+use Composer\Package\BasePackage;
 
 /**
  * @internal
  * @psalm-type PackageConfigurationType = array<string, string|list<string>>
  * @psalm-type EnvironmentsConfigurationType = array<string, array<string, string|string[]>>
  */
-final class RootConfiguration
+final class ConfigSettings
 {
     private Options $options;
 
@@ -49,7 +50,7 @@ final class RootConfiguration
         $this->environmentsConfiguration = $extra['config-plugin-environments'] ?? [];
     }
 
-    public static function fromComposerInstance(Composer $composer): self
+    public static function forRootPackage(Composer $composer): self
     {
         return new self(
             realpath(dirname(Factory::getComposerFile())),
@@ -57,9 +58,25 @@ final class RootConfiguration
         );
     }
 
+    public static function forVendorPackage(Composer $composer, BasePackage $package): self
+    {
+        /**
+         * @var string $rootPath Because we use library and composer-plugins only which always has installation path.
+         * @see PackagesListBuilder::getAllPackages()
+         */
+        $rootPath = $composer->getInstallationManager()->getInstallPath($package);
+        return new self($rootPath, $package->getExtra());
+    }
+
     public function path(): string
     {
         return $this->path;
+    }
+
+    public function configPath(): string
+    {
+        $sourceDirectory = $this->options->sourceDirectory();
+        return $this->path . (empty($sourceDirectory) ? '' : "/$sourceDirectory");
     }
 
     public function options(): Options
