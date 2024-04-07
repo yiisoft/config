@@ -202,10 +202,6 @@ final class ProcessHelper
     private function isVendorOverridePackage(string $package): bool
     {
         foreach ($this->appConfigSettings->options()->vendorOverrideLayerPackages() as $pattern) {
-            if (!is_string($pattern)) {
-                continue;
-            }
-
             if ($package === $pattern || (new WildcardPattern($pattern))->match($package)) {
                 return true;
             }

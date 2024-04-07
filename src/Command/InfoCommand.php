@@ -125,6 +125,9 @@ final class InfoCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
+    /**
+     * @psalm-param array<string, string|string[]> $configuration
+     */
     private function writeConfiguration(
         SymfonyStyle $io,
         array $configuration,
