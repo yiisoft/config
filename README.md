@@ -22,7 +22,7 @@ The package becomes a plugin holding both the code and its default configuration
 ## Requirements
 
 - PHP 8.0 or higher.
-- Composer 2.0 or higher.
+- Composer 2.3 or higher.
 
 ## Installation
 
@@ -639,6 +639,15 @@ command:
 
 ```shell
 composer yii-config-rebuild
+```
+
+### `yii-config-info`
+
+The `yii-config-rebuild` command show application or package configuration details.
+
+```shell
+composer yii-config-info
+composer yii-config-info yiisoft/widget
 ```
 
 ## Testing
