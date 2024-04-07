@@ -64,7 +64,9 @@ final class InfoCommand extends BaseCommand
     {
         $settings = ConfigSettings::forRootPackage($composer);
         $options = $settings->options();
-        $mergePlanFilePath = $settings->path() . '/' . $options->mergePlanFile();
+        $mergePlanFilePath = $settings->path() . '/'
+            . $settings->options()->sourceDirectory() . '/'
+            . $options->mergePlanFile();
 
         $io->title('Yii Config — Root Configuration');
 
