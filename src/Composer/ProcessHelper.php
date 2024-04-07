@@ -10,7 +10,6 @@ use Composer\Package\PackageInterface;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Strings\WildcardPattern;
 
-use function is_string;
 use function str_replace;
 
 /**
