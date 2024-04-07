@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Command;
 
 use Composer\Command\BaseCommand;
+use Composer\Composer;
+use Composer\Package\BasePackage;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Yiisoft\Config\Composer\ConfigSettings;
 use Yiisoft\Config\Composer\Options;
-use Yiisoft\Config\Composer\RootConfiguration;
 
 final class InfoCommand extends BaseCommand
 {
@@ -18,25 +21,53 @@ final class InfoCommand extends BaseCommand
     {
         $this
             ->setName('yii-config-info')
-            ->addArgument('type', InputArgument::OPTIONAL);
+            ->addArgument('package', InputArgument::OPTIONAL);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $configuration = RootConfiguration::fromComposerInstance($this->getComposer());
         $io = new SymfonyStyle($input, $output);
+        $composer = $this->getComposer();
 
-        return match ($input->getArgument('type')) {
-            default => $this->default($configuration, $io),
-        };
+        $packageName = $input->getArgument('package');
+        if (is_string($packageName)) {
+            $package = $composer->getRepositoryManager()->getLocalRepository()->findPackage($packageName, '*');
+            if ($package === null) {
+                $io->error('Package "' . $packageName . '" not found.');
+                return Command::FAILURE;
+            }
+            return $this->vendorPackage($composer, $package, $io);
+        }
+
+        return $this->rootPackage($composer, $io);
     }
 
-    private function default(RootConfiguration $configuration, SymfonyStyle $io): int
+    private function vendorPackage(Composer $composer, BasePackage $package, SymfonyStyle $io): int
     {
-        $options = $configuration->options();
-        $mergePlanFilePath = $configuration->path() . '/' . $options->mergePlanFile();
+        $settings = ConfigSettings::forVendorPackage($composer, $package);
+        if (empty($settings->packageConfiguration())) {
+            $io->writeln('');
+            $io->writeln('<fg=gray>Configuration don\'t found in package "' . $package->getName() . '".</>');
+            return Command::SUCCESS;
+        }
 
-        $io->title('Yii Config — Composer Data');
+        $io->title('Yii Config — Package "' . $package->getName() . '"');
+
+        $io->writeln('Source directory: ' . $settings->path() . '/' . $settings->options()->sourceDirectory());
+
+        $io->section('Configuration groups');
+        $this->writeConfiguration($io, $settings->packageConfiguration());
+
+        return Command::SUCCESS;
+    }
+
+    private function rootPackage(Composer $composer, SymfonyStyle $io): int
+    {
+        $settings = ConfigSettings::forRootPackage($composer);
+        $options = $settings->options();
+        $mergePlanFilePath = $settings->path() . '/' . $options->mergePlanFile();
+
+        $io->title('Yii Config — Root Configuration');
 
         $io->section('Options');
         $io->table([], [
@@ -56,7 +87,7 @@ final class InfoCommand extends BaseCommand
             ],
             [
                 'Source directory',
-                $configuration->path() . '/' . $options->sourceDirectory(),
+                $settings->path() . '/' . $options->sourceDirectory(),
             ],
             [
                 'Vendor override layer packages',
@@ -67,10 +98,10 @@ final class InfoCommand extends BaseCommand
         ]);
 
         $io->section('Configuration groups');
-        $this->writeConfiguration($io, $configuration->packageConfiguration(), 1, true);
+        $this->writeConfiguration($io, $settings->packageConfiguration());
 
         $io->section('Environments');
-        $environmentsConfiguration = $configuration->environmentsConfiguration();
+        $environmentsConfiguration = $settings->environmentsConfiguration();
         if (empty($environmentsConfiguration)) {
             $io->writeln('<fg=gray>not set</>');
         } else {
@@ -86,19 +117,19 @@ final class InfoCommand extends BaseCommand
                     $io->writeln(' <fg=gray>(empty)</>');
                 } else {
                     $io->newLine();
-                    $this->writeConfiguration($io, $groups, 2, false);
+                    $this->writeConfiguration($io, $groups, offset: 2, addSeparateLine: false);
                 }
             }
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function writeConfiguration(
         SymfonyStyle $io,
         array $configuration,
-        int $offset,
-        bool $addSeparateLine
+        int $offset = 1,
+        bool $addSeparateLine = true,
     ): void {
         foreach ($configuration as $group => $values) {
             $this->writeGroup($io, $group, $values, $offset);
