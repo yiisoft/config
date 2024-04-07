@@ -27,7 +27,7 @@ final class InfoCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $composer = $this->getComposer();
+        $composer = $this->requireComposer();
 
         $packageName = $input->getArgument('package');
         if (is_string($packageName)) {
