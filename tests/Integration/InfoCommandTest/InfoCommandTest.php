@@ -44,11 +44,26 @@ final class InfoCommandTest extends IntegrationTestCase
         $this->assertStringContainsString('- web.php', $output);
     }
 
+    public function testPackageNotFound()
+    {
+        [, $output] = $this->runInfoCommand('unknown/test');
+
+        $this->assertStringContainsString('Package "unknown/test" not found.', $output);
+    }
+
+    public function testPackageWithoutConfiguration()
+    {
+        [, $output] = $this->runInfoCommand('test/b');
+
+        $this->assertStringContainsString('Configuration don\'t found in package "test/b".', $output);
+    }
+
     private function runInfoCommand(?string $package = null): array
     {
         $rootPath = __DIR__;
         $packages = [
             'test/a' => __DIR__ . '/packages/a',
+            'test/b' => __DIR__ . '/packages/b',
         ];
         $extra = [
             'config-plugin-options' => [
