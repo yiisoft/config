@@ -29,8 +29,10 @@ final class InfoCommandTest extends IntegrationTestCase
         $this->assertMatchesRegularExpression('~Vendor override layer packages\s*not set~', $output);
         $this->assertStringContainsString('Configuration groups', $output);
         $this->assertStringContainsString('- params/*.php', $output);
+        $this->assertStringContainsString('widgets (empty)', $output);
         $this->assertStringContainsString('Environments', $output);
         $this->assertStringContainsString('environment/params/*.php', $output);
+        $this->assertStringContainsString('development (empty)', $output);
     }
 
     public function testVendorPackage(): void
@@ -38,7 +40,7 @@ final class InfoCommandTest extends IntegrationTestCase
         [$rootPath, $output] = $this->runInfoCommand('test/a');
 
         $this->assertStringContainsString('Yii Config — Package "test/a"', $output);
-        $this->assertStringContainsString('Source directory: '.$rootPath.'/vendor/test/a' , $output);
+        $this->assertStringContainsString('Source directory: ' . $rootPath . '/vendor/test/a', $output);
         $this->assertStringContainsString('Configuration groups', $output);
         $this->assertStringContainsString('- params.php', $output);
         $this->assertStringContainsString('- web.php', $output);
@@ -58,7 +60,14 @@ final class InfoCommandTest extends IntegrationTestCase
         $this->assertStringContainsString('Configuration don\'t found in package "test/b".', $output);
     }
 
-    private function runInfoCommand(?string $package = null): array
+    public function testWithoutEnvironments()
+    {
+        [, $output] = $this->runInfoCommand(withEnvironments: false);
+
+        $this->assertMatchesRegularExpression('~Environments(\s|-)+not set~', $output);
+    }
+
+    private function runInfoCommand(?string $package = null, bool $withEnvironments = true): array
     {
         $rootPath = __DIR__;
         $packages = [
@@ -71,12 +80,16 @@ final class InfoCommandTest extends IntegrationTestCase
             ],
             'config-plugin' => [
                 'params' => 'params/*.php',
+                'widgets' => [],
             ],
-            'config-plugin-environments' => [
-                'environment' => [
-                    'params' => 'environment/params/*.php',
-                ],
-            ],
+            'config-plugin-environments' => $withEnvironments
+                ? [
+                    'environment' => [
+                        'params' => 'environment/params/*.php',
+                    ],
+                    'development' => [],
+                ]
+                : [],
         ];
 
         $this->runComposerUpdate(
