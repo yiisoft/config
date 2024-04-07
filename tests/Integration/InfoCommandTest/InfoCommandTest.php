@@ -38,7 +38,7 @@ final class InfoCommandTest extends IntegrationTestCase
         [$rootPath, $output] = $this->runInfoCommand('test/a');
 
         $this->assertStringContainsString('Yii Config — Package "test/a"', $output);
-        $this->assertStringContainsString('Source directory: '.$rootPath.'/vendor/test/a' , $output);
+        $this->assertStringContainsString('Source directory: ' . $rootPath . '/vendor/test/a', $output);
         $this->assertStringContainsString('Configuration groups', $output);
         $this->assertStringContainsString('- params.php', $output);
         $this->assertStringContainsString('- web.php', $output);
