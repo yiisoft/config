@@ -30,6 +30,7 @@
     "require": {
         "php": "^8.0",
         "composer-plugin-api": "^2.0",
+        "symfony/console": "^5.4.11|^6.0.11|^7",
         "yiisoft/arrays": "^3.0",
         "yiisoft/strings": "^2.0",
         "yiisoft/var-dumper": "^1.1"
