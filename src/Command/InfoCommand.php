@@ -7,7 +7,6 @@ namespace Yiisoft\Config\Command;
 use Composer\Command\BaseCommand;
 use Composer\Composer;
 use Composer\Package\BasePackage;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,7 +33,7 @@ final class InfoCommand extends BaseCommand
             $package = $composer->getRepositoryManager()->getLocalRepository()->findPackage($packageName, '*');
             if ($package === null) {
                 $io->error('Package "' . $packageName . '" not found.');
-                return Command::FAILURE;
+                return 1;
             }
             return $this->vendorPackage($composer, $package, $io);
         }
@@ -48,7 +47,7 @@ final class InfoCommand extends BaseCommand
         if (empty($settings->packageConfiguration())) {
             $io->writeln('');
             $io->writeln('<fg=gray>Configuration don\'t found in package "' . $package->getName() . '".</>');
-            return Command::SUCCESS;
+            return 0;
         }
 
         $io->title('Yii Config — Package "' . $package->getName() . '"');
@@ -58,7 +57,7 @@ final class InfoCommand extends BaseCommand
         $io->section('Configuration groups');
         $this->writeConfiguration($io, $settings->packageConfiguration());
 
-        return Command::SUCCESS;
+        return 0;
     }
 
     private function rootPackage(Composer $composer, SymfonyStyle $io): int
@@ -122,7 +121,7 @@ final class InfoCommand extends BaseCommand
             }
         }
 
-        return Command::SUCCESS;
+        return 0;
     }
 
     /**
