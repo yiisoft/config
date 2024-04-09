@@ -5,7 +5,7 @@
 - New #175: Add `yii-config-info` composer command (@vjik)
 - New #173: Allow to use option "config-plugin-file" in packages (@vjik) 
 - Enh #172, #173: Refactoring: extract config settings reader to separate class (@vjik)
-- Chg #175: Raise minimum composer version to 2.3 (@vjik)
+- Chg #175: Raise minimum Composer version to 2.3 (@vjik)
 - Enh #175: Minor refactoring of internal classes `Options` and `ProcessHelper` (@vjik)
 
 ## 1.5.0 December 25, 2023
