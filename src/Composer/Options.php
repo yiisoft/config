@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Config\Composer;
 
 use function is_array;
+use function is_string;
 use function str_replace;
 use function trim;
 
@@ -23,8 +24,17 @@ final class Options
 
     private string $mergePlanFile = self::DEFAULT_MERGE_PLAN_FILE;
     private bool $buildMergePlan = true;
+
+    /**
+     * @var string[]
+     */
     private array $vendorOverrideLayerPackages = [];
+
     private string $sourceDirectory = self::DEFAULT_CONFIG_DIRECTORY;
+
+    /**
+     * @var string[]
+     */
     private array $packageTypes = self::DEFAULT_PACKAGE_TYPES;
 
     public function __construct(array $extra)
@@ -44,7 +54,10 @@ final class Options
         }
 
         if (isset($options['vendor-override-layer'])) {
-            $this->vendorOverrideLayerPackages = (array) $options['vendor-override-layer'];
+            $this->vendorOverrideLayerPackages = array_filter(
+                (array) $options['vendor-override-layer'],
+                static fn(mixed $value): bool => is_string($value),
+            );
         }
 
         if (isset($options['source-directory'])) {
@@ -52,7 +65,10 @@ final class Options
         }
 
         if (isset($options['package-types'])) {
-            $this->packageTypes = (array) $options['package-types'];
+            $this->packageTypes = array_filter(
+                (array) $options['package-types'],
+                static fn(mixed $value): bool => is_string($value),
+            );
         }
     }
 
@@ -81,6 +97,9 @@ final class Options
         return $this->buildMergePlan;
     }
 
+    /**
+     * @return string[]
+     */
     public function vendorOverrideLayerPackages(): array
     {
         return $this->vendorOverrideLayerPackages;
@@ -91,6 +110,9 @@ final class Options
         return $this->sourceDirectory;
     }
 
+    /**
+     * @return string[]
+     */
     public function packageTypes(): array
     {
         return $this->packageTypes;

@@ -10,7 +10,6 @@ use Composer\Package\PackageInterface;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Strings\WildcardPattern;
 
-use function is_string;
 use function str_replace;
 
 /**
@@ -202,10 +201,6 @@ final class ProcessHelper
     private function isVendorOverridePackage(string $package): bool
     {
         foreach ($this->appConfigSettings->options()->vendorOverrideLayerPackages() as $pattern) {
-            if (!is_string($pattern)) {
-                continue;
-            }
-
             if ($package === $pattern || (new WildcardPattern($pattern))->match($package)) {
                 return true;
             }

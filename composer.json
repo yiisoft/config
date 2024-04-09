@@ -30,13 +30,14 @@
     "require": {
         "php": "^8.0",
         "composer-plugin-api": "^2.0",
+        "symfony/console": "^5.4.11|^6.0.11|^7",
         "yiisoft/arrays": "^3.0",
         "yiisoft/strings": "^2.0",
         "yiisoft/var-dumper": "^1.1"
     },
     "require-dev": {
         "ext-json": "*",
-        "composer/composer": "^2.0",
+        "composer/composer": "^2.3",
         "maglnet/composer-require-checker": "^4.4",
         "phpunit/phpunit": "^9.5",
         "rector/rector": "^1.0.0",
