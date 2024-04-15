@@ -105,29 +105,33 @@ each package `composer.json`:
 In the above example the mapping keys are config group names and the values are configuration files and references to other config groups.
 The file paths are relative to the [source-directory](#source-directory), which by default is the path where `composer.json` is located.
 
-
-### Markers 
+### Markers
 
 - `?` - marks optional files. Absence of files not marked with this marker will cause exception.
+
     ```
     "params": [
        "params.php",
        "?params-local.php"
     ]
     ```
+
   It's okay if `params-local.php` will not be found, but it's not okay if `params.php` will be absent.
   
 - `*` - marks wildcard path. It means zero or more matches by wildcard mask.
+
   ```
   "web": [
      "../src/Modules/*/config/web.php"
   ]
   ```
+
   It will collect all `web.php` in any sub-folders of `src/Modules/` in `config` folder.
   However, if the configuration folder is packaged as part of the `PHAR` archive, the configuration
   files will not be uploaded. In this case, you must explicitly specify each configuration file.
 
 - `$` - reference to another config by its group name.
+
   ```
   "params": [
      "params.php",
@@ -142,6 +146,7 @@ The file paths are relative to the [source-directory](#source-directory), which 
      "params-web.php"
   ]
   ```
+
   The config groups `params-console` and `params-web` will both contain the config values from `params.php` and `params-local.php` additional to their own configuration values.
 
 ***
@@ -149,8 +154,6 @@ The file paths are relative to the [source-directory](#source-directory), which 
 Define your configs like the following:
 
 ```php
-<?php
-
 return [
     'components' => [
         'db' => [
@@ -177,7 +180,7 @@ $config = new Config(
 );
 ```
 
-You can pass `null` as `$params` group name. In this case `$params` will empty array. 
+You can pass `null` as `$params` group name. In this case `$params` will empty array.
 
 ### Using sub-configs
 
@@ -438,7 +441,7 @@ return [
 ];
 ```
 
-If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored and 
+If you specify the file path, the remaining sections (`config-plugin-*`) in `composer.json` will be ignored and
 configurations will be read from the PHP file specified. The path is relative to where the `composer.json` file
 is located.
 
@@ -687,7 +690,7 @@ Maintained by [Yii Software](https://www.yiiframework.com/).
 ## Credits
 
 The plugin is heavily inspired by [Composer config plugin](https://github.com/yiisoft/composer-config-plugin)
-originally created by HiQDev (https://hiqdev.com/) in 2016 and then adopted by Yii.
+originally created by HiQDev (<https://hiqdev.com/>) in 2016 and then adopted by Yii.
 
 ## Support the project
 
