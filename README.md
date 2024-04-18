@@ -109,7 +109,7 @@ The file paths are relative to the [source-directory](#source-directory), which 
 
 - `?` - marks optional files. Absence of files not marked with this marker will cause exception.
 
-    ```
+    ```php
     "params": [
        "params.php",
        "?params-local.php"
@@ -120,7 +120,7 @@ The file paths are relative to the [source-directory](#source-directory), which 
   
 - `*` - marks wildcard path. It means zero or more matches by wildcard mask.
 
-  ```
+  ```php
   "web": [
      "../src/Modules/*/config/web.php"
   ]
@@ -132,7 +132,7 @@ The file paths are relative to the [source-directory](#source-directory), which 
 
 - `$` - reference to another config by its group name.
 
-  ```
+  ```php
   "params": [
      "params.php",
      "?params-local.php"
@@ -373,7 +373,7 @@ we use `$web` configuration from the main environment.
 
 This configuration has the following structure:
 
-```
+```text
 config/             Configuration root directory.
     dev/            Development environment files.
         app.php     Development environment app group configuration.
@@ -653,44 +653,14 @@ composer yii-config-info
 composer yii-config-info yiisoft/widget
 ```
 
-## Testing
+## Documentation
 
-### Unit testing
+- More information can be found in the [Internals.](docs/internals.md)
 
-The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
+## Support
 
-```shell
-./vendor/bin/phpunit --testdox --no-interaction
-```
-
-### Mutation testing
-
-The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
-[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
-
-```shell
-./vendor/bin/roave-infection-static-analysis-plugin
-```
-
-### Static analysis
-
-The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
-
-```shell
-./vendor/bin/psalm
-```
-
-## License
-
-The config package is free software. It is released under the terms of the BSD License.
-Please see [`LICENSE`](./LICENSE.md) for more information.
-
-Maintained by [Yii Software](https://www.yiiframework.com/).
-
-## Credits
-
-The plugin is heavily inspired by [Composer config plugin](https://github.com/yiisoft/composer-config-plugin)
-originally created by HiQDev (<https://hiqdev.com/>) in 2016 and then adopted by Yii.
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
 ## Support the project
 
@@ -703,3 +673,10 @@ originally created by HiQDev (<https://hiqdev.com/>) in 2016 and then adopted by
 [![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
 [![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
 [![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
+
+## License
+
+The Yii Access is free software. It is released under the terms of the BSD License.
+Please see [`LICENSE`](./LICENSE.md) for more information.
+
+Maintained by [Yii Software](https://www.yiiframework.com/).
