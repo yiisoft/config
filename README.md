@@ -373,7 +373,7 @@ we use `$web` configuration from the main environment.
 
 This configuration has the following structure:
 
-```text
+```
 config/             Configuration root directory.
     dev/            Development environment files.
         app.php     Development environment app group configuration.
