@@ -127,7 +127,6 @@ The file paths are relative to the [source-directory](#source-directory), which 
   files will not be uploaded. In this case, you must explicitly specify each configuration file.
 
 - `$` - reference to another config by its group name.
-
   ```php
   "params": [
      "params.php",
