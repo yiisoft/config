@@ -117,7 +117,6 @@ The file paths are relative to the [source-directory](#source-directory), which 
   It's okay if `params-local.php` will not be found, but it's not okay if `params.php` will be absent.
   
 - `*` - marks wildcard path. It means zero or more matches by wildcard mask.
-
   ```php
   "web": [
      "../src/Modules/*/config/web.php"
