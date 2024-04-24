@@ -108,7 +108,6 @@ The file paths are relative to the [source-directory](#source-directory), which 
 ### Markers
 
 - `?` - marks optional files. Absence of files not marked with this marker will cause exception.
-
     ```php
     "params": [
        "params.php",
