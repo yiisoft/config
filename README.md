@@ -122,7 +122,6 @@ The file paths are relative to the [source-directory](#source-directory), which 
      "../src/Modules/*/config/web.php"
   ]
   ```
-
   It will collect all `web.php` in any sub-folders of `src/Modules/` in `config` folder.
   However, if the configuration folder is packaged as part of the `PHAR` archive, the configuration
   files will not be uploaded. In this case, you must explicitly specify each configuration file.
