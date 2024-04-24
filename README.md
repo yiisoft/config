@@ -141,7 +141,6 @@ The file paths are relative to the [source-directory](#source-directory), which 
      "params-web.php"
   ]
   ```
-
   The config groups `params-console` and `params-web` will both contain the config values from `params.php` and `params-local.php` additional to their own configuration values.
 
 ***
