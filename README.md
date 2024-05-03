@@ -27,7 +27,7 @@ The package becomes a plugin holding both the code and its default configuration
 ## Installation
 
 ```shell
-composer require yiisoft/config --prefer-dist
+composer require yiisoft/config
 ```
 
 ## How it works?
