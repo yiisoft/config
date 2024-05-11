@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
+        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px" alt="Yii">
         <img src="images/logo.png" height="80px">
     </a>
     <h1 align="center">Yii Config</h1>
@@ -108,25 +108,30 @@ The file paths are relative to the [source-directory](#source-directory), which 
 ### Markers
 
 - `?` - marks optional files. Absence of files not marked with this marker will cause exception.
+
     ```php
     "params": [
        "params.php",
        "?params-local.php"
     ]
     ```
+
   It's okay if `params-local.php` will not be found, but it's not okay if `params.php` will be absent.
   
 - `*` - marks wildcard path. It means zero or more matches by wildcard mask.
+
   ```php
   "web": [
      "../src/Modules/*/config/web.php"
   ]
   ```
+
   It will collect all `web.php` in any sub-folders of `src/Modules/` in `config` folder.
   However, if the configuration folder is packaged as part of the `PHAR` archive, the configuration
   files will not be uploaded. In this case, you must explicitly specify each configuration file.
 
 - `$` - reference to another config by its group name.
+
   ```php
   "params": [
      "params.php",
@@ -141,6 +146,7 @@ The file paths are relative to the [source-directory](#source-directory), which 
      "params-web.php"
   ]
   ```
+
   The config groups `params-console` and `params-web` will both contain the config values from `params.php` and `params-local.php` additional to their own configuration values.
 
 ***
@@ -664,7 +670,7 @@ Maintained by [Yii Software](https://www.yiiframework.com/).
 ## Credits
 
 The plugin is heavily inspired by [Composer config plugin](https://github.com/yiisoft/composer-config-plugin)
-originally created by HiQDev (https://hiqdev.com/) in 2016 and then adopted by Yii.
+originally created by HiQDev (<https://hiqdev.com/>) in 2016 and then adopted by Yii.
 
 ## Support the project
 
