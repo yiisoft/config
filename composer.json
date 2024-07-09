@@ -39,7 +39,7 @@
         "ext-json": "*",
         "composer/composer": "^2.3",
         "maglnet/composer-require-checker": "^4.4",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^11.2",
         "rector/rector": "^1.0.0",
         "roave/infection-static-analysis-plugin": "^1.16",
         "spatie/phpunit-watcher": "^1.23",
