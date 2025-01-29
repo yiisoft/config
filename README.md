@@ -21,7 +21,7 @@ The package becomes a plugin holding both the code and its default configuration
 
 ## Requirements
 
-- PHP 8.0 or higher.
+- PHP 8.1 or higher.
 - Composer 2.3 or higher.
 
 ## Installation
