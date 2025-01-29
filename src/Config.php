@@ -41,7 +41,7 @@ final class Config implements ConfigInterface
      */
     public function __construct(
         ConfigPaths $paths,
-        string $environment = null,
+        ?string $environment = null,
         array $modifiers = [],
         private readonly ?string $paramsGroup = 'params',
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
