@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\VendorOverrideLayer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
 final class VendorOverrideLayerTest extends IntegrationTestCase
@@ -20,9 +21,7 @@ final class VendorOverrideLayerTest extends IntegrationTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataBase
-     */
+    #[DataProvider('dataBase')]
     public function testBase(array|string $vendorOverrideLayer): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(

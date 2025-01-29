@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\ConfigPaths;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Config\Composer\Options;
 
 final class ConfigPathsTest extends TestCase
 {
-    public function absolutePathsDataProvider(): array
+    public static function absolutePathsDataProvider(): array
     {
         return [
             ['params.php', Options::ROOT_PACKAGE_NAME, __DIR__ . '/config/params.php'],
@@ -20,9 +21,7 @@ final class ConfigPathsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider absolutePathsDataProvider
-     */
+    #[DataProvider('absolutePathsDataProvider')]
     public function testAbsolute(string $file, string $package, string $expected): void
     {
         $this->assertSame(

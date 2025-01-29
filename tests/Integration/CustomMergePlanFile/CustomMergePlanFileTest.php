@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\CustomMergePlanFile;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
 final class CustomMergePlanFileTest extends IntegrationTestCase
@@ -17,9 +18,7 @@ final class CustomMergePlanFileTest extends IntegrationTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataBase
-     */
+    #[DataProvider('dataBase')]
     public function testBase(string $mergePlanFIle): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(

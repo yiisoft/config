@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\CopyCommand;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
 final class CopyCommandTest extends IntegrationTestCase
@@ -54,9 +55,7 @@ final class CopyCommandTest extends IntegrationTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataBase
-     */
+    #[DataProvider('dataBase')]
     public function testBase(array $expectedFiles, array $arguments): void
     {
         $this->removeDirectories[] = __DIR__ . '/config';
