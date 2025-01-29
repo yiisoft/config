@@ -15,20 +15,20 @@ use Composer\Package\BasePackage;
  */
 final class ConfigSettings
 {
-    private Options $options;
+    private readonly Options $options;
 
     /**
      * @psalm-var PackageConfigurationType
      */
-    private array $packageConfiguration;
+    private readonly array $packageConfiguration;
 
     /**
      * @psalm-var EnvironmentsConfigurationType
      */
-    private array $environmentsConfiguration;
+    private readonly array $environmentsConfiguration;
 
     private function __construct(
-        private string $path,
+        private readonly string $path,
         array $composerExtra,
     ) {
         if (isset($composerExtra['config-plugin-file'])) {

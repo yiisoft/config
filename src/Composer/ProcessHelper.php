@@ -19,26 +19,25 @@ use function str_replace;
  */
 final class ProcessHelper
 {
-    private Composer $composer;
-    private ConfigPaths $paths;
-    private ConfigSettings $appConfigSettings;
+    private readonly ConfigPaths $paths;
+    private readonly ConfigSettings $appConfigSettings;
 
     /**
      * @psalm-var array<string, BasePackage>
      */
-    private array $packages;
+    private readonly array $packages;
 
     /**
      * @param Composer $composer The composer instance.
      */
-    public function __construct(Composer $composer)
-    {
+    public function __construct(
+        private readonly Composer $composer,
+    ) {
         /** @psalm-suppress UnresolvableInclude, MixedOperand */
         require_once $composer->getConfig()->get('vendor-dir') . '/autoload.php';
 
         $this->appConfigSettings = ConfigSettings::forRootPackage($composer);
 
-        $this->composer = $composer;
         $this->paths = new ConfigPaths(
             $this->appConfigSettings->path(),
             $this->appConfigSettings->options()->sourceDirectory(),

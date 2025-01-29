@@ -23,14 +23,15 @@ use function substr;
  */
 final class MergePlanProcess
 {
-    private MergePlan $mergePlan;
-    private ProcessHelper $helper;
+    private readonly MergePlan $mergePlan;
+    private readonly ProcessHelper $helper;
 
     /**
      * @param Composer $composer The composer instance.
      */
-    public function __construct(private Composer $composer)
-    {
+    public function __construct(
+        private readonly Composer $composer,
+    ) {
         $this->mergePlan = new MergePlan();
         $this->helper = new ProcessHelper($composer);
 

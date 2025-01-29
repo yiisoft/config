@@ -9,12 +9,12 @@ namespace Yiisoft\Config\Composer;
  */
 final class PackageFile
 {
-    private string $filename;
-    private string $relativePath;
+    private readonly string $filename;
+    private readonly string $relativePath;
 
     public function __construct(
         ConfigSettings $configSettings,
-        private string $absolutePath,
+        private readonly string $absolutePath,
     ) {
         $this->filename = str_replace($configSettings->configPath() . '/', '', $absolutePath);
         $this->relativePath = str_replace($configSettings->path() . '/', '', $absolutePath);

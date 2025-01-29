@@ -14,7 +14,7 @@ final class RemoveKeysFromVendor
     /**
      * @var string[][]
      */
-    private array $keys;
+    private readonly array $keys;
 
     /**
      * @var string[][]
