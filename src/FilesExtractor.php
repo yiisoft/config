@@ -102,6 +102,7 @@ final class FilesExtractor
                 }
 
                 $filePath = $this->paths->absolute($item, $package);
+                /** @psalm-var list<string> $files */
                 $files = Options::containsWildcard($item) ? glob($filePath) : [$filePath];
 
                 foreach ($files as $file) {
