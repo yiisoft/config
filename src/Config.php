@@ -21,8 +21,8 @@ use function substr;
  */
 final class Config implements ConfigInterface
 {
-    private Merger $merger;
-    private FilesExtractor $filesExtractor;
+    private readonly Merger $merger;
+    private readonly FilesExtractor $filesExtractor;
     private bool $isBuildingParams = false;
 
     /**
@@ -41,9 +41,9 @@ final class Config implements ConfigInterface
      */
     public function __construct(
         ConfigPaths $paths,
-        string $environment = null,
+        ?string $environment = null,
         array $modifiers = [],
-        private ?string $paramsGroup = 'params',
+        private readonly ?string $paramsGroup = 'params',
         string $mergePlanFile = Options::DEFAULT_MERGE_PLAN_FILE,
     ) {
         $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;

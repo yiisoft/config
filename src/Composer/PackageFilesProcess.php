@@ -17,7 +17,7 @@ use function substr;
  */
 final class PackageFilesProcess
 {
-    private ProcessHelper $helper;
+    private readonly ProcessHelper $helper;
 
     /**
      * @var PackageFile[]
@@ -29,8 +29,10 @@ final class PackageFilesProcess
      * @param string[] $packageNames The pretty package names to build.
      * If the array is empty, the files of all packages will be build.
      */
-    public function __construct(private Composer $composer, array $packageNames = [])
-    {
+    public function __construct(
+        private readonly Composer $composer,
+        array $packageNames = [],
+    ) {
         $this->helper = new ProcessHelper($composer);
         $this->process($packageNames);
     }

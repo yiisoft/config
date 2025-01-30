@@ -20,10 +20,10 @@ use function substr;
 final class FilesExtractor
 {
     public function __construct(
-        private ConfigPaths $paths,
-        private MergePlan $mergePlan,
-        private DataModifiers $dataModifiers,
-        private string $environment,
+        private readonly ConfigPaths $paths,
+        private readonly MergePlan $mergePlan,
+        private readonly DataModifiers $dataModifiers,
+        private readonly string $environment,
     ) {
     }
 

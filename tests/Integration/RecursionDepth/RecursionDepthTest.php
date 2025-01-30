@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\RecursionDepth;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\Config\Modifier\RecursiveMerge;
 use Yiisoft\Config\Modifier\ReverseMerge;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
@@ -253,9 +254,7 @@ final class RecursionDepthTest extends IntegrationTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataBase
-     */
+    #[DataProvider('dataBase')]
     public function testBase(array $expected, ?int $depth, bool $reverse = false): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(

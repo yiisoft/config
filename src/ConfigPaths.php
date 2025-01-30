@@ -15,8 +15,8 @@ use function trim;
  */
 final class ConfigPaths
 {
-    private string $configPath;
-    private string $vendorPath;
+    private readonly string $configPath;
+    private readonly string $vendorPath;
 
     /**
      * @param string $rootPath The absolute path to the project root where `composer.json` is located.
@@ -24,9 +24,9 @@ final class ConfigPaths
      * @param string|null $vendorDirectory The relative path to the vendor directory.
      */
     public function __construct(
-        private string $rootPath,
-        string $configDirectory = null,
-        string $vendorDirectory = null,
+        private readonly string $rootPath,
+        ?string $configDirectory = null,
+        ?string $vendorDirectory = null,
     ) {
         $configDirectory = trim($configDirectory ?? Options::DEFAULT_CONFIG_DIRECTORY, '/');
         $this->configPath = $rootPath . ($configDirectory === '' ? '' : "/$configDirectory");

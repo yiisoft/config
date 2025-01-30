@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Composer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Config\Composer\Options;
 
 final class OptionsTest extends TestCase
 {
-    public function buildMergePlanDataProvider(): array
+    public static function buildMergePlanDataProvider(): array
     {
         return [
             'true' => [true],
@@ -20,9 +21,7 @@ final class OptionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider buildMergePlanDataProvider
-     */
+    #[DataProvider('buildMergePlanDataProvider')]
     public function testBuildMergePlanTrue(mixed $value): void
     {
         $options = new Options([
@@ -33,7 +32,7 @@ final class OptionsTest extends TestCase
         $this->assertTrue($options->buildMergePlan());
     }
 
-    public function noBuildMergePlanDataProvider(): array
+    public static function noBuildMergePlanDataProvider(): array
     {
         return [
             'false' => [false],
@@ -44,9 +43,7 @@ final class OptionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider noBuildMergePlanDataProvider
-     */
+    #[DataProvider('noBuildMergePlanDataProvider')]
     public function testBuildMergePlanFalse(mixed $value): void
     {
         $options = new Options([
@@ -57,7 +54,7 @@ final class OptionsTest extends TestCase
         $this->assertFalse($options->buildMergePlan());
     }
 
-    public function packagePatternDataProvider(): array
+    public static function packagePatternDataProvider(): array
     {
         return [
             'string' => ['vendor-name/*'],
@@ -65,9 +62,7 @@ final class OptionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider packagePatternDataProvider
-     */
+    #[DataProvider('packagePatternDataProvider')]
     public function testVendorOverrideLayerPackages(array|string $packages): void
     {
         $options = new Options([
@@ -79,7 +74,7 @@ final class OptionsTest extends TestCase
         $this->assertSame((array) $packages, $options->vendorOverrideLayerPackages());
     }
 
-    public function directoryDataProvider(): array
+    public static function directoryDataProvider(): array
     {
         return [
             ['', ''],
@@ -94,9 +89,7 @@ final class OptionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider directoryDataProvider
-     */
+    #[DataProvider('directoryDataProvider')]
     public function testSourceDirectory(string $expected, string $path): void
     {
         $options = new Options([

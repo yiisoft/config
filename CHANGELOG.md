@@ -7,6 +7,8 @@
 - Enh #172, #173: Refactoring: extract config settings reader to separate class (@vjik)
 - Chg #175: Raise minimum Composer version to 2.3 (@vjik)
 - Enh #175: Minor refactoring of internal classes `Options` and `ProcessHelper` (@vjik)
+- Bug #186: Explicitly mark nullable parameters (@vjik)
+- Enh #186: Raise the minimum PHP version to 8.1 and minor refactoring (@vjik)
 
 ## 1.5.0 December 25, 2023
 

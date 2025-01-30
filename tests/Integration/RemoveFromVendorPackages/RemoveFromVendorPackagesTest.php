@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\RemoveFromVendorPackages;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\Config\Modifier\RecursiveMerge;
 use Yiisoft\Config\Modifier\RemoveFromVendor;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
@@ -136,9 +137,7 @@ final class RemoveFromVendorPackagesTest extends IntegrationTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataBase
-     */
+    #[DataProvider('dataBase')]
     public function testBase(object $modifier, array $params1, array $params2): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(

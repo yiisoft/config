@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\PackageTypes;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
 final class PackageTypesTest extends IntegrationTestCase
@@ -33,9 +34,7 @@ final class PackageTypesTest extends IntegrationTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataBase
-     */
+    #[DataProvider('dataBase')]
     public function testBase(array $expected, ?array $packageTypes): void
     {
         $configPluginOptions = $packageTypes === null

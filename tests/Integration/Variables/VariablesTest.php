@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config\Tests\Integration\Variables;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\Config\Modifier\ReverseMerge;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
@@ -45,7 +46,7 @@ final class VariablesTest extends IntegrationTestCase
         );
     }
 
-    public function dataDefaultEnvironment(): array
+    public static function dataDefaultEnvironment(): array
     {
         return [
             'null' => [null],
@@ -54,9 +55,7 @@ final class VariablesTest extends IntegrationTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataDefaultEnvironment
-     */
+    #[DataProvider('dataDefaultEnvironment')]
     public function testDefaultEnvironment(?string $environment): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(
