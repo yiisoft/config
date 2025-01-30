@@ -9,6 +9,7 @@
 - Enh #175: Minor refactoring of internal classes `Options` and `ProcessHelper` (@vjik)
 - Bug #186: Explicitly mark nullable parameters (@vjik)
 - Enh #186: Raise the minimum PHP version to 8.1 and minor refactoring (@vjik)
+- Chg #187: Change PHP constraint in `composer.json` to `~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0` (@vjik)
 
 ## 1.5.0 December 25, 2023
 
