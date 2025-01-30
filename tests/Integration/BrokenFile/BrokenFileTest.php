@@ -9,6 +9,9 @@ use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
 final class BrokenFileTest extends IntegrationTestCase
 {
+    /**
+     * @requires PHP < 8.4
+     */
     public function testBase(): void
     {
         $config = $this->runComposerUpdateAndCreateConfig(
