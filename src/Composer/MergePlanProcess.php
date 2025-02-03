@@ -150,6 +150,7 @@ final class MergePlanProcess
         );
         (new Filesystem())->ensureDirectoryExists(dirname($filePath));
 
+        /** @var string $oldContent */
         $oldContent = is_file($filePath) ? file_get_contents($filePath) : '';
 
         $content = '<?php'

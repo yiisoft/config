@@ -52,6 +52,7 @@ final class ConfigSettings
 
     public static function forRootPackage(Composer $composer): self
     {
+        /** @psalm-suppress PossiblyFalseArgument */
         return new self(
             realpath(dirname(Factory::getComposerFile())),
             $composer->getPackage()->getExtra(),
