@@ -44,9 +44,6 @@
         "spatie/phpunit-watcher": "^1.24",
         "vimeo/psalm": "^5.26.1|^6.1"
     },
-    "suggest": {
-        "symfony/console": "To use composer commands `yii-config-copy` and `yii-config-rebuild`."
-    },
     "config": {
         "sort-packages": true,
         "bump-after-update": "dev",
@@ -68,6 +65,7 @@
     },
     "extra": {
         "class": "Yiisoft\\Config\\Composer\\EventHandler",
+        "bump-after-update": "dev",
         "bamarni-bin": {
             "bin-links": true,
             "target-directory": "tools",
