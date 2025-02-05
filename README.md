@@ -646,7 +646,7 @@ composer yii-config-rebuild
 
 ### `yii-config-info`
 
-The `yii-config-rebuild` command displays application or package configuration details.
+The `yii-config-info` command displays application or package configuration details.
 
 ```shell
 composer yii-config-info
