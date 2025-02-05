@@ -1,5 +1,9 @@
 # Yii Config Change Log
 
+## 1.6.1 under development
+
+- no changes in this release.
+
 ## 1.6.0 February 05, 2025
 
 - New #173: Allow to use option "config-plugin-file" in packages (@vjik)
