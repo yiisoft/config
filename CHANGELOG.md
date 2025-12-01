@@ -1,6 +1,6 @@
 # Yii Config Change Log
 
-## 1.6.1 under development
+## 1.6.1 December 01, 2025
 
 - Enh #190: Add PHP 8.5 support (@vjik)
 
