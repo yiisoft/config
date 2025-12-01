@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Config;
 
 use ErrorException;
-
 use Yiisoft\Config\Composer\Options;
 
 use function extract;
