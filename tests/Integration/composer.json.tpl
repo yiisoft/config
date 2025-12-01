@@ -40,7 +40,7 @@
             "url": "../../../vendor/yiisoft/strings",
             "options": {
                 "versions": {
-                    "yiisoft/strings": "2.1"
+                    "yiisoft/strings": "2.6"
                 }
             }
         }
