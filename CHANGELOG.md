@@ -1,5 +1,9 @@
 # Yii Config Change Log
 
+## 1.6.3 under development
+
+- no changes in this release.
+
 ## 1.6.2 December 19, 2025
 
 - Enh #192: Add Symfony Console 8 support (@vjik)
