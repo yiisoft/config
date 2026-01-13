@@ -42,7 +42,7 @@ final class VariablesTest extends IntegrationTestCase
                 'b' => 2,
                 'a' => 1,
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 
@@ -86,7 +86,7 @@ final class VariablesTest extends IntegrationTestCase
                 'a' => 1,
                 'b' => 2,
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 }

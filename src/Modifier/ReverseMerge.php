@@ -73,8 +73,7 @@ final class ReverseMerge
      */
     private function __construct(
         private readonly array $groups,
-    ) {
-    }
+    ) {}
 
     public static function groups(string ...$groups): self
     {

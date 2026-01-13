@@ -7,6 +7,8 @@ namespace Integration\InfoCommandTest;
 use Yiisoft\Config\Composer\Options;
 use Yiisoft\Config\Tests\Integration\IntegrationTestCase;
 
+use const DIRECTORY_SEPARATOR;
+
 final class InfoCommandTest extends IntegrationTestCase
 {
     public function testRootPackage(): void
@@ -19,12 +21,12 @@ final class InfoCommandTest extends IntegrationTestCase
             '~Merge plan file path\s*'
             . preg_quote($rootPath . '/config/' . Options::DEFAULT_MERGE_PLAN_FILE, '~')
             . '~',
-            $output
+            $output,
         );
         $this->assertMatchesRegularExpression('~Package types\s*library, composer-plugin~', $output);
         $this->assertMatchesRegularExpression(
             '~Source directory\s*' . preg_quote($rootPath . '/config', '~') . '~',
-            $output
+            $output,
         );
         $this->assertMatchesRegularExpression('~Vendor override layer packages\s*not set~', $output);
         $this->assertStringContainsString('Configuration groups', $output);
@@ -42,7 +44,7 @@ final class InfoCommandTest extends IntegrationTestCase
         $this->assertStringContainsString('Yii Config — Package "test/a"', $output);
         $this->assertStringContainsString(
             'Source directory: ' . $rootPath . DIRECTORY_SEPARATOR . 'vendor/test/a/config',
-            $output
+            $output,
         );
         $this->assertStringContainsString('Configuration groups', $output);
         $this->assertStringContainsString('- params.php', $output);

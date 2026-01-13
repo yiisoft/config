@@ -14,6 +14,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Yiisoft\Config\Composer\ConfigSettings;
 use Yiisoft\Config\Composer\Options;
 
+use function is_string;
+
 final class InfoCommand extends BaseCommand
 {
     protected function configure(): void

@@ -21,7 +21,7 @@ final class RemoveGroupsFromVendorTest extends TestCase
                 '*' => ['params'],
                 'yiisoft/view' => ['params', 'common'],
             ],
-            $modifier->getGroups()
+            $modifier->getGroups(),
         );
     }
 }

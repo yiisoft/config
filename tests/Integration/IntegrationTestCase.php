@@ -63,7 +63,7 @@ abstract class IntegrationTestCase extends TestCase
             $packages,
             $extra,
             $configDirectory,
-            $mergePlanFile
+            $mergePlanFile,
         );
 
         return $this->runComposerCommand(
@@ -75,7 +75,7 @@ abstract class IntegrationTestCase extends TestCase
             $packages,
             $extra,
             $configDirectory,
-            $mergePlanFile
+            $mergePlanFile,
         );
     }
 
@@ -92,7 +92,7 @@ abstract class IntegrationTestCase extends TestCase
             $packages,
             $extra,
             $configDirectory,
-            $mergePlanFile
+            $mergePlanFile,
         );
     }
 
@@ -176,12 +176,12 @@ abstract class IntegrationTestCase extends TestCase
 
         $requireItems = array_map(
             fn($package) => '"' . $package . '": "*"',
-            $require
+            $require,
         );
 
         $repositoriesItems = array_map(
             fn($path) => '{"type":"path","url":"' . str_replace('\\', '/', $path) . '"}',
-            $repositories
+            $repositories,
         );
 
         $composerJson = strtr(
@@ -190,7 +190,7 @@ abstract class IntegrationTestCase extends TestCase
                 '%REQUIRE%' => implode(', ', $requireItems),
                 '%REPOSITORIES%' => empty($repositoriesItems) ? '' : (implode(', ', $repositoriesItems) . ','),
                 '%EXTRA%' => json_encode($extra),
-            ]
+            ],
         );
 
         file_put_contents($rootPath . '/composer.json', $composerJson);

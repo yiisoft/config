@@ -31,7 +31,7 @@ final class DoubleDotInPathTest extends IntegrationTestCase
                 'a' => 1,
                 'b' => 2,
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 }

@@ -48,7 +48,7 @@ final class ComplexTest extends IntegrationTestCase
                 'app-param1' => 1,
                 'app-param2' => 2,
             ],
-            $config->get('params')
+            $config->get('params'),
         );
         $this->assertSame(
             [
@@ -62,7 +62,7 @@ final class ComplexTest extends IntegrationTestCase
                 'common' => 99,
                 'web' => 7,
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 }

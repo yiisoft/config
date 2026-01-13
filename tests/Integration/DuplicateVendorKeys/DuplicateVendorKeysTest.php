@@ -31,9 +31,9 @@ final class DuplicateVendorKeysTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - vendor/test/a/params.php' . "\n" .
-            ' - vendor/test/b/params.php'
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n"
+            . ' - vendor/test/a/params.php' . "\n"
+            . ' - vendor/test/b/params.php',
         );
         $config->get('params');
     }
@@ -60,9 +60,9 @@ final class DuplicateVendorKeysTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - vendor/test/a/params.php' . "\n" .
-            ' - vendor/test/b/params.php'
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n"
+            . ' - vendor/test/a/params.php' . "\n"
+            . ' - vendor/test/b/params.php',
         );
         $config->get('params');
     }

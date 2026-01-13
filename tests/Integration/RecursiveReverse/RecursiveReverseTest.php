@@ -41,7 +41,7 @@ final class RecursiveReverseTest extends IntegrationTestCase
                     'nested-key' => [7, 8, 9, 4, 5, 6, 1, 2, 3],
                 ],
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 
@@ -76,7 +76,7 @@ final class RecursiveReverseTest extends IntegrationTestCase
                     'nested-key' => [7, 8, 9],
                 ],
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 }

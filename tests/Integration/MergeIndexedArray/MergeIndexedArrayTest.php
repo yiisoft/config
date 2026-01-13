@@ -43,7 +43,7 @@ final class MergeIndexedArrayTest extends IntegrationTestCase
                     'app-2',
                 ],
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 }

@@ -6,6 +6,7 @@ namespace Yiisoft\Config;
 
 use ErrorException;
 use Yiisoft\Config\Composer\Options;
+use Yiisoft\Config\Composer\EventHandler;
 
 use function extract;
 use function func_get_arg;
@@ -14,8 +15,11 @@ use function set_error_handler;
 use function sprintf;
 use function substr;
 
+use const EXTR_SKIP;
+use const E_USER_ERROR;
+
 /**
- * Config takes merge plan prepared by {@see \Yiisoft\Config\Composer\EventHandler}
+ * Config takes merge plan prepared by {@see EventHandler}
  * and executes actual merge for the config group specified.
  */
 final class Config implements ConfigInterface

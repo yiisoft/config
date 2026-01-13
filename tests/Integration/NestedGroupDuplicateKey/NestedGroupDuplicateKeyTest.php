@@ -30,9 +30,9 @@ final class NestedGroupDuplicateKeyTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'Duplicate key "key" in the following configs while building "di-web" group:' . "\n" .
-            ' - di-web.php' . "\n" .
-            ' - di.php'
+            'Duplicate key "key" in the following configs while building "di-web" group:' . "\n"
+            . ' - di-web.php' . "\n"
+            . ' - di.php',
         );
         $config->get('di-web');
     }

@@ -8,6 +8,8 @@ use Composer\Composer;
 use Composer\Factory;
 use Composer\Package\BasePackage;
 
+use function dirname;
+
 /**
  * @internal
  * @psalm-type PackageConfigurationType = array<string, string|list<string>>

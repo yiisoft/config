@@ -41,7 +41,7 @@ final class RemoveFromVendorTest extends IntegrationTestCase
                 ],
                 'app' => 42,
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 
@@ -76,7 +76,7 @@ final class RemoveFromVendorTest extends IntegrationTestCase
                     'nested3' => 3,
                 ],
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 }

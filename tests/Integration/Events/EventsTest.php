@@ -55,7 +55,7 @@ final class EventsTest extends IntegrationTestCase
                     ['package-b2', 'handler1'],
                 ],
             ],
-            $config->get('events-console')
+            $config->get('events-console'),
         );
     }
 
@@ -103,7 +103,7 @@ final class EventsTest extends IntegrationTestCase
                     ['app2', 'handler2'],
                 ],
             ],
-            $config->get('events-console')
+            $config->get('events-console'),
         );
     }
 }

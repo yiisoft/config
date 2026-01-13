@@ -41,7 +41,7 @@ final class NestedInEnvironmentTest extends IntegrationTestCase
                 'env-base' => 8,
                 'app-backend' => 2,
             ],
-            $config->get('definitions-backend')
+            $config->get('definitions-backend'),
         );
     }
 }

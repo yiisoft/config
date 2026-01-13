@@ -46,7 +46,7 @@ final class CustomMergePlanFileTest extends IntegrationTestCase
                 'b-params-key' => 'b-params-value',
                 'root-params-key' => 'root-params-value',
             ],
-            $config->get('params')
+            $config->get('params'),
         );
         $this->assertSame(
             [
@@ -56,7 +56,7 @@ final class CustomMergePlanFileTest extends IntegrationTestCase
                 'b-web-environment-override-key' => 'b-web-override-value',
                 'root-web-key' => 'root-params-value',
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 }

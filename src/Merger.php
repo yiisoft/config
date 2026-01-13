@@ -17,6 +17,8 @@ use function sprintf;
 use function substr_count;
 use function usort;
 
+use const E_USER_ERROR;
+
 /**
  * @internal
  */
@@ -34,8 +36,7 @@ final class Merger
     public function __construct(
         private readonly ConfigPaths $configPaths,
         private readonly DataModifiers $dataModifiers,
-    ) {
-    }
+    ) {}
 
     public function reset(): void
     {
@@ -87,7 +88,7 @@ final class Merger
         array $recursiveKeyPath,
         array $arrayA,
         array $arrayB,
-        int|null|false $recursionDepth,
+        int|false|null $recursionDepth,
         bool $isReverseMerge,
         int $depth = 0,
     ): array {
@@ -128,7 +129,7 @@ final class Merger
                         $recursionDepth,
                         $isReverseMerge,
                         $depth + 1,
-                    )
+                    ),
                 );
                 continue;
             }
@@ -139,7 +140,7 @@ final class Merger
                 /** @var string|null $file */
                 $file = ArrayHelper::getValue(
                     $this->cacheKeys,
-                    array_merge([$context->layer()], $fullKeyPath)
+                    array_merge([$context->layer()], $fullKeyPath),
                 );
 
                 if ($file !== null) {
@@ -155,7 +156,7 @@ final class Merger
                     ArrayHelper::setValue(
                         $this->cacheKeys,
                         array_merge([$context->layer()], $fullKeyPath),
-                        $context->file()
+                        $context->file(),
                     );
                 }
             }
@@ -173,7 +174,7 @@ final class Merger
         Context $context,
         array $recursiveKeyPath,
         array $array,
-        bool $isRecursiveMerge
+        bool $isRecursiveMerge,
     ): array {
         $result = [];
 
@@ -202,7 +203,7 @@ final class Merger
             /** @var string|null $file */
             $file = ArrayHelper::getValue(
                 $this->cacheKeys,
-                array_merge([$context->layer()], $recursiveKeyPath)
+                array_merge([$context->layer()], $recursiveKeyPath),
             );
 
             if ($file !== null) {
@@ -215,7 +216,7 @@ final class Merger
             ArrayHelper::setValue(
                 $this->cacheKeys,
                 array_merge([$context->layer()], $recursiveKeyPath),
-                $context->file()
+                $context->file(),
             );
         }
 
@@ -249,10 +250,10 @@ final class Merger
     private function throwDuplicateKeyErrorException(
         string $currentGroupName,
         array $recursiveKeyPath,
-        array $absoluteFilePaths
+        array $absoluteFilePaths,
     ): void {
         $filePaths = array_map(
-            fn (string $filePath) => ' - ' . $this->configPaths->relative($filePath),
+            fn(string $filePath) => ' - ' . $this->configPaths->relative($filePath),
             $absoluteFilePaths,
         );
 

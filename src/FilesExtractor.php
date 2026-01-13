@@ -13,6 +13,8 @@ use function is_file;
 use function sprintf;
 use function substr;
 
+use const E_USER_ERROR;
+
 /**
  * @internal
  */
@@ -23,8 +25,7 @@ final class FilesExtractor
         private readonly MergePlan $mergePlan,
         private readonly DataModifiers $dataModifiers,
         private readonly string $environment,
-    ) {
-    }
+    ) {}
 
     /**
      * Extracts group configuration data from files.
@@ -47,8 +48,8 @@ final class FilesExtractor
                 $this->process(
                     $environment,
                     $group,
-                    $this->mergePlan->getGroup($group, $environment)
-                )
+                    $this->mergePlan->getGroup($group, $environment),
+                ),
             );
         }
 
@@ -65,8 +66,8 @@ final class FilesExtractor
     public function hasGroup(string $group): bool
     {
         return $this->mergePlan->hasGroup($group, $this->environment) || (
-            $this->environment !== Options::DEFAULT_ENVIRONMENT &&
-            $this->mergePlan->hasGroup($group, Options::DEFAULT_ENVIRONMENT)
+            $this->environment !== Options::DEFAULT_ENVIRONMENT
+            && $this->mergePlan->hasGroup($group, Options::DEFAULT_ENVIRONMENT)
         );
     }
 
@@ -151,8 +152,8 @@ final class FilesExtractor
     {
         if (!$this->mergePlan->hasGroup($group, $this->environment)) {
             if (
-                $this->environment === Options::DEFAULT_ENVIRONMENT ||
-                !$this->mergePlan->hasGroup($group, Options::DEFAULT_ENVIRONMENT)
+                $this->environment === Options::DEFAULT_ENVIRONMENT
+                || !$this->mergePlan->hasGroup($group, Options::DEFAULT_ENVIRONMENT)
             ) {
                 $this->throwException(sprintf('The "%s" configuration group does not exist.', $group));
             }

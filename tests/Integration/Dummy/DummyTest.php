@@ -59,7 +59,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-common-nested-key-1' => 'root-common-nested-value-1',
                 'root-common-nested-key-2' => 'root-common-nested-value-2',
             ],
-            $config->get('common')
+            $config->get('common'),
         );
 
         $this->assertSame(
@@ -72,7 +72,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-params-key' => 'root-params-value',
                 'root-params-local-key' => 'root-params-local-value',
             ],
-            $config->get('params')
+            $config->get('params'),
         );
 
         $this->assertSame(
@@ -95,7 +95,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'root-web-key' => 'root-web-value',
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 
@@ -119,7 +119,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-common-nested-key-1' => 'root-common-nested-value-1',
                 'root-common-nested-key-2' => 'root-common-nested-value-2',
             ],
-            $config->get('common')
+            $config->get('common'),
         );
 
         $this->assertSame(
@@ -132,7 +132,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-params-key' => 'root-params-value',
                 'root-params-local-key' => 'root-params-local-value',
             ],
-            $config->get('params')
+            $config->get('params'),
         );
 
         $this->assertSame(
@@ -155,7 +155,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'root-web-key' => 'root-web-value',
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 
@@ -179,7 +179,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-common-nested-key-1' => 'root-common-nested-value-1',
                 'root-common-nested-key-2' => 'root-common-nested-value-2',
             ],
-            $config->get('common')
+            $config->get('common'),
         );
 
         $this->assertSame(
@@ -205,7 +205,7 @@ final class DummyTest extends IntegrationTestCase
                 'alfa-web2-key' => 'alfa-web2-value',
                 'alfa-main-key' => 'alfa-main-value',
             ],
-            $config->get('main')
+            $config->get('main'),
         );
 
         $this->assertSame(
@@ -219,7 +219,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-params-local-key' => 'root-params-local-value',
                 'alfa-params-key' => 'alfa-params-value',
             ],
-            $config->get('params')
+            $config->get('params'),
         );
 
         $this->assertSame(
@@ -244,7 +244,7 @@ final class DummyTest extends IntegrationTestCase
                 'alfa-web-key' => 'alfa-web-value',
                 'alfa-web2-key' => 'alfa-web2-value',
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 
@@ -268,7 +268,7 @@ final class DummyTest extends IntegrationTestCase
                 'beta-params-isset-config' => false,
                 'beta-params-isset-params' => false,
             ],
-            $config->get('params')
+            $config->get('params'),
         );
 
         $this->assertSame(
@@ -294,7 +294,7 @@ final class DummyTest extends IntegrationTestCase
                 'beta-web-isset-config' => true,
                 'beta-web-isset-params' => true,
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 
@@ -320,7 +320,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'beta-events-key' => 'beta-events-value',
             ],
-            $config->get('events')
+            $config->get('events'),
         );
     }
 
@@ -329,7 +329,7 @@ final class DummyTest extends IntegrationTestCase
         $config = $this->prepareConfig(
             modifiers: [
                 ReverseMerge::groups('common', 'params'),
-            ]
+            ],
         );
 
         $this->assertSame(
@@ -345,7 +345,7 @@ final class DummyTest extends IntegrationTestCase
                 'b-common-key' => 'b-common-value',
                 'a-common-key' => 'a-common-value',
             ],
-            $config->get('common')
+            $config->get('common'),
         );
 
         $this->assertSame(
@@ -358,7 +358,7 @@ final class DummyTest extends IntegrationTestCase
                 'b-params-key' => 'b-params-value',
                 'a-params-key' => 'a-params-value',
             ],
-            $config->get('params')
+            $config->get('params'),
         );
 
         $this->assertSame(
@@ -381,7 +381,7 @@ final class DummyTest extends IntegrationTestCase
                 'root-common-nested-key-2' => 'root-common-nested-value-2',
                 'root-web-key' => 'root-web-value',
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 
@@ -416,7 +416,7 @@ final class DummyTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.'
+            'The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.',
         );
         $config->get('failVariableGroupEqual');
     }
@@ -427,7 +427,7 @@ final class DummyTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.'
+            'The variable "$failVariableGroupEqual" must not be located inside the "failVariableGroupEqual" config group.',
         );
         $config->get('failVariableGroupEqual');
     }

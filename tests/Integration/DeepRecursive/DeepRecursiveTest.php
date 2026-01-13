@@ -41,7 +41,7 @@ final class DeepRecursiveTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 }

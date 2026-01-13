@@ -16,8 +16,7 @@ final class MergePlan
      */
     public function __construct(
         private array $mergePlan = [],
-    ) {
-    }
+    ) {}
 
     /**
      * Adds an item to the merge plan.
@@ -31,7 +30,7 @@ final class MergePlan
         string $file,
         string $package,
         string $group,
-        string $environment = Options::DEFAULT_ENVIRONMENT
+        string $environment = Options::DEFAULT_ENVIRONMENT,
     ): void {
         $this->mergePlan[$environment][$group][$package][] = $file;
     }
@@ -48,7 +47,7 @@ final class MergePlan
         array $files,
         string $package,
         string $group,
-        string $environment = Options::DEFAULT_ENVIRONMENT
+        string $environment = Options::DEFAULT_ENVIRONMENT,
     ): void {
         $this->mergePlan[$environment][$group][$package] = $files;
     }
