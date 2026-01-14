@@ -32,7 +32,7 @@ final class RecursiveTest extends IntegrationTestCase
                 RemoveFromVendor::keys(
                     ['b-params-key'],
                     ['array'],
-                    ['nested', 'a']
+                    ['nested', 'a'],
                 ),
             ],
         );
@@ -47,7 +47,7 @@ final class RecursiveTest extends IntegrationTestCase
                 'root-params-key' => 'root-params-value',
                 'array' => [7, 8, 9],
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 }

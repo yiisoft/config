@@ -35,7 +35,7 @@ final class BaseWithEnvironmentTest extends IntegrationTestCase
                 'b' => 99,
                 'c' => 3,
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 
@@ -64,7 +64,7 @@ final class BaseWithEnvironmentTest extends IntegrationTestCase
                 'b' => 2,
                 'c' => 3,
             ],
-            $config->get('params')
+            $config->get('params'),
         );
     }
 }

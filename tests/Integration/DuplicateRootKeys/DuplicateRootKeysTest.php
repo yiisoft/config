@@ -31,9 +31,9 @@ final class DuplicateRootKeysTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/params/a.php' . "\n" .
-            ' - config/params/b.php'
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n"
+            . ' - config/params/a.php' . "\n"
+            . ' - config/params/b.php',
         );
         $config->get('params');
     }
@@ -60,9 +60,9 @@ final class DuplicateRootKeysTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/params/a.php' . "\n" .
-            ' - config/params/b.php'
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n"
+            . ' - config/params/a.php' . "\n"
+            . ' - config/params/b.php',
         );
         $config->get('params');
     }

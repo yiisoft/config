@@ -160,7 +160,7 @@ final class RemoveFromVendorPackagesTest extends IntegrationTestCase
             modifiers: [
                 RecursiveMerge::groups('params1', 'params2'),
                 $modifier,
-            ]
+            ],
         );
 
         $this->assertSame($params1, $config->get('params1'));

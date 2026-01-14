@@ -57,7 +57,7 @@ final class DataModifiers
             if ($modifier instanceof RecursiveMerge) {
                 array_unshift(
                     $recursiveMergeGroups,
-                    array_fill_keys($modifier->getGroups(), $modifier->getDepth())
+                    array_fill_keys($modifier->getGroups(), $modifier->getDepth()),
                 );
                 continue;
             }
@@ -109,7 +109,7 @@ final class DataModifiers
      * - `null` - depth is not limited (infinite recursion).
      * - `false` - recursion is disabled.
      */
-    public function getRecursionDepth(string $group): int|null|false
+    public function getRecursionDepth(string $group): int|false|null
     {
         if (!array_key_exists($group, $this->mergedGroupsRecursionDepthMap)) {
             return false;

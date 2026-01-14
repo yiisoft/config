@@ -77,8 +77,8 @@ final class PackageFilesProcess
                     }
 
                     if (
-                        Options::isVariable($file) ||
-                        (!empty($packageNames) && !in_array($package->getPrettyName(), $packageNames, true))
+                        Options::isVariable($file)
+                        || (!empty($packageNames) && !in_array($package->getPrettyName(), $packageNames, true))
                     ) {
                         continue;
                     }

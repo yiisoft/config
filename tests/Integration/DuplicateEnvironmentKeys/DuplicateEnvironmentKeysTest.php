@@ -37,9 +37,9 @@ final class DuplicateEnvironmentKeysTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/environment/params/a.php' . "\n" .
-            ' - config/environment/params/b.php'
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n"
+            . ' - config/environment/params/a.php' . "\n"
+            . ' - config/environment/params/b.php',
         );
         $config->get('params');
     }
@@ -72,9 +72,9 @@ final class DuplicateEnvironmentKeysTest extends IntegrationTestCase
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage(
-            'Duplicate key "age" in the following configs while building "params" group:' . "\n" .
-            ' - config/environment/params/a.php' . "\n" .
-            ' - config/environment/params/b.php'
+            'Duplicate key "age" in the following configs while building "params" group:' . "\n"
+            . ' - config/environment/params/a.php' . "\n"
+            . ' - config/environment/params/b.php',
         );
         $config->get('params');
     }

@@ -22,8 +22,7 @@ final class Context
         private readonly int $layer,
         private readonly string $file,
         private readonly bool $isVariable,
-    ) {
-    }
+    ) {}
 
     public function setOriginalGroup(string $group): self
     {

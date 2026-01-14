@@ -19,8 +19,7 @@ final class PackagesListBuilder
     public function __construct(
         private readonly Composer $composer,
         private readonly array $packageTypes,
-    ) {
-    }
+    ) {}
 
     /**
      * Builds and returns packages.
@@ -77,7 +76,7 @@ final class PackagesListBuilder
         array &$packageDepths,
         int $depth,
         PackageInterface $package,
-        bool $includingDev
+        bool $includingDev,
     ): void {
         $name = $package->getPrettyName();
 

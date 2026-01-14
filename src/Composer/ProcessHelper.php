@@ -44,7 +44,7 @@ final class ProcessHelper
         );
         $this->packages = (new PackagesListBuilder(
             $this->composer,
-            $this->appConfigSettings->options()->packageTypes()
+            $this->appConfigSettings->options()->packageTypes(),
         ))->build();
     }
 

@@ -2,7 +2,7 @@
 
 ## 1.6.3 under development
 
-- no changes in this release.
+- Enh #193: Explicitly import classes, functions, and constants in "use" section (@mspirkov)
 
 ## 1.6.2 December 19, 2025
 

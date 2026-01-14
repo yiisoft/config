@@ -33,7 +33,7 @@ final class WithoutParamsTest extends IntegrationTestCase
                 'b-web-environment-override-key' => 'b-web-override-value',
                 'root-web-key' => 42,
             ],
-            $config->get('web')
+            $config->get('web'),
         );
     }
 }

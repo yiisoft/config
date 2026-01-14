@@ -17,6 +17,9 @@ use function is_file;
 use function ksort;
 use function strtr;
 use function substr;
+use function dirname;
+
+use const LOCK_EX;
 
 /**
  * @internal
@@ -146,7 +149,7 @@ final class MergePlanProcess
         ksort($mergePlan);
 
         $filePath = $this->helper->getPaths()->absolute(
-            $this->helper->getMergePlanFile()
+            $this->helper->getMergePlanFile(),
         );
         (new Filesystem())->ensureDirectoryExists(dirname($filePath));
 
@@ -174,7 +177,7 @@ final class MergePlanProcess
     private function normalizePackageFilePath(
         PackageInterface $package,
         string $absoluteFilePath,
-        bool $isVendorOverrideLayer
+        bool $isVendorOverrideLayer,
     ): string {
         if ($isVendorOverrideLayer) {
             return $this->helper->getRelativePackageFilePathWithPackageName($package, $absoluteFilePath);

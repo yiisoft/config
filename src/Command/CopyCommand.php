@@ -18,6 +18,8 @@ use function strlen;
 use function substr;
 use function trim;
 
+use const PATHINFO_EXTENSION;
+
 /**
  * `CopyCommand` copies the package configuration files from the vendor to the application.
  */
