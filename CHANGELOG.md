@@ -4,6 +4,7 @@
 
 - Enh #193: Explicitly import classes, functions, and constants in "use" section (@mspirkov)
 - Enh #194: Remove unnecessary files from Composer package (@mspirkov)
+- New #195: Add `auto-rebuild` option to automatically rebuild merge plan on every Composer autoload regeneration (@copilot)
 
 ## 1.6.2 December 19, 2025
 

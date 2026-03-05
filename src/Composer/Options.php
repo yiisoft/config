@@ -24,6 +24,7 @@ final class Options
 
     private string $mergePlanFile = self::DEFAULT_MERGE_PLAN_FILE;
     private bool $buildMergePlan = true;
+    private bool $autoRebuild = false;
 
     /**
      * @var string[]
@@ -51,6 +52,10 @@ final class Options
 
         if (isset($options['build-merge-plan'])) {
             $this->buildMergePlan = (bool) $options['build-merge-plan'];
+        }
+
+        if (isset($options['auto-rebuild'])) {
+            $this->autoRebuild = (bool) $options['auto-rebuild'];
         }
 
         if (isset($options['vendor-override-layer'])) {
@@ -95,6 +100,11 @@ final class Options
     public function buildMergePlan(): bool
     {
         return $this->buildMergePlan;
+    }
+
+    public function autoRebuild(): bool
+    {
+        return $this->autoRebuild;
     }
 
     /**

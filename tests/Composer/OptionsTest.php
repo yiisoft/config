@@ -104,6 +104,7 @@ final class OptionsTest extends TestCase
     {
         $options = new Options([]);
         $this->assertTrue($options->buildMergePlan());
+        $this->assertFalse($options->autoRebuild());
         $this->assertSame([], $options->vendorOverrideLayerPackages());
         $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
     }
@@ -114,7 +115,52 @@ final class OptionsTest extends TestCase
             'config-plugin-options' => true,
         ]);
         $this->assertTrue($options->buildMergePlan());
+        $this->assertFalse($options->autoRebuild());
         $this->assertSame([], $options->vendorOverrideLayerPackages());
         $this->assertSame(Options::DEFAULT_CONFIG_DIRECTORY, $options->sourceDirectory());
+    }
+
+    public static function autoRebuildTrueDataProvider(): array
+    {
+        return [
+            'true' => [true],
+            'int' => [1],
+            'string' => ['yes'],
+            'string-int' => ['1'],
+            'array' => [['']],
+        ];
+    }
+
+    #[DataProvider('autoRebuildTrueDataProvider')]
+    public function testAutoRebuildTrue(mixed $value): void
+    {
+        $options = new Options([
+            'config-plugin-options' => [
+                'auto-rebuild' => $value,
+            ],
+        ]);
+        $this->assertTrue($options->autoRebuild());
+    }
+
+    public static function autoRebuildFalseDataProvider(): array
+    {
+        return [
+            'false' => [false],
+            'int' => [0],
+            'string-int' => ['0'],
+            'empty-string' => [''],
+            'empty-array' => [[]],
+        ];
+    }
+
+    #[DataProvider('autoRebuildFalseDataProvider')]
+    public function testAutoRebuildFalse(mixed $value): void
+    {
+        $options = new Options([
+            'config-plugin-options' => [
+                'auto-rebuild' => $value,
+            ],
+        ]);
+        $this->assertFalse($options->autoRebuild());
     }
 }

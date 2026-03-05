@@ -80,6 +80,10 @@ final class InfoCommand extends BaseCommand
                 $options->buildMergePlan() ? '<fg=green>yes</>' : '<fg=red>no</>',
             ],
             [
+                'Auto rebuild',
+                $options->autoRebuild() ? '<fg=green>yes</>' : '<fg=gray>no</>',
+            ],
+            [
                 'Merge plan file path',
                 file_exists($mergePlanFilePath)
                     ? '<fg=green>' . $mergePlanFilePath . '</>'

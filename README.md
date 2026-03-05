@@ -321,6 +321,21 @@ This can be useful when developing. If the config package is a dependency of you
 and you do not need to create a merge plan file when developing your package.
 For example, this is implemented in [yiisoft/yii-runner](https://github.com/yiisoft/yii-runner).
 
+### `auto-rebuild`
+
+The `auto-rebuild` option enables automatic rebuilding of the merge plan on every Composer operation that
+regenerates the autoloader (such as `composer install`, `composer update`, or `composer dump-autoload`).
+When enabled, running `yii-config-rebuild` manually is no longer required. Disabled by default, to enable it,
+set the value to `true`:
+
+```json
+"extra": {
+    "config-plugin-options": {
+        "auto-rebuild": true
+    }
+}
+```
+
 ### `package-types`
 
 The `package-types` option define package types for process by composer plugin. By default, it is "library" and

@@ -23,6 +23,8 @@ use Yiisoft\Config\Command\ConfigCommandProvider;
 final class EventHandler implements PluginInterface, EventSubscriberInterface, Capable
 {
     private bool $runOnAutoloadDump = false;
+    private bool $autoRebuild = false;
+    private bool $processed = false;
 
     public static function getSubscribedEvents(): array
     {
@@ -49,7 +51,7 @@ final class EventHandler implements PluginInterface, EventSubscriberInterface, C
      */
     public function onPostAutoloadDump(Event $event): void
     {
-        if ($this->runOnAutoloadDump) {
+        if ($this->runOnAutoloadDump || $this->autoRebuild) {
             $this->processConfigs($event->getComposer());
         }
     }
@@ -66,7 +68,7 @@ final class EventHandler implements PluginInterface, EventSubscriberInterface, C
 
     public function activate(Composer $composer, IOInterface $io): void
     {
-        // do nothing
+        $this->autoRebuild = ConfigSettings::forRootPackage($composer)->options()->autoRebuild();
     }
 
     public function deactivate(Composer $composer, IOInterface $io): void
@@ -81,6 +83,10 @@ final class EventHandler implements PluginInterface, EventSubscriberInterface, C
 
     private function processConfigs(Composer $composer): void
     {
+        if ($this->processed) {
+            return;
+        }
+        $this->processed = true;
         new MergePlanProcess($composer);
     }
 }
