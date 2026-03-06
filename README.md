@@ -323,10 +323,10 @@ For example, this is implemented in [yiisoft/yii-runner](https://github.com/yiis
 
 ### `auto-rebuild`
 
-The `auto-rebuild` option enables automatic rebuilding of the merge plan on every Composer operation that
-regenerates the autoloader (such as `composer install`, `composer update`, or `composer dump-autoload`).
-When enabled, running `yii-config-rebuild` manually is no longer required. Disabled by default, to enable it,
-set the value to `true`:
+The `auto-rebuild` option enables automatic rebuilding of the merge plan at runtime when your application starts.
+When enabled, the merge plan is automatically rebuilt if `composer.json` or `composer.lock` has been modified since
+the last build, eliminating the need to manually run `yii-config-rebuild` or any Composer commands. The rebuild happens
+transparently when the `Config` class is instantiated. Disabled by default, to enable it, set the value to `true`:
 
 ```json
 "extra": {
@@ -335,6 +335,8 @@ set the value to `true`:
     }
 }
 ```
+
+> **Note**: This feature requires that the `composer` binary is available in the system PATH.
 
 ### `package-types`
 

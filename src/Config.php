@@ -51,6 +51,10 @@ final class Config implements ConfigInterface
     ) {
         $environment = empty($environment) ? Options::DEFAULT_ENVIRONMENT : $environment;
 
+        // Automatically rebuild merge plan if needed when auto-rebuild is enabled
+        $rebuilder = new RuntimeRebuilder($paths, $mergePlanFile);
+        $rebuilder->ensureMergePlanIsUpToDate();
+
         /** @psalm-suppress UnresolvableInclude, MixedArgument */
         $mergePlan = new MergePlan(require $paths->absolute($mergePlanFile));
 
