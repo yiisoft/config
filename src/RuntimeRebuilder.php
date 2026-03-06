@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Config;
 
-use Yiisoft\Config\Composer\Options;
-
 use function dirname;
 use function escapeshellarg;
 use function exec;
@@ -15,8 +13,6 @@ use function filemtime;
 use function is_array;
 use function is_file;
 use function json_decode;
-use function ltrim;
-use function rtrim;
 use function shell_exec;
 use function sprintf;
 
