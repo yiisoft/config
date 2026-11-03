@@ -70,9 +70,7 @@ final class MergePlan
      */
     public function addGroup(string $group, string $environment = Options::DEFAULT_ENVIRONMENT): void
     {
-        if (!isset($this->mergePlan[$environment][$group])) {
-            $this->mergePlan[$environment][$group] = [];
-        }
+        $this->mergePlan[$environment][$group] ??= [];
     }
 
     /**
